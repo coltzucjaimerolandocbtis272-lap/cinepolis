@@ -6,75 +6,133 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
+
+# Conexión con MongoDB
 mongo_uri = os.environ.get("MONGO_URI")
+
 if not mongo_uri:
     if os.environ.get("RENDER"):
         raise RuntimeError("Configura MONGO_URI en Render.")
     mongo_uri = "mongodb://127.0.0.1:27017/"
 
 cliente = MongoClient(mongo_uri, serverSelectionTimeoutMS=10000)
-base_datos = cliente["escuela_practica"]
-alumnos = base_datos["alumnos"]
+base_datos = cliente["cinepolis"]
+alumnos = base_datos["peliculas"]
 
-def leer_formulario():
-    nombre = request.form.get("nombre", "").strip()
-    grupo = request.form.get("grupo", "").strip()
-    turno = request.form.get("turno", "").strip()
-    if not nombre or not grupo or not turno:
-        abort(400, description="Completa nombre, grupo y turno.")
-    if len(nombre) > 80 or len(grupo) > 20:
-         abort(400, description="Usa hasta 80 caracteres en nombre y 20 en grupo.")
-    if turno not in ["Matutino", "Vespertino"]:
-        abort(400, description="Selecciona un turno válido.")
-    return {"nombre": nombre, "grupo": grupo, "turno": turno}
 
+# Leer y validar los datos del formulario o de la API
+def leer_formulario(datos=None):
+    if datos is None:
+        datos = request.form
+
+    campos = ("nombre", "categoria", "estado")
+
+    if any(not isinstance(datos.get(c, ""), str) for c in campos):
+        abort(400, description="Los campos deben contener texto.")
+
+    nombre = datos.get("nombre", "").strip()
+    categoria = datos.get("categoria", "").strip()
+    estado = datos.get("estado", "").strip()
+
+    if not nombre or not categoria or not estado:
+        abort(400, description="Completa nombre, categoría y estado.")
+
+    if len(nombre) > 80 or len(categoria) > 20:
+        abort(400, description="Máximo: nombre 80 y categoría 20.")
+
+    if estado not in ["Disponible", "Agotado"]:
+        abort(400, description="Selecciona un estado válido.")
+
+    return {
+        "nombre": nombre,
+        "categoria": categoria,
+        "estado": estado
+    }
+
+
+# Buscar una película por su identificador
 def buscar_alumno(id):
     if not ObjectId.is_valid(id):
-        abort(404, description="La clave del alumno no es válida.")
+        abort(404, description="La clave de la película no es válida.")
+
     alumno = alumnos.find_one({"_id": ObjectId(id)})
+
     if alumno is None:
-        abort(404, description="Este alumno ya no existe.")
+        abort(404, description="Esta película ya no existe.")
+
     return alumno
 
+
+# Página principal
 @app.route("/")
 def inicio():
     lista = list(alumnos.find().sort("nombre", 1))
     return render_template("index.html", alumnos=lista)
 
+
+# Agregar una película
 @app.route("/agregar", methods=["POST"])
 def agregar():
     datos = leer_formulario()
     alumnos.insert_one(datos)
     return redirect(url_for("inicio"))
 
+
+# Editar una película
 @app.route("/editar/<id>", methods=["GET", "POST"])
 def editar(id):
     alumno = buscar_alumno(id)
+
     if request.method == "POST":
         datos = leer_formulario()
-        alumnos.update_one({"_id": alumno["_id"]}, {"$set": datos})
+        alumnos.update_one(
+            {"_id": alumno["_id"]},
+            {"$set": datos}
+        )
         return redirect(url_for("inicio"))
+
     return render_template("editar.html", alumno=alumno)
 
+
+# Eliminar una película
 @app.route("/eliminar/<id>", methods=["POST"])
 def eliminar(id):
     alumno = buscar_alumno(id)
     alumnos.delete_one({"_id": alumno["_id"]})
     return redirect(url_for("inicio"))
 
+
+# Mostrar errores de MongoDB
 @app.errorhandler(PyMongoError)
 def error_mongo(error):
-    return render_template("error.html", mensaje="No fue posible conectarcon la base de datos. Revisa la configuración y vuelve a intentar."), 503
+    mensaje = "No fue posible conectar con la base de datos."
 
+    if request.path.startswith("/api/"):
+        return {"error": mensaje}, 503
+
+    return render_template("error.html", mensaje=mensaje), 503
+
+
+# Mostrar errores de petición
 @app.errorhandler(400)
 @app.errorhandler(404)
+@app.errorhandler(405)
 def error_peticion(error):
-    return render_template("error.html", mensaje=error.description), error.code
+    if request.path.startswith("/api/"):
+        return {"error": error.description}, error.code
 
+    return render_template(
+        "error.html",
+        mensaje=error.description
+    ), error.code
+
+
+# Página de ayuda
 @app.route("/ayuda")
 def ayuda():
     fecha = datetime.now().strftime("%d/%m/%Y")
     return render_template("ayuda.html", fecha=fecha)
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=False)

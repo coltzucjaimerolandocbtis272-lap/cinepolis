@@ -1,0 +1,85 @@
+/* Estilos generales */
+body {
+  background-color: #f3f5f9;
+  color: #253348;
+  font-family: Arial, sans-serif;
+}
+
+/* Menú principal */
+.navbar {
+  background-color: #111827 !important;
+  border-bottom: 3px solid #0066cc;
+}
+
+.navbar-brand {
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+.navbar-brand .text-primary {
+  color: #1688ff !important;
+}
+
+.nav-link {
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #1688ff !important;
+}
+
+/* Encabezados */
+h1,
+h2 {
+  color: #172554;
+}
+
+header p {
+  line-height: 1.5;
+}
+
+/* Tarjetas */
+.card {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+/* Formularios */
+.form-control,
+.form-select {
+  border-radius: 0.5rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #1688ff;
+  box-shadow: 0 0 0 0.2rem rgba(22, 136, 255, 0.15);
+}
+
+/* Botones */
+.btn {
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+/* Tabla de películas */
+.table th {
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: #172554;
+}
+
+/* Desplazamiento hacia las secciones */
+section[id] {
+  scroll-margin-top: 1rem;
+}
+
+/* Pie de página */
+footer {
+  margin-top: 2rem;
+}

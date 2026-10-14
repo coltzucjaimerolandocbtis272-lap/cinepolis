@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
 {% block contenido %}
+
 <div class="row justify-content-center">
   <div class="col-lg-8">
+
     <section class="card shadow-sm">
       <div class="card-body p-4">
-        <h2 class="h4 mb-3">Editar alumno</h2>
+
+        <h2 class="h4 mb-3">Editar película</h2>
+
         <form method="post"
               action="{{ url_for('editar', id=alumno._id) }}">
+
           <div class="mb-3">
             <label for="nombre" class="form-label">
-              Nombre completo
+              Nombre de la película
             </label>
+
             <input id="nombre"
                    name="nombre"
                    class="form-control"
@@ -18,49 +24,60 @@
                    required
                    maxlength="80">
           </div>
+
           <div class="mb-3">
-            <label for="grupo" class="form-label">
-              Grupo
+            <label for="categoria" class="form-label">
+              Género
             </label>
-            <input id="grupo"
-                   name="grupo"
+
+            <input id="categoria"
+                   name="categoria"
                    class="form-control"
-                   value="{{ alumno.grupo }}"
+                   value="{{ alumno.categoria }}"
                    required
                    maxlength="20">
           </div>
+
           <div class="mb-3">
-            <label for="turno" class="form-label">
-              Turno
+            <label for="estado" class="form-label">
+              Estado
             </label>
-            <select id="turno"
-                    name="turno"
+
+            <select id="estado"
+                    name="estado"
                     class="form-select"
                     required>
-              <option value="">
-                Selecciona un turno
+
+              <option value="Disponible"
+                {% if alumno.get('estado') == 'Disponible' %}selected{% endif %}>
+                Disponible
               </option>
-              {% for opcion in ['Matutino', 'Vespertino'] %}
-              <option value="{{ opcion }}"
-                {% if alumno.get('turno') == opcion %}selected{% endif %}>
-                {{ opcion }}
+
+              <option value="Agotado"
+                {% if alumno.get('estado') == 'Agotado' %}selected{% endif %}>
+                Agotado
               </option>
-              {% endfor %}
+
             </select>
           </div>
+
           <div class="d-flex gap-2 flex-wrap">
-            <button type="submit"
-                    class="btn btn-primary">
+            <button type="submit" class="btn btn-primary">
               Guardar cambios
             </button>
+
             <a class="btn btn-outline-secondary"
                href="{{ url_for('inicio') }}#lista">
               Cancelar
             </a>
           </div>
+
         </form>
+
       </div>
     </section>
+
   </div>
 </div>
+
 {% endblock %}

@@ -6,10 +6,13 @@
 
   <title>Cinépolis | Cartelera</title>
 
- <link rel="stylesheet"
-      href="{{ url_for('static', filename='estilos.css') }}">
-<link rel="stylesheet"
-      href="{{ url_for('static', filename='bootstrap/estilos.css') }}">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='estilos.css') }}">
 </head>
 
 <body>
@@ -35,7 +38,6 @@
       </button>
 
       <div class="collapse navbar-collapse" id="menuPrincipal">
-
         <ul class="navbar-nav ms-auto">
 
           <li class="nav-item">
@@ -67,7 +69,7 @@
     </div>
   </nav>
 
-  <!-- Encabezado de la página -->
+  <!-- Contenido principal -->
   <main class="container py-4">
 
     <header class="mb-4">
@@ -93,6 +95,7 @@
     Cinépolis · Proyecto de Aplicaciones Web · Práctica 05
   </footer>
 
+  <!-- Bootstrap JavaScript -->
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
 </body>

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block titulo %}Cinépolis | Películas registradas{% endblock %}
+{% block contenido %}
+
+<section class="cine-admin-page">
+
+  <div class="cine-page-heading">
+    <span class="cine-etiqueta">PANEL DE ADMINISTRACIÓN</span>
+    <h1>Películas registradas</h1>
+    <p>Consulta, edita y administra las películas de tu catálogo.</p>
+  </div>
+
+  {% if request.args.get('agregada') == '1' %}
+  <div class="alert alert-success" role="alert">
+    ¡Película agregada correctamente!
+  </div>
+  {% endif %}
+
+  {% if request.args.get('eliminada') == '1' %}
+  <div class="alert alert-success" role="alert">
+    Película eliminada correctamente.
+  </div>
+  {% endif %}
+
+  <div class="cine-section-heading">
+    <div>
+      <h2>Catálogo</h2>
+      <p>Películas registradas en la base de datos.</p>
+    </div>
+
+    <span class="cine-contador">
+      {{ alumnos|length }} / 15 películas
+    </span>
+  </div>
+
+  <div class="cine-panel">
+
+    <div class="cine-admin-actions mb-4">
+      <a href="{{ url_for('agregar') }}" class="btn btn-cine">
+        + Agregar película
+      </a>
+      <a href="{{ url_for('inicio') }}" class="btn btn-outline-secondary">
+        Volver a la cartelera
+      </a>
+    </div>
+
+    {% if alumnos %}
+    <div class="table-responsive">
+      <table class="table cine-tabla align-middle">
+        <thead>
+          <tr>
+            <th>Película</th>
+            <th>Género</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for pelicula in alumnos %}
+          <tr>
+            <td class="fw-bold">
+              {{ pelicula.get('nombre', pelicula.get('titulo', 'Película')) }}
+            </td>
+
+            <td>
+              {{ pelicula.get('categoria', pelicula.get('genero', 'Sin género')) }}
+            </td>
+
+            <td>
+              {% if pelicula.get('estado') == 'Disponible' %}
+              <span class="cine-estado disponible">Disponible</span>
+              {% else %}
+              <span class="cine-estado agotado">
+                {{ pelicula.get('estado', 'Sin asignar') }}
+              </span>
+              {% endif %}
+            </td>
+
+            <td>
+              <div class="cine-acciones">
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ url_for('editar', id=pelicula._id) }}">
+                  Editar
+                </a>
+
+                <form method="post"
+                      action="{{ url_for('eliminar', id=pelicula._id) }}"
+                      onsubmit="return confirm('¿Seguro que deseas eliminar esta película?');">
+                  <button type="submit"
+                          class="btn btn-sm btn-outline-danger">
+                    Eliminar
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+    <div class="cine-vacio">
+      <h2>No hay películas registradas</h2>
+      <p>Agrega tu primera película para comenzar a llenar el catálogo.</p>
+      <a href="{{ url_for('agregar') }}" class="btn btn-cine">
+        Agregar primera película
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

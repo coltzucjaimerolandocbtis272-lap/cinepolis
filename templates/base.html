@@ -3,28 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10121b">
 
-  <title>Cinépolis | Cartelera</title>
+  <title>{% block title %}{% block titulo %}Cinépolis | Cine en grande{% endblock %}{% endblock %}</title>
 
-  <!-- Bootstrap CSS -->
   <link rel="stylesheet"
         href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-
-  <!-- Estilos personalizados -->
   <link rel="stylesheet"
         href="{{ url_for('static', filename='estilos.css') }}">
+
+  {% block estilos %}{% endblock %}
 </head>
+<body class="cine-body">
 
-<body>
-
-  <!-- Encabezado y menú principal -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark"
+  <nav class="navbar navbar-expand-lg navbar-dark cine-navbar sticky-top"
        aria-label="Menú principal">
-
     <div class="container">
-
-      <a class="navbar-brand fw-bold" href="{{ url_for('inicio') }}">
-        <span class="text-primary">CINÉ</span>POLIS
+      <a class="navbar-brand cine-logo" href="{{ url_for('inicio') }}">
+        <span>CINÉ</span>POLIS
       </a>
 
       <button class="navbar-toggler" type="button"
@@ -33,70 +29,44 @@
               aria-controls="menuPrincipal"
               aria-expanded="false"
               aria-label="Abrir o cerrar menú">
-
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="menuPrincipal">
-        <ul class="navbar-nav ms-auto">
-
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('inicio') }}">
-              Inicio
-            </a>
+            <a class="nav-link" href="{{ url_for('inicio') }}">Inicio</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('inicio') }}#registro">
-              Registrar película
-            </a>
+            <a class="nav-link" href="{{ url_for('agregar') }}">Agregar película</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('inicio') }}#lista">
-              Cartelera
-            </a>
+            <a class="nav-link" href="{{ url_for('peliculas_registradas') }}">Películas registradas</a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('ayuda') }}">
-              Ayuda
-            </a>
+            <a class="nav-link" href="{{ url_for('ayuda') }}">Ayuda</a>
           </li>
-
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Contenido principal -->
-  <main class="container py-4">
+  
 
-    <header class="mb-4">
-      <p class="text-uppercase text-secondary small mb-1">
-        Aplicaciones Web · Práctica 05
-      </p>
-
-      <h1 class="h2 fw-bold">
-        ¡Vive la magia del cine!
-      </h1>
-
-      <p class="text-secondary">
-        Descubre, registra y organiza las películas de nuestra cartelera.
-      </p>
-    </header>
-
-    {% block contenido %}{% endblock %}
-
+  <main class="container cine-main">
+    {% block content %}{% block contenido %}{% endblock %}{% endblock %}
   </main>
 
-  <!-- Pie de página -->
-  <footer class="container py-3 border-top text-secondary small">
-    Cinépolis · Proyecto de Aplicaciones Web · Práctica 05
+  <footer class="cine-footer">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+        <span><strong>CINÉPOLIS</strong> · Aplicaciones Web · Práctica 05</span>
+        <span>Vive la magia del cine</span>
+      </div>
+    </div>
   </footer>
 
-  <!-- Bootstrap JavaScript -->
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
+  {% block scripts %}{% endblock %}
 </body>
 </html>

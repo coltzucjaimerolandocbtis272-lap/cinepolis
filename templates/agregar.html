@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block titulo %}Cinépolis | Agregar película{% endblock %}
+{% block contenido %}
+
+<section class="cine-admin-page">
+  <div class="cine-page-heading">
+    <span class="cine-etiqueta">PANEL DE ADMINISTRACIÓN</span>
+    <h1>Agregar película</h1>
+    <p>Registra una nueva película para mostrarla en la cartelera.</p>
+  </div>
+
+  {% if error == 'limite' %}
+  <div class="alert alert-warning" role="alert">
+    El catálogo ya tiene 15 películas. Elimina una antes de agregar otra.
+  </div>
+  {% elif error == 'datos' %}
+  <div class="alert alert-danger" role="alert">
+    Revisa los datos. El nombre, el género y el estado son obligatorios.
+  </div>
+  {% endif %}
+
+  {% if total_peliculas is defined and total_peliculas >= 15 %}
+  <div class="cine-panel">
+    <h2>Catálogo completo</h2>
+    <p>Ya alcanzaste el límite de 15 películas.</p>
+    <a href="{{ url_for('peliculas_registradas') }}"
+       class="btn btn-cine">Administrar películas</a>
+  </div>
+  {% else %}
+  <div class="cine-panel">
+    <form method="post" action="{{ url_for('agregar') }}">
+      <div class="cine-form-grid">
+
+        <div>
+          <label for="nombre" class="form-label">Nombre de la película</label>
+          <input type="text" id="nombre" name="nombre"
+                 class="form-control" maxlength="80"
+                 placeholder="Ej. Spider-Man" required>
+        </div>
+
+        <div>
+          <label for="categoria" class="form-label">Género</label>
+          <input type="text" id="categoria" name="categoria"
+                 class="form-control" maxlength="40"
+                 placeholder="Ej. Acción" required>
+        </div>
+
+        <div>
+          <label for="estado" class="form-label">Estado</label>
+          <select id="estado" name="estado" class="form-select" required>
+            <option value="">Selecciona un estado</option>
+            <option value="Disponible">Disponible</option>
+            <option value="Agotado">Agotado</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="cine-form-actions">
+        <button type="submit" class="btn btn-cine">
+          Guardar película
+        </button>
+        <a href="{{ url_for('inicio') }}"
+           class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <a href="{{ url_for('inicio') }}" class="cine-back-link">
+    ← Volver a la cartelera
+  </a>
+</section>
+
+{% endblock %}

@@ -1,83 +1,45 @@
-{% extends 'base.html' %}
-{% block contenido %}
+{% extends "base.html" %}
 
-<div class="row justify-content-center">
-  <div class="col-lg-8">
+{% block title %}Editar película | Cinépolis{% endblock %}
+{% block titulo %}Editar película{% endblock %}
 
-    <section class="card shadow-sm">
-      <div class="card-body p-4">
+{% block content %}
 
-        <h2 class="h4 mb-3">Editar película</h2>
+<div class="container mt-4">
+    <h2>Editar película</h2>{% if mensaje_error %}
+<div class="alert alert-danger">{{ mensaje_error }}</div>
+{% endif %}
 
-        <form method="post"
-              action="{{ url_for('editar', id=alumno._id) }}">
+<form method="POST" action="{{ url_for('editar', id=pelicula._id) }}">
+    <div class="mb-3">
+        <label class="form-label">Título</label>
+        <input type="text" name="nombre" class="form-control"
+               value="{{ pelicula.get('nombre', pelicula.get('titulo', '')) }}" required>
+    </div>
 
-          <div class="mb-3">
-            <label for="nombre" class="form-label">
-              Nombre de la película
-            </label>
+    <div class="mb-3">
+        <label class="form-label">Género</label>
+        <input type="text" name="categoria" class="form-control"
+               value="{{ pelicula.get('categoria', pelicula.get('genero', '')) }}" required>
+    </div>
 
-            <input id="nombre"
-                   name="nombre"
-                   class="form-control"
-                   value="{{ alumno.nombre }}"
-                   required
-                   maxlength="80">
-          </div>
+    <div class="mb-3">
+        <label class="form-label">Duración (minutos)</label>
+        <input type="number" name="duracion" class="form-control"
+               value="{{ pelicula.get('duracion', '') }}">
+    </div>
 
-          <div class="mb-3">
-            <label for="categoria" class="form-label">
-              Género
-            </label>
+    <div class="mb-3">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-select">
+            <option value="Disponible" {% if pelicula.get('estado') == 'Disponible' %}selected{% endif %}>Disponible</option>
+            <option value="Agotado" {% if pelicula.get('estado') == 'Agotado' %}selected{% endif %}>Agotado</option>
+        </select>
+    </div>
 
-            <input id="categoria"
-                   name="categoria"
-                   class="form-control"
-                   value="{{ alumno.categoria }}"
-                   required
-                   maxlength="20">
-          </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{{ url_for('peliculas_registradas') }}" class="btn btn-secondary">Cancelar</a>
+</form>
 
-          <div class="mb-3">
-            <label for="estado" class="form-label">
-              Estado
-            </label>
-
-            <select id="estado"
-                    name="estado"
-                    class="form-select"
-                    required>
-
-              <option value="Disponible"
-                {% if alumno.get('estado') == 'Disponible' %}selected{% endif %}>
-                Disponible
-              </option>
-
-              <option value="Agotado"
-                {% if alumno.get('estado') == 'Agotado' %}selected{% endif %}>
-                Agotado
-              </option>
-
-            </select>
-          </div>
-
-          <div class="d-flex gap-2 flex-wrap">
-            <button type="submit" class="btn btn-primary">
-              Guardar cambios
-            </button>
-
-            <a class="btn btn-outline-secondary"
-               href="{{ url_for('inicio') }}#lista">
-              Cancelar
-            </a>
-          </div>
-
-        </form>
-
-      </div>
-    </section>
-
-  </div>
 </div>
-
 {% endblock %}

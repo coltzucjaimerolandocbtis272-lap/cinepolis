@@ -49,9 +49,9 @@ a {
 
 .navbar {
   background: #080c17 !important;
-  border-bottom: 2px solid var(--cine-rojo);
-  padding-top: 14px;
-  padding-bottom: 14px;
+  border-bottom: none !important;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 .navbar-brand {
@@ -688,4 +688,490 @@ footer.container {
 .cine-section .card h2[style*="font-weight:800"] {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
+}
+
+/* ========================================
+   MEJORAS VISUALES DE CINÉPOLIS
+   ======================================== */
+
+/* Menú sin línea roja */
+.cine-navbar,
+.navbar {
+  border-bottom: none !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Más espacio al final de la página */
+.cine-main {
+  padding-bottom: 100px !important;
+}
+
+.cine-footer {
+  margin-top: 70px;
+  padding: 55px 0 35px;
+  background: #070d20;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.cine-footer .container {
+  max-width: 1240px;
+}
+
+.cine-footer span {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.cine-footer p {
+  margin: 0;
+  color: #8996ad;
+  font-size: 0.9rem;
+}
+
+/* Buscador ordenado encima del carrusel */
+.cine-filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 14px;
+  margin: 0 0 22px;
+}
+
+.cine-filtros .form-control,
+.cine-filtros .form-select {
+  min-height: 50px;
+  border-radius: 12px;
+  background-color: #111a2d;
+}
+
+/* Marco ancho del carrusel */
+.cine-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(25, 73, 130, 0.2),
+      transparent 70%
+    ),
+    #10182a;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.2);
+}
+
+/* Fila horizontal de películas */
+.cine-carousel-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 4px 3px 16px;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-color: #40516e #111a2d;
+  scrollbar-width: thin;
+}
+
+.cine-carousel-track .cine-movie-card {
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+}
+
+/* Mantiene el póster estático dentro de su tarjeta */
+.cine-carousel .cine-poster {
+  aspect-ratio: 2 / 3;
+}
+
+.cine-carousel .cine-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Nombre y disponibilidad legibles */
+.cine-carousel .cine-movie-info {
+  min-height: 155px;
+  padding: 17px;
+}
+
+.cine-carousel .cine-movie-info h3 {
+  line-height: 1.35;
+}
+
+.cine-carousel .cine-movie-info .btn {
+  width: 100%;
+}
+
+/* Botones para recorrer las películas */
+.cine-carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.cine-carousel-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #34445f;
+  border-radius: 50%;
+  background: #17233a;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.cine-carousel-controls button:hover {
+  border-color: #1688ff;
+  background: #203657;
+}
+
+/* Las tarjetas agotadas siguen visibles en el carrusel */
+.cine-carousel .cine-movie-card[hidden] {
+  display: none !important;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .cine-main {
+    padding-bottom: 65px !important;
+  }
+
+  .cine-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .cine-carousel {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .cine-carousel-track {
+    gap: 13px;
+  }
+
+  .cine-carousel-track .cine-movie-card {
+    flex-basis: 175px;
+  }
+
+  .cine-footer {
+    margin-top: 40px;
+    padding: 38px 0 28px;
+  }
+}
+
+/* BUSCADOR Y ESTADOS ENCIMA DEL CARRUSEL */
+#cartelera > .cine-filtros {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 230px !important;
+  gap: 14px;
+  width: 100%;
+  margin: 0 0 22px !important;
+}
+
+#cartelera > .cine-filtros input,
+#cartelera > .cine-filtros select {
+  min-width: 0;
+  min-height: 50px;
+}
+
+/* MARCO DEL CARRUSEL */
+.cine-carousel {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* FILA QUE SE DESPLAZA */
+#gridPeliculas.cine-carousel-track {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  padding: 5px 4px 18px;
+}
+
+#gridPeliculas.cine-carousel-track > .cine-movie-card {
+  display: flex;
+  flex: 0 0 230px !important;
+  flex-direction: column;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+/* Evita que las tarjetas se estiren para llenar el espacio */
+#gridPeliculas .cine-movie-info {
+  flex: 1;
+}
+
+/* Mantiene los pósteres dentro de su tarjeta */
+#gridPeliculas .cine-poster {
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+}
+
+#gridPeliculas .cine-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* FLECHAS */
+.cine-carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 4px 2px;
+}
+
+.cine-carousel-controls button {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #34445f;
+  border-radius: 50%;
+  background: #17233a;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.cine-carousel-controls button:hover {
+  background: #0878d1;
+  border-color: #0878d1;
+}
+
+/* Las películas que no coinciden con la búsqueda se ocultan */
+#gridPeliculas .cine-movie-card[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  #cartelera > .cine-filtros {
+    grid-template-columns: 1fr !important;
+  }
+
+  #gridPeliculas.cine-carousel-track {
+    gap: 13px;
+  }
+
+  #gridPeliculas.cine-carousel-track > .cine-movie-card {
+    flex-basis: 180px !important;
+  }
+}
+
+/* ===== CORRECCIÓN DEFINITIVA DEL CARRUSEL ===== */
+
+/* Buscador y estados SIEMPRE encima del carrusel */
+#cartelera > .cine-filtros {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 230px !important;
+  width: 100% !important;
+  margin: 0 0 20px !important;
+  gap: 14px !important;
+}
+
+#cartelera > .cine-filtros input,
+#cartelera > .cine-filtros select {
+  width: 100% !important;
+  min-height: 50px !important;
+}
+
+/* Ventana del carrusel */
+#cartelera .cine-carousel {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 20px;
+  background: #10182a;
+}
+
+/* Una sola fila horizontal */
+#cartelera #gridPeliculas.cine-carousel-track {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 5px 3px 18px !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #526783 #111a2c;
+}
+
+/* Ancho fijo: evita que todas las películas quepan en pantalla */
+#cartelera #gridPeliculas.cine-carousel-track > .cine-movie-card {
+  display: flex;
+  flex: 0 0 230px !important;
+  flex-direction: column !important;
+  width: 230px !important;
+  max-width: 230px !important;
+  min-width: 230px !important;
+  margin: 0 !important;
+  scroll-snap-align: start;
+}
+
+/* Mantener proporciones del póster */
+#cartelera #gridPeliculas .cine-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+}
+
+#cartelera #gridPeliculas .cine-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#cartelera #gridPeliculas .cine-movie-info {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Controles debajo de las películas */
+#cartelera .cine-carousel-controls {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+#cartelera .cine-carousel-controls button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border: 1px solid #34445f;
+  border-radius: 50%;
+  background: #17233a;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#cartelera .cine-carousel-controls button:hover {
+  background: #0878d1;
+  border-color: #0878d1;
+}
+
+#cartelera #gridPeliculas .cine-movie-card[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  #cartelera > .cine-filtros {
+    grid-template-columns: 1fr !important;
+  }
+
+  #cartelera #gridPeliculas.cine-carousel-track > .cine-movie-card {
+    flex-basis: 180px !important;
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+  }
+}
+
+/* ===== ALINEAR TARJETAS Y BOTONES DE COMPRA ===== */
+
+#cartelera #gridPeliculas .cine-movie-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+}
+
+#cartelera #gridPeliculas .cine-movie-info {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+}
+
+#cartelera #gridPeliculas .cine-movie-info h3 {
+    min-height: 2.8em;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+#cartelera #gridPeliculas .cine-movie-info .cine-movie-genre {
+    min-height: 2.5em;
+}
+
+#cartelera #gridPeliculas .cine-movie-info > .btn {
+    margin-top: auto !important;
+    min-height: 48px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    line-height: 1.3;
+}
+
+/* Reducir la altura de las tarjetas de películas */
+#cartelera #gridPeliculas .cine-movie-card {
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+/* Reducir la altura de los pósteres */
+#cartelera .cine-movie-poster,
+#cartelera .cine-poster {
+    height: 260px !important;
+    aspect-ratio: auto !important;
+    overflow: hidden;
+}
+
+/* Ajustar las imágenes al póster */
+#cartelera .cine-movie-poster img,
+#cartelera .cine-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Reducir el espacio interior */
+#cartelera .cine-movie-info {
+    padding: 12px !important;
+    gap: 6px !important;
+}
+
+/* Evitar que los títulos agranden las tarjetas */
+#cartelera .cine-movie-info h3 {
+    min-height: 0 !important;
+    margin-bottom: 4px;
 }

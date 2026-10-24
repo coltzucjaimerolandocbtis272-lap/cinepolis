@@ -1,117 +1,261 @@
 {% extends 'base.html' %}
 {% block contenido %}
 
-<section id="registro" class="card shadow-sm mb-4">
-  <div class="card-body p-4">
-    <h2 class="h4 mb-3">Agregar película</h2>
+<section class="cine-hero">
+  <div class="cine-hero-content">
+    <span class="cine-etiqueta">BIENVENIDO A CINÉPOLIS</span>
+    <h2>El cine se vive<br>en grande.</h2>
+    <p>Descubre historias increíbles y encuentra tu próxima película favorita.</p>
+    <a href="#cartelera" class="btn btn-cine">Ver cartelera</a>
+  </div>
+  <div class="cine-hero-decoration" aria-hidden="true">
+    <span class="cine-play"></span>
+  </div>
+</section>
 
-    <form method="post" action="{{ url_for('agregar') }}" class="row g-3">
+<section class="cine-beneficios">
+  <div class="cine-beneficio">
+    <span class="beneficio-linea"></span>
+    <div>
+      <strong>Grandes historias</strong>
+      <p>Películas para todos</p>
+    </div>
+  </div>
+  <div class="cine-beneficio">
+    <span class="beneficio-linea"></span>
+    <div>
+      <strong>Momentos únicos</strong>
+      <p>Disfruta cada función</p>
+    </div>
+  </div>
+  <div class="cine-beneficio">
+    <span class="beneficio-linea"></span>
+    <div>
+      <strong>Tu próxima función</strong>
+      <p>Explora la cartelera</p>
+    </div>
+  </div>
+</section>
 
-      <div class="col-md-6">
-        <label for="nombre" class="form-label">Película</label>
-        <input
-          id="nombre"
-          name="nombre"
-          class="form-control"
-          required
-          maxlength="80"
-          placeholder="Ejemplo: Intensamente 2">
+<section id="cartelera" class="cine-section">
+  <div class="cine-section-heading">
+    <div>
+      <span class="cine-etiqueta">DESCUBRE TU PRÓXIMA PELÍCULA</span>
+      <h2>Cartelera</h2>
+      <p>Elige tu película y prepara tu próxima visita.</p>
+    </div>
+    <span class="cine-contador">{{ alumnos|length }} películas</span>
+  </div>
+
+  <div class="cine-filtros">
+    <input type="search" id="buscarPelicula"
+           class="form-control"
+           placeholder="Buscar película o género..."
+           aria-label="Buscar película">
+
+    <select id="filtroEstado" class="form-select"
+            aria-label="Filtrar por estado">
+      <option value="">Todos los estados</option>
+      <option value="Disponible">Disponible</option>
+      <option value="Agotado">Agotado</option>
+    </select>
+  </div>
+
+  <div class="cine-grid" id="gridPeliculas">
+    {% for pelicula in alumnos %}
+    <article class="cine-movie-card"
+             data-nombre="{{ pelicula.nombre|lower }}"
+             data-categoria="{{ pelicula.categoria|lower }}"
+             data-estado="{{ pelicula.get('estado', 'Sin asignar') }}">
+
+      <div class="cine-poster">
+        {% if pelicula.get('poster_url') %}
+        <img src="{{ pelicula.poster_url }}"
+             alt="Póster de {{ pelicula.nombre }}"
+             loading="lazy">
+        {% else %}
+        <div class="cine-poster-placeholder">
+          <span class="poster-brand">CINÉPOLIS</span>
+          <span class="poster-title">{{ pelicula.nombre }}</span>
+          <span class="poster-category">{{ pelicula.categoria }}</span>
+        </div>
+        {% endif %}
       </div>
 
-      <div class="col-md-3">
+      <div class="cine-movie-info">
+        <span class="cine-genero">{{ pelicula.categoria }}</span>
+        <h3>{{ pelicula.nombre }}</h3>
+
+        {% if pelicula.get('estado') == 'Disponible' %}
+        <span class="cine-estado disponible">Disponible</span>
+        <a href="{{ url_for('comprar', id=pelicula._id) }}"
+           class="btn btn-cine mt-3">
+          Comprar boletos
+        </a>
+        {% else %}
+        <span class="cine-estado agotado">
+          {{ pelicula.get('estado', 'Sin asignar') }}
+        </span>
+        <button class="btn btn-secondary mt-3" disabled>
+          No disponible
+        </button>
+        {% endif %}
+
+        <a href="#lista" class="btn btn-cine-outline mt-2">
+          Ver registro
+        </a>
+      </div>
+    </article>
+    {% else %}
+    <div class="cine-vacio">
+      <h3>Tu cartelera está vacía</h3>
+      <p>Registra una película para comenzar.</p>
+      <a href="#registro" class="btn btn-cine">Agregar película</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p id="sinResultados" class="cine-sin-resultados" hidden>
+    No se encontraron películas con esos filtros.
+  </p>
+</section>
+
+<section id="registro" class="cine-admin cine-section">
+  <div class="cine-section-heading">
+    <div>
+      <span class="cine-etiqueta">PANEL DE CONTROL</span>
+      <h2>Agregar película</h2>
+      <p>Registra películas en el catálogo.</p>
+    </div>
+  </div>
+
+  <form method="post" action="{{ url_for('agregar') }}">
+    <div class="cine-form-grid">
+      <div>
+        <label for="nombre" class="form-label">Nombre de la película</label>
+        <input id="nombre" name="nombre" class="form-control"
+               required maxlength="80"
+               placeholder="Ej. Spider-man Brand New Day">
+      </div>
+      <div>
         <label for="categoria" class="form-label">Género</label>
-        <input
-          id="categoria"
-          name="categoria"
-          class="form-control"
-          required
-          maxlength="20"
-          placeholder="Ejemplo: Animación">
+        <input id="categoria" name="categoria" class="form-control"
+               required maxlength="20" placeholder="Ej. Acción">
       </div>
-
-      <div class="col-md-3">
+      <div>
         <label for="estado" class="form-label">Estado</label>
         <select id="estado" name="estado" class="form-select" required>
-          <option value="">Selecciona</option>
+          <option value="">Selecciona un estado</option>
           <option value="Disponible">Disponible</option>
           <option value="Agotado">Agotado</option>
         </select>
       </div>
-
-      <div class="col-12 d-flex gap-2 flex-wrap">
-        <button type="submit" class="btn btn-success">
-          Guardar película
-        </button>
-        <button type="reset" class="btn btn-outline-secondary">
-          Limpiar formulario
-        </button>
-      </div>
-
-    </form>
-  </div>
-</section>
-
-<section id="lista" class="card shadow-sm">
-  <div class="card-body p-4">
-
-    <h2 class="h4 mb-3">
-      Películas registradas
-      <span class="badge text-bg-primary">{{ alumnos|length }}</span>
-    </h2>
-
-    <div class="table-responsive">
-      <table class="table table-striped table-hover align-middle">
-        <caption>Catálogo de películas de Cinépolis</caption>
-
-        <thead class="table-light">
-          <tr>
-            <th scope="col">Película</th>
-            <th scope="col">Género</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for alumno in alumnos %}
-          <tr>
-            <td>{{ alumno.nombre }}</td>
-            <td>{{ alumno.categoria }}</td>
-            <td>{{ alumno.get('estado', 'Sin asignar') }}</td>
-
-            <td>
-              <div class="d-flex gap-2 flex-wrap">
-                <a
-                  class="btn btn-outline-primary btn-sm"
-                  href="{{ url_for('editar', id=alumno._id) }}">
-                  Editar
-                </a>
-
-                <form
-                  method="post"
-                  action="{{ url_for('eliminar', id=alumno._id) }}"
-                  onsubmit="return confirm('¿Eliminar esta película?');">
-                  <button type="submit" class="btn btn-outline-danger btn-sm">
-                    Eliminar
-                  </button>
-                </form>
-              </div>
-            </td>
-          </tr>
-
-          {% else %}
-          <tr>
-            <td colspan="4" class="text-center text-secondary py-4">
-              Todavía no hay películas. Agrega la primera.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-
-      </table>
     </div>
 
+    <div class="cine-form-actions">
+      <button type="submit" class="btn btn-cine">Guardar película</button>
+      <button type="reset" class="btn btn-outline-secondary">Limpiar</button>
+    </div>
+  </form>
+</section>
+
+<section id="lista" class="cine-admin cine-section">
+  <div class="cine-section-heading">
+    <div>
+      <span class="cine-etiqueta">GESTIÓN DEL CATÁLOGO</span>
+      <h2>Películas registradas</h2>
+      <p>Edita o elimina las películas guardadas.</p>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table cine-tabla align-middle">
+      <thead>
+        <tr>
+          <th>Película</th>
+          <th>Género</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pelicula in alumnos %}
+        <tr>
+          <td class="fw-bold">{{ pelicula.nombre }}</td>
+          <td>{{ pelicula.categoria }}</td>
+          <td>
+            {% if pelicula.get('estado') == 'Disponible' %}
+            <span class="cine-estado disponible">Disponible</span>
+            {% else %}
+            <span class="cine-estado agotado">
+              {{ pelicula.get('estado', 'Sin asignar') }}
+            </span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="cine-acciones">
+              <a class="btn btn-sm btn-outline-primary"
+                 href="{{ url_for('editar', id=pelicula._id) }}">
+                Editar
+              </a>
+              <form method="post"
+                    action="{{ url_for('eliminar', id=pelicula._id) }}"
+                    onsubmit="return confirm('¿Seguro que deseas eliminar esta película?');">
+                <button type="submit"
+                        class="btn btn-sm btn-outline-danger">
+                  Eliminar
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            Todavía no hay películas registradas.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </section>
+
+<script>
+(function () {
+  const buscador = document.getElementById('buscarPelicula');
+  const filtro = document.getElementById('filtroEstado');
+  const tarjetas = document.querySelectorAll('.cine-movie-card');
+  const mensaje = document.getElementById('sinResultados');
+
+  if (!buscador || !filtro || !mensaje) return;
+
+  function filtrar() {
+    const texto = buscador.value.trim().toLowerCase();
+    const estado = filtro.value;
+    let visibles = 0;
+
+    tarjetas.forEach(function (tarjeta) {
+      const nombre = tarjeta.dataset.nombre || '';
+      const categoria = tarjeta.dataset.categoria || '';
+      const estadoPelicula = tarjeta.dataset.estado || '';
+
+      const coincideTexto =
+        nombre.includes(texto) || categoria.includes(texto);
+      const coincideEstado =
+        !estado || estadoPelicula === estado;
+      const mostrar = coincideTexto && coincideEstado;
+
+      tarjeta.hidden = !mostrar;
+      if (mostrar) visibles++;
+    });
+
+    mensaje.hidden = visibles > 0;
+  }
+
+  buscador.addEventListener('input', filtrar);
+  filtro.addEventListener('change', filtrar);
+})();
+</script>
 
 {% endblock %}

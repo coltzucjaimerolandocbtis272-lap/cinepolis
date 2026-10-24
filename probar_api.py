@@ -2,7 +2,7 @@ import json
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
-BASE = "http://127.0.0.1:5000"
+BASE = "https://cinepolis-imuz.onrender.com"
 
 
 def pedir(metodo, ruta, datos=None):

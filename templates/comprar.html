@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<section class="cine-section container py-4">
+
+    <a href="{{ url_for('inicio') }}"
+       class="btn btn-outline-secondary mb-4">
+        ← Volver a cartelera
+    </a>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <div class="card shadow-sm border-0 p-4">
+
+                <h2 class="mb-4">Comprar boletos</h2>
+
+                {% if mensaje_error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ mensaje_error }}
+                    </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <h3 class="h5">Película seleccionada</h3>
+
+                    <p class="mb-1">
+                        <strong>
+                            {{ pelicula.titulo | default(pelicula.nombre, true) }}
+                        </strong>
+                    </p>
+
+                    {% if pelicula.categoria or pelicula.genero %}
+                        <p class="text-muted">
+                            {{ pelicula.categoria | default(pelicula.genero, true) }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if compra_confirmada %}
+
+                    <div class="alert alert-success">
+                        <h3 class="h5">¡Compra confirmada!</h3>
+                        <p class="mb-0">
+                            Tu compra de demostración se guardó correctamente.
+                        </p>
+                    </div>
+
+                    <h3 class="h5">Resumen de tu compra</h3>
+
+                    <p>
+                        <strong>Folio:</strong> {{ folio }}
+                    </p>
+
+                    <p>
+                        <strong>Película:</strong>
+                        {{ pelicula.titulo | default(pelicula.nombre, true) }}
+                    </p>
+
+                    <p><strong>Fecha:</strong> {{ fecha }}</p>
+                    <p><strong>Horario:</strong> {{ horario }}</p>
+
+                    <p>
+                        <strong>Asientos:</strong>
+                        {{ seleccionados | join(', ') }}
+                    </p>
+
+                    <p><strong>Boletos:</strong> {{ cantidad }}</p>
+                    <p><strong>Precio por boleto:</strong> $80 MXN</p>
+
+                    <div class="p-3 rounded mb-3"
+                         style="background-color:#f2f2f2;color:#111;">
+                        <p class="mb-1">Total de tu compra</p>
+                        <h2 style="color:#111;">${{ total }} MXN</h2>
+                    </div>
+
+                    <p class="text-muted">
+                        Compra simulada. No se realizó ningún cobro real.
+                    </p>
+
+                    <a href="{{ url_for('inicio') }}"
+                       class="btn btn-primary w-100">
+                        Volver a la cartelera
+                    </a>
+
+                {% elif confirmar %}
+
+                    <h3 class="h4 mb-3">Resumen de tu compra</h3>
+
+                    <p>
+                        <strong>Película:</strong>
+                        {{ pelicula.titulo | default(pelicula.nombre, true) }}
+                    </p>
+
+                    <p><strong>Fecha:</strong> {{ fecha }}</p>
+                    <p><strong>Horario:</strong> {{ horario }}</p>
+
+                    <p>
+                        <strong>Asientos:</strong>
+                        {{ seleccionados | join(', ') }}
+                    </p>
+
+                    <p><strong>Boletos:</strong> {{ cantidad }}</p>
+                    <p><strong>Precio por boleto:</strong> $80 MXN</p>
+
+                    <div class="p-3 rounded mb-3"
+                         style="background-color:#f2f2f2;color:#111;">
+                        <p class="mb-1">Total de tu compra</p>
+                        <h2 style="color:#111;">${{ total }} MXN</h2>
+                    </div>
+
+                    <form method="POST"
+                          action="{{ url_for('comprar', id=pelicula._id) }}">
+
+                        <input type="hidden" name="accion" value="confirmar">
+                        <input type="hidden" name="fecha" value="{{ fecha }}">
+                        <input type="hidden" name="horario" value="{{ horario }}">
+                        <input type="hidden" name="cantidad" value="{{ cantidad }}">
+
+                        {% for asiento in seleccionados %}
+                            <input type="hidden"
+                                   name="asientos"
+                                   value="{{ asiento }}">
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-success w-100">
+                            Confirmar compra
+                        </button>
+                    </form>
+
+                    <a href="{{ url_for('comprar', id=pelicula._id) }}"
+                       class="btn btn-outline-secondary w-100 mt-2">
+                        Cambiar selección
+                    </a>
+
+                {% else %}
+
+                    <form method="POST"
+                          action="{{ url_for('comprar', id=pelicula._id) }}"
+                          id="formCompra">
+
+                        <input type="hidden"
+                               name="accion"
+                               value="continuar">
+
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">
+                                Fecha de la función
+                            </label>
+
+                            <input type="date"
+                                   class="form-control"
+                                   id="fecha"
+                                   name="fecha"
+                                   min="{{ hoy }}"
+                                   value="{{ fecha_seleccionada | default(hoy) }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="horario" class="form-label">
+                                Horario
+                            </label>
+
+                            <select class="form-select"
+                                    id="horario"
+                                    name="horario"
+                                    required>
+
+                                {% for hora in ['12:00', '15:00', '18:00', '21:00'] %}
+                                    <option value="{{ hora }}"
+                                        {% if horario_seleccionado | default('12:00') == hora %}
+                                            selected
+                                        {% endif %}>
+                                        {{ hora }}
+                                    </option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <button type="submit"
+                                id="consultarAsientos"
+                                class="btn btn-outline-primary w-100 mb-4">
+                            Consultar asientos de esta función
+                        </button>
+
+                        <hr>
+
+                        <h3 class="h5 text-center mb-3">
+                            Selecciona tus asientos
+                        </h3>
+
+                        <div class="text-center mb-4">
+                            <div class="pantalla-cine rounded p-2">
+                                PANTALLA
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+                            <span>
+                                <span style="color:#198754;">■</span>
+                                Disponible
+                            </span>
+
+                            <span>
+                                <span style="color:#0d6efd;">■</span>
+                                Seleccionado
+                            </span>
+
+                            <span>
+                                <span style="color:#dc3545;">■</span>
+                                Ocupado
+                            </span>
+                        </div>
+
+                        <div class="mx-auto" style="max-width:440px;">
+
+                            {% for fila in ['A', 'B', 'C', 'D', 'E', 'F'] %}
+
+                                <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+
+                                    <strong style="width:18px;">
+                                        {{ fila }}
+                                    </strong>
+
+                                    {% for numero in range(1, 9) %}
+
+                                        {% set codigo = fila ~ numero %}
+                                        {% set ocupado = codigo in (asientos_ocupados | default([])) %}
+
+                                        <label class="m-0 asiento-etiqueta">
+
+                                            <input type="checkbox"
+                                                   class="asiento-checkbox visually-hidden"
+                                                   name="asientos"
+                                                   value="{{ codigo }}"
+                                                   {% if ocupado %}disabled{% endif %}>
+
+                                            <span
+                                                class="asiento-boton d-flex align-items-center justify-content-center rounded {% if ocupado %}asiento-ocupado{% else %}asiento-disponible{% endif %}"
+                                                data-asiento="{{ codigo }}"
+                                                title="Asiento {{ codigo }}"
+                                                style="width:36px;height:36px;font-size:12px;">
+                                                {{ numero }}
+                                            </span>
+
+                                        </label>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                        <p class="text-center text-muted mt-3">
+                            Máximo 6 asientos por compra.
+                        </p>
+
+                        <div class="p-3 rounded mb-3 resumen-compra">
+                            <p class="mb-1">Asientos seleccionados:</p>
+
+                            <strong id="listaAsientos">Ninguno</strong>
+
+                            <hr>
+
+                            <p class="mb-1">Total estimado:</p>
+
+                            <h3 id="totalCompra">$0 MXN</h3>
+                        </div>
+
+                        <button type="submit"
+                                id="continuarCompra"
+                                class="btn btn-primary w-100">
+                            Continuar con la compra
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .asiento-etiqueta {
+        display: inline-block;
+    }
+
+    .asiento-boton {
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        user-select: none;
+    }
+
+    .asiento-disponible {
+        background-color: #198754;
+    }
+
+    .asiento-ocupado {
+        background-color: #dc3545;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .asiento-checkbox:checked + .asiento-boton {
+        background-color: #0d6efd;
+        outline: 3px solid #9ec5fe;
+    }
+
+    .asiento-checkbox:disabled + .asiento-boton {
+        cursor: not-allowed;
+    }
+
+    .asiento-checkbox:focus-visible + .asiento-boton {
+        outline: 3px solid #ffc107;
+    }
+
+    .pantalla-cine {
+        background: #333;
+        color: white;
+        letter-spacing: 2px;
+        box-shadow: 0 5px 12px #0002;
+    }
+
+    .resumen-compra {
+        background: #f2f2f2;
+        color: #111;
+    }
+
+    #totalCompra {
+        color: #111;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const formulario = document.getElementById("formCompra");
+
+    if (!formulario) {
+        return;
+    }
+
+    const casillas = formulario.querySelectorAll(".asiento-checkbox");
+    const total = document.getElementById("totalCompra");
+    const lista = document.getElementById("listaAsientos");
+    const fecha = document.getElementById("fecha");
+    const horario = document.getElementById("horario");
+    const accion = formulario.querySelector('[name="accion"]');
+
+    const precio = 80;
+    const maximo = 6;
+
+    function actualizar() {
+        const elegidos = Array.from(casillas).filter(function (casilla) {
+            return casilla.checked;
+        });
+
+        total.textContent = "$" + (elegidos.length * precio) + " MXN";
+
+        lista.textContent = elegidos.length
+            ? elegidos.map(function (casilla) {
+                return casilla.value;
+            }).join(", ")
+            : "Ninguno";
+    }
+
+    casillas.forEach(function (casilla) {
+        casilla.addEventListener("change", function () {
+            const elegidos = Array.from(casillas).filter(function (elemento) {
+                return elemento.checked;
+            });
+
+            if (elegidos.length > maximo) {
+                casilla.checked = false;
+                alert("Solo puedes seleccionar hasta 6 asientos.");
+            }
+
+            actualizar();
+        });
+    });
+
+    function consultarDisponibilidad() {
+        accion.value = "consultar";
+        formulario.submit();
+    }
+
+    fecha.addEventListener("change", consultarDisponibilidad);
+    horario.addEventListener("change", consultarDisponibilidad);
+
+    document.getElementById("consultarAsientos").addEventListener(
+        "click",
+        function () {
+            accion.value = "consultar";
+        }
+    );
+
+    formulario.addEventListener("submit", function (evento) {
+        if (accion.value === "consultar") {
+            return;
+        }
+
+        const elegidos = Array.from(casillas).filter(function (casilla) {
+            return casilla.checked;
+        });
+
+        if (elegidos.length === 0) {
+            evento.preventDefault();
+            alert("Selecciona al menos un asiento.");
+            return;
+        }
+
+        if (elegidos.length > maximo) {
+            evento.preventDefault();
+            alert("Puedes seleccionar máximo 6 asientos.");
+        }
+    });
+
+    actualizar();
+});
+</script>
+{% endblock %}

@@ -246,10 +246,42 @@ a {
 }
 
 .cine-filtros {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 12px;
-  margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.cine-filtro-busqueda,
+.cine-filtro-estado,
+.cine-filtro-genero {
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+}
+
+.cine-filtros .form-label {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.cine-filtros .form-control,
+.cine-filtros .form-select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width: 650px) {
+    .cine-filtros {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .cine-filtro-busqueda {
+        grid-column: 1 / -1;
+    }
 }
 
 .form-control,

@@ -36,47 +36,22 @@
     <section id="cartelera" class="mb-5">
         <div class="cine-section-heading">
             <div>
-                <span class="cine-hero-label">
-                    ENCUENTRA TU PRÓXIMA PELÍCULA
-                </span>
+                <span class="cine-hero-label">ENCUENTRA TU PRÓXIMA PELÍCULA</span>
                 <h2>Cartelera</h2>
-                <p>Busca por título, elige un género o filtra por disponibilidad.</p>
+                <p>Busca por nombre, disponibilidad o género.</p>
             </div>
         </div>
 
-        <!-- Buscador y filtros -->
         <div class="cine-filtros">
             <div class="cine-filtro-busqueda">
                 <label for="buscarPelicula" class="form-label">
                     Buscar película
                 </label>
-                <input
-                    type="search"
-                    id="buscarPelicula"
-                    class="form-control"
-                    placeholder="Escribe el nombre..."
-                    autocomplete="off"
-                >
-            </div>
-
-            <div class="cine-filtro-genero">
-                <label for="filtroGenero" class="form-label">
-                    Género
-                </label>
-                <select id="filtroGenero" class="form-select">
-    <option value="todos">Todos los géneros</option>
-</select>
-                    {% set generos_vistos = [] %}
-                    {% for pelicula in alumnos %}
-                        {% set genero_opcion = pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) %}
-                        {% if genero_opcion and genero_opcion not in generos_vistos %}
-                            {% set _ = generos_vistos.append(genero_opcion) %}
-                            <option value="{{ genero_opcion|lower }}">
-                                {{ genero_opcion }}
-                            </option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+                <input type="search"
+                       id="buscarPelicula"
+                       class="form-control"
+                       placeholder="Nombre de la película..."
+                       autocomplete="off">
             </div>
 
             <div class="cine-filtro-estado">
@@ -89,99 +64,107 @@
                     <option value="agotado">Agotado</option>
                 </select>
             </div>
+
+            <div class="cine-filtro-genero">
+                <label for="filtroGenero" class="form-label">
+                    Género
+                </label>
+                <select id="filtroGenero" class="form-select">
+                    <option value="todos">Todos los géneros</option>
+                    <option value="accion">Acción</option>
+                    <option value="aventura">Aventura</option>
+                    <option value="ciencia ficcion">Ciencia ficción</option>
+                    <option value="terror">Terror</option>
+                    <option value="animacion">Animación</option>
+                    <option value="fantasia">Fantasía</option>
+                    <option value="comedia">Comedia</option>
+                    <option value="romance">Romance</option>
+                </select>
+            </div>
         </div>
 
-        <p class="cine-resultados mt-3" id="contadorPeliculas" aria-live="polite">
+        <div class="cine-resultados mb-3" id="contadorPeliculas">
             Películas registradas: {{ alumnos|length }}
-        </p>
+        </div>
 
-        <!-- Cartelera en cuadrícula, sin carrusel -->
         <div id="gridPeliculas" class="cine-movie-grid">
             {% for pelicula in alumnos %}
-                {% set nombre = pelicula.get('nombre', pelicula.get('titulo', 'Sin título')) %}
-                {% set genero = pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) %}
-                {% set estado = pelicula.get('estado', 'Disponible')|lower %}
-                {% set nombre_normalizado = nombre|lower %}
-                {% set poster_local = '' %}
+            {% set nombre = pelicula.get('nombre', pelicula.get('titulo', 'Sin título')) %}
+            {% set genero = pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) %}
+            {% set estado = pelicula.get('estado', 'Disponible')|lower %}
+            {% set nombre_normalizado = nombre|lower %}
+            {% set poster_local = '' %}
 
-                {# Relacionar el título con el archivo de imagen local #}
-                {% if 'spider' in nombre_normalizado %}
-                    {% set poster_local = 'spiderman-brand-new-day.jpg' %}
-                {% elif 'mario' in nombre_normalizado %}
-                    {% set poster_local = 'Super Mario Bros.jpg' %}
-                {% elif 'jurassic' in nombre_normalizado %}
-                    {% set poster_local = 'Jurassic World.jpg' %}
-                {% elif 'intensamente' in nombre_normalizado %}
-                    {% set poster_local = 'Intensamente 2.jpg' %}
-                {% elif 'coco' in nombre_normalizado %}
-                    {% set poster_local = 'Coco.jpg' %}
-                {% elif 'cars' in nombre_normalizado %}
-                    {% set poster_local = 'Cars.webp' %}
-                {% endif %}
+            {% if 'spider' in nombre_normalizado %}
+                {% set poster_local = 'spiderman-brand-new-day.jpg' %}
+            {% elif 'mario' in nombre_normalizado %}
+                {% set poster_local = 'Super Mario Bros.jpg' %}
+            {% elif 'jurassic' in nombre_normalizado %}
+                {% set poster_local = 'Jurassic World.jpg' %}
+            {% elif 'intensamente' in nombre_normalizado %}
+                {% set poster_local = 'Intensamente 2.jpg' %}
+            {% elif 'coco' in nombre_normalizado %}
+                {% set poster_local = 'Coco.jpg' %}
+            {% elif 'cars' in nombre_normalizado %}
+                {% set poster_local = 'Cars.webp' %}
+            {% endif %}
 
-                <article
-                    class="cine-movie-card"
-                    data-nombre="{{ nombre|lower }}"
-                    data-genero="{{ genero|lower }}"
-                    data-estado="{{ estado }}"
-                >
-                    <div class="cine-movie-poster">
-                        {% if poster_local %}
-                            <img
-                                src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
-                                alt="Póster de {{ nombre }}"
-                                loading="lazy"
-                            >
-                        {% elif pelicula.get('poster') or pelicula.get('imagen') %}
-                            <img
-                                src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
-                                alt="Póster de {{ nombre }}"
-                                loading="lazy"
-                            >
-                        {% else %}
-                            <div class="cine-poster-placeholder">
-                                <span>🎬</span>
-                                <span>CINÉPOLIS</span>
-                            </div>
-                        {% endif %}
+            {% set estado_agotado = estado in ['agotado', 'no disponible'] %}
+
+            <article class="cine-movie-card"
+                     data-nombre="{{ nombre|lower }}"
+                     data-genero="{{ genero|lower }}"
+                     data-estado="{{ 'agotado' if estado_agotado else 'disponible' }}">
+
+                <div class="cine-movie-poster">
+                    {% if poster_local %}
+                    <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
+                         alt="Póster de {{ nombre }}" loading="lazy">
+                    {% elif pelicula.get('poster') or pelicula.get('imagen') %}
+                    <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
+                         alt="Póster de {{ nombre }}" loading="lazy">
+                    {% else %}
+                    <div class="cine-poster-placeholder">
+                        <span>🎬</span>
+                        <span>CINÉPOLIS</span>
                     </div>
+                    {% endif %}
+                </div>
 
-                    <div class="cine-movie-info">
-                        <h3>{{ nombre }}</h3>
-                        <p class="cine-movie-genre">{{ genero }}</p>
+                <div class="cine-movie-info">
+                    <h3>{{ nombre }}</h3>
+                    <p class="cine-movie-genre">{{ genero }}</p>
 
-                        {% if estado in ['agotado', 'no disponible'] %}
-                            <span class="badge text-bg-danger">Agotado</span>
-                        {% else %}
-                            <span class="badge text-bg-success">Disponible</span>
-                        {% endif %}
+                    {% if estado_agotado %}
+                    <span class="badge text-bg-danger">Agotado</span>
+                    {% else %}
+                    <span class="badge text-bg-success">Disponible</span>
+                    {% endif %}
 
-                        {% if pelicula.get('duracion') %}
-                            <p class="cine-movie-duration">
-                                {{ pelicula.get('duracion') }} min
-                            </p>
-                        {% endif %}
+                    {% if pelicula.get('duracion') %}
+                    <p class="cine-movie-duration">
+                        {{ pelicula.get('duracion') }} min
+                    </p>
+                    {% endif %}
 
-                        {% if pelicula.get('clasificacion') %}
-                            <p class="cine-movie-classification">
-                                Clasificación: {{ pelicula.get('clasificacion') }}
-                            </p>
-                        {% endif %}
+                    {% if pelicula.get('clasificacion') %}
+                    <p class="cine-movie-classification">
+                        Clasificación: {{ pelicula.get('clasificacion') }}
+                    </p>
+                    {% endif %}
 
-                        {% if estado not in ['agotado', 'no disponible'] %}
-                            <a
-                                href="{{ url_for('comprar', id=pelicula['_id']) }}"
-                                class="btn btn-primary w-100 mt-2"
-                            >
-                                Comprar boletos
-                            </a>
-                        {% else %}
-                            <button class="btn btn-secondary w-100 mt-2" disabled>
-                                No disponible
-                            </button>
-                        {% endif %}
-                    </div>
-                </article>
+                    {% if not estado_agotado %}
+                    <a href="{{ url_for('comprar', id=pelicula['_id']) }}"
+                       class="btn btn-primary w-100 mt-2">
+                        Comprar boletos
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary w-100 mt-2" disabled>
+                        No disponible
+                    </button>
+                    {% endif %}
+                </div>
+            </article>
             {% endfor %}
         </div>
 
@@ -190,10 +173,10 @@
         </div>
 
         {% if not alumnos %}
-            <div class="alert alert-secondary mt-3">
-                Todavía no hay películas registradas.
-                <a href="{{ url_for('agregar') }}">Registrar una película</a>
-            </div>
+        <div class="alert alert-secondary mt-3">
+            Todavía no hay películas registradas.
+            <a href="{{ url_for('agregar') }}">Registrar una película</a>
+        </div>
         {% endif %}
     </section>
 </div>
@@ -203,43 +186,19 @@
 <script>
 (function () {
     const buscador = document.getElementById('buscarPelicula');
-    const filtroGenero = document.getElementById('filtroGenero');
     const filtroEstado = document.getElementById('filtroEstado');
+    const filtroGenero = document.getElementById('filtroGenero');
     const grid = document.getElementById('gridPeliculas');
     const mensaje = document.getElementById('sinResultados');
     const contador = document.getElementById('contadorPeliculas');
 
-    if (!buscador || !filtroGenero || !filtroEstado ||
-        !grid || !mensaje || !contador) {
+    if (!buscador || !filtroEstado || !filtroGenero || !grid || !mensaje) {
         return;
     }
 
     const tarjetas = Array.from(
         grid.querySelectorAll('.cine-movie-card')
     );
-
-// Crear las categorías automáticamente a partir de las películas
-const generos = new Map();
-
-tarjetas.forEach(function (tarjeta) {
-    const generoOriginal = (tarjeta.dataset.genero || '').trim();
-    const clave = normalizar(generoOriginal);
-
-    if (clave && clave !== 'sin categoria' && !generos.has(clave)) {
-        generos.set(clave, generoOriginal);
-    }
-});
-
-Array.from(generos.entries())
-    .sort(function (a, b) {
-        return a[1].localeCompare(b[1], 'es');
-    })
-    .forEach(function (item) {
-        const opcion = document.createElement('option');
-        opcion.value = item[0];
-        opcion.textContent = item[1];
-        filtroGenero.appendChild(opcion);
-    });
 
     function normalizar(texto) {
         return (texto || '')
@@ -251,47 +210,51 @@ Array.from(generos.entries())
 
     function filtrarPeliculas() {
         const texto = normalizar(buscador.value);
-        const generoElegido = normalizar(filtroGenero.value);
         const estadoElegido = filtroEstado.value;
+        const generoElegido = normalizar(filtroGenero.value);
         let visibles = 0;
 
         tarjetas.forEach(function (tarjeta) {
             const nombre = normalizar(tarjeta.dataset.nombre);
-            const genero = normalizar(tarjeta.dataset.genero);
+            const generoTarjeta = normalizar(tarjeta.dataset.genero);
             const estado = normalizar(tarjeta.dataset.estado);
 
-            const coincideNombre = nombre.includes(texto);
-
-            const coincideGenero =
-                generoElegido === 'todos' ||
-                genero === generoElegido;
+            const coincideTexto =
+                nombre.includes(texto) || generoTarjeta.includes(texto);
 
             const estaAgotada =
-                ['agotado', 'no disponible'].includes(estado);
+                estado === 'agotado' || estado === 'no disponible';
 
             const coincideEstado =
                 estadoElegido === 'todas' ||
                 (estadoElegido === 'disponible' && !estaAgotada) ||
                 (estadoElegido === 'agotado' && estaAgotada);
 
-            const mostrar =
-                coincideNombre && coincideGenero && coincideEstado;
+            const coincideGenero =
+                generoElegido === 'todos' ||
+                generoTarjeta === generoElegido;
 
-            tarjeta.hidden = !mostrar;
+            tarjeta.hidden = !(
+                coincideTexto && coincideEstado && coincideGenero
+            );
 
-            if (mostrar) {
+            if (!tarjeta.hidden) {
                 visibles++;
             }
         });
 
         mensaje.hidden = visibles !== 0;
-        contador.textContent =
-            'Películas encontradas: ' + visibles + ' de ' + tarjetas.length;
+
+        if (contador) {
+            contador.textContent =
+                'Películas encontradas: ' + visibles +
+                ' de ' + tarjetas.length;
+        }
     }
 
     buscador.addEventListener('input', filtrarPeliculas);
-    filtroGenero.addEventListener('change', filtrarPeliculas);
     filtroEstado.addEventListener('change', filtrarPeliculas);
+    filtroGenero.addEventListener('change', filtrarPeliculas);
 
     filtrarPeliculas();
 })();

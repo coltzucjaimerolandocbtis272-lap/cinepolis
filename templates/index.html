@@ -7,14 +7,11 @@
 <section class="cine-hero cine-hero-portada">
     <div class="cine-hero-content">
         <span class="cine-etiqueta">BIENVENIDO A CINÉPOLIS</span>
-
         <h2>Vive la magia del cine</h2>
-
         <p>
             Descubre las mejores películas, disfruta de grandes
             historias y vive una experiencia única en la pantalla grande.
         </p>
-
         <div class="cine-hero-botones">
             <a href="#cartelera" class="btn-cine">Ver cartelera</a>
             <a href="#cartelera" class="btn-cine-secundario">
@@ -40,9 +37,7 @@
     <section id="cartelera" class="mb-5">
         <div class="cine-section-heading">
             <div>
-                <span class="cine-hero-label">
-                    ENCUENTRA TU PRÓXIMA PELÍCULA
-                </span>
+                <span class="cine-hero-label">ENCUENTRA TU PRÓXIMA PELÍCULA</span>
                 <h2>Cartelera</h2>
                 <p>Busca por nombre, disponibilidad o género.</p>
             </div>
@@ -50,20 +45,15 @@
 
         <div class="cine-filtros">
             <div class="cine-filtro-busqueda">
-                <label for="buscarPelicula" class="form-label">
-                    Buscar película
-                </label>
-                <input type="search"
-                       id="buscarPelicula"
+                <label for="buscarPelicula" class="form-label">Buscar película</label>
+                <input type="search" id="buscarPelicula"
                        class="form-control"
                        placeholder="Nombre de la película..."
                        autocomplete="off">
             </div>
 
             <div class="cine-filtro-estado">
-                <label for="filtroEstado" class="form-label">
-                    Disponibilidad
-                </label>
+                <label for="filtroEstado" class="form-label">Disponibilidad</label>
                 <select id="filtroEstado" class="form-select">
                     <option value="todas">Todas</option>
                     <option value="disponible">Disponible</option>
@@ -100,8 +90,24 @@
             {% set nombre_normalizado = nombre|lower %}
             {% set poster_local = '' %}
 
-            {# Los títulos más específicos deben ir primero #}
-            {% if 'toy story 5' in nombre_normalizado %}
+            {# Pósteres nuevos #}
+            {% if 'wildwood' in nombre_normalizado %}
+                {% set poster_local = 'wildwood.jpg' %}
+            {% elif 'clayface' in nombre_normalizado %}
+                {% set poster_local = 'clayface.jpg' %}
+            {% elif 'gato con sombrero' in nombre_normalizado or 'cat in the hat' in nombre_normalizado %}
+                {% set poster_local = 'gato_con_sombrero.jpg' %}
+            {% elif 'godzilla minus zero' in nombre_normalizado %}
+                {% set poster_local = 'godzilla_minus_zero.jpg' %}
+            {% elif 'amanecer en la cosecha' in nombre_normalizado or 'sunrise on the reaping' in nombre_normalizado %}
+                {% set poster_local = 'juegos_del_hambre_amanecer.jpg' %}
+            {% elif 'paw patrol' in nombre_normalizado or 'patrulla canina' in nombre_normalizado %}
+                {% set poster_local = 'paw_patrol_dinosaurios.jpg' %}
+            {% elif 'minions' in nombre_normalizado and 'monsters' in nombre_normalizado %}
+                {% set poster_local = 'minions_monsters.jpg' %}
+
+            {# Pósteres anteriores #}
+            {% elif 'toy story 5' in nombre_normalizado %}
                 {% set poster_local = 'toy_story_5.jpg' %}
             {% elif 'toy story 4' in nombre_normalizado %}
                 {% set poster_local = 'toy_story_4.jpg' %}
@@ -113,7 +119,7 @@
                 {% set poster_local = 'street_fighter.jpg' %}
             {% elif 'resident evil' in nombre_normalizado %}
                 {% set poster_local = 'resident_evil.jpg' %}
-            {% elif 'corazon bestia' in nombre_normalizado %}
+            {% elif 'corazon bestia' in nombre_normalizado or 'corazón bestia' in nombre_normalizado %}
                 {% set poster_local = 'corazon_bestia.jpg' %}
             {% elif 'poder red' in nombre_normalizado %}
                 {% set poster_local = 'poder_red.jpg' %}
@@ -155,13 +161,11 @@
                 <div class="cine-movie-poster">
                     {% if poster_local %}
                     <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
-                         alt="Póster de {{ nombre }}"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'cine-poster-placeholder\'><span>🎬</span><span>CINÉPOLIS</span></div>';">
+                         alt="Póster de {{ nombre }}" loading="lazy"
+                         onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'cine-poster-placeholder\'><span>🎬</span><span>CINÉPOLIS</span></div>';">
                     {% elif pelicula.get('poster') or pelicula.get('imagen') %}
                     <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
-                         alt="Póster de {{ nombre }}"
-                         loading="lazy">
+                         alt="Póster de {{ nombre }}" loading="lazy">
                     {% else %}
                     <div class="cine-poster-placeholder">
                         <span>🎬</span>
@@ -181,9 +185,7 @@
                     {% endif %}
 
                     {% if pelicula.get('duracion') %}
-                    <p class="cine-movie-duration">
-                        {{ pelicula.get('duracion') }} min
-                    </p>
+                    <p class="cine-movie-duration">{{ pelicula.get('duracion') }} min</p>
                     {% endif %}
 
                     {% if pelicula.get('clasificacion') %}
@@ -235,9 +237,7 @@
         return;
     }
 
-    const tarjetas = Array.from(
-        grid.querySelectorAll('.cine-movie-card')
-    );
+    const tarjetas = Array.from(grid.querySelectorAll('.cine-movie-card'));
 
     function normalizar(texto) {
         return (texto || '')
@@ -277,9 +277,7 @@
                 coincideTexto && coincideEstado && coincideGenero
             );
 
-            if (!tarjeta.hidden) {
-                visibles++;
-            }
+            if (!tarjeta.hidden) visibles++;
         });
 
         mensaje.hidden = visibles !== 0;

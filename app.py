@@ -322,6 +322,10 @@ def inicio():
         agregada=request.args.get("agregada")
     )
 
+@app.route("/alimentos")
+def alimentos():
+    return render_template("alimentos.html")
+
 
 # =========================
 # PÁGINA DE PELÍCULAS REGISTRADAS

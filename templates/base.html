@@ -35,8 +35,12 @@
       <div class="collapse navbar-collapse" id="menuPrincipal">
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('inicio') }}">Inicio</a>
-          </li>
+            <li class="nav-item">
+  <a class="nav-link" href="{{ url_for('inicio') }}">Inicio</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{{ url_for('alimentos') }}">Alimentos</a>
+</li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('agregar') }}">Agregar película</a>
           </li>
@@ -51,17 +55,49 @@
     </div>
   </nav>
 
-  
-
   <main class="container cine-main">
     {% block content %}{% block contenido %}{% endblock %}{% endblock %}
   </main>
 
   <footer class="cine-footer">
     <div class="container">
-      <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
-        <span><strong>CINÉPOLIS</strong> · Aplicaciones Web · Práctica 05</span>
-        <span>Vive la magia del cine</span>
+      <div class="cine-footer-columnas">
+
+        <section class="cine-footer-columna">
+          <h3>
+            <span class="cine-footer-icono" aria-hidden="true">♧</span>
+            Autores:
+          </h3>
+          <p>Jaime Rolando Col Tzuc</p>
+          <p>Martínez Merlin Alexander</p>
+        </section>
+
+        <section class="cine-footer-columna">
+          <h3>
+            <span class="cine-footer-icono" aria-hidden="true">☎</span>
+            Contactos:
+          </h3>
+          <p><a href="tel:+529985590630">+52 998 559 0630</a></p>
+          <p><a href="tel:+529982462035">+52 998 246 2035</a></p>
+        </section>
+
+        <section class="cine-footer-columna">
+          <h3>
+            <span class="cine-footer-icono" aria-hidden="true">▣</span>
+            Proyecto cine:
+          </h3>
+          <p>Proyecto creado para ver películas.</p>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="cine-footer-inferior">
+      <div class="container">
+        <div class="cine-footer-marca">
+          <strong>CINÉPOLIS - WAZAAAAAAA</strong>
+          <span>Vive la magia del cine</span>
+        </div>
       </div>
     </div>
   </footer>

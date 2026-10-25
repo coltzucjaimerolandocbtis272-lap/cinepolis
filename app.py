@@ -122,19 +122,38 @@ def aplicar_poster(pelicula):
     if not pelicula:
         return pelicula
 
-    if not pelicula.get("poster") and not pelicula.get("poster_url"):
-        titulo = pelicula.get(
-            "titulo", pelicula.get("nombre", "")
-        ).lower()
+    poster_actual = (
+        pelicula.get("poster")
+        or pelicula.get("poster_url")
+        or ""
+    ).strip()
 
-        if "spider-man" in titulo or "spiderman" in titulo:
-            pelicula["poster"] = (
-                "https://image.tmdb.org/t/p/w500/"
-                "8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
+    if poster_actual:
+        return pelicula
+
+    titulo = pelicula.get(
+        "titulo", pelicula.get("nombre", "")
+    ).lower().strip()
+
+    posters = {
+        "cars": "Cars.webp",
+        "coco": "Coco.jpg",
+        "intensamente 2": "Intensamente 2.jpg",
+        "jurassic world": "Jurassic World.jpg",
+        "spider-man": "spiderman-brand-new-day.jpg",
+        "spiderman": "spiderman-brand-new-day.jpg",
+        "super mario bros": "Super Mario Bros.jpg",
+    }
+
+    for nombre, archivo in posters.items():
+        if nombre in titulo:
+            pelicula["poster"] = url_for(
+                "static",
+                filename=f"posters/{archivo}"
             )
+            break
 
     return pelicula
-
 
 def leer_formulario():
     datos = {

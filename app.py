@@ -358,13 +358,7 @@ PRECIOS_ALIMENTOS = {
 @app.route("/comprar-alimentos", methods=["GET", "POST"])
 def comprar_alimentos():
     if request.method == "GET":
-        return render_template(
-            "alimentos.html",
-            precios=PRECIOS_ALIMENTOS,
-            compra_confirmada=False,
-            total=0,
-            productos_seleccionados=[]
-        )
+        return redirect(url_for("alimentos"))
 
     productos_seleccionados = []
     total = 0
@@ -385,15 +379,36 @@ def comprar_alimentos():
                 mensaje_error="Selecciona cantidades entre 0 y 50."
             )
 
-        if cantidad > 0:
-            subtotal = cantidad * precio
-            productos_seleccionados.append({
-                "producto": producto,
-                "precio": precio,
-                "cantidad": cantidad,
-                "subtotal": subtotal
-            })
-            total += subtotal
+        if cantidad == 0:
+            continue
+
+        detalle = {
+            "producto": producto,
+            "precio": precio,
+            "cantidad": cantidad,
+            "subtotal": cantidad * precio
+        }
+
+        if producto == "ICE":
+            detalle["sabor"] = request.form.get(
+                "sabor_ICE", "Mora roja"
+            )
+
+            if detalle["sabor"] not in ["Mora roja", "Mora azul"]:
+                detalle["sabor"] = "Mora roja"
+
+        if producto == "Papas fritas":
+            detalle["preparacion"] = request.form.get(
+                "tipo_papas", "Naturales"
+            )
+
+            if detalle["preparacion"] not in [
+                "Naturales", "Con chile"
+            ]:
+                detalle["preparacion"] = "Naturales"
+
+        productos_seleccionados.append(detalle)
+        total += detalle["subtotal"]
 
     if not productos_seleccionados:
         return render_template(

@@ -325,7 +325,13 @@ def inicio():
 
 @app.route("/alimentos")
 def alimentos():
-    return render_template("alimentos.html")
+    return render_template(
+        "alimentos.html",
+        precios=PRECIOS_ALIMENTOS,
+        compra_confirmada=False,
+        total=0,
+        productos_seleccionados=[]
+    )
 
 # =========================
 # COMPRA DE ALIMENTOS

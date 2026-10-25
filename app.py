@@ -32,6 +32,7 @@ base_datos = cliente["cinepolis"]
 alumnos = base_datos["peliculas"]
 compras = base_datos["compras"]
 asientos = base_datos["asientos"]
+compras_alimentos = base_datos["compras_alimentos"]
 
 # =========================
 # CONFIGURACIÓN
@@ -325,6 +326,100 @@ def inicio():
 @app.route("/alimentos")
 def alimentos():
     return render_template("alimentos.html")
+
+# =========================
+# COMPRA DE ALIMENTOS
+# =========================
+
+PRECIOS_ALIMENTOS = {
+    "Palomitas Takis": 75,
+    "Palomitas mantequilla": 65,
+    "Palomitas caramelo": 75,
+    "Coca-Cola": 45,
+    "Pepsi": 40,
+    "ICE": 40,
+    "Fanta": 40,
+    "Sprite": 40,
+    "M&M's": 45,
+    "Oreo": 35,
+    "Hershey's": 40,
+    "Skwinkles": 30,
+    "Hot dogs": 60,
+    "Papas fritas": 45
+}
+
+
+@app.route("/comprar-alimentos", methods=["GET", "POST"])
+def comprar_alimentos():
+    if request.method == "GET":
+        return render_template(
+            "alimentos.html",
+            precios=PRECIOS_ALIMENTOS,
+            compra_confirmada=False,
+            total=0,
+            productos_seleccionados=[]
+        )
+
+    productos_seleccionados = []
+    total = 0
+
+    for producto, precio in PRECIOS_ALIMENTOS.items():
+        try:
+            cantidad = int(request.form.get(producto, "0"))
+        except (ValueError, TypeError):
+            cantidad = 0
+
+        if cantidad < 0 or cantidad > 50:
+            return render_template(
+                "alimentos.html",
+                precios=PRECIOS_ALIMENTOS,
+                compra_confirmada=False,
+                total=0,
+                productos_seleccionados=[],
+                mensaje_error="Selecciona cantidades entre 0 y 50."
+            )
+
+        if cantidad > 0:
+            subtotal = cantidad * precio
+            productos_seleccionados.append({
+                "producto": producto,
+                "precio": precio,
+                "cantidad": cantidad,
+                "subtotal": subtotal
+            })
+            total += subtotal
+
+    if not productos_seleccionados:
+        return render_template(
+            "alimentos.html",
+            precios=PRECIOS_ALIMENTOS,
+            compra_confirmada=False,
+            total=0,
+            productos_seleccionados=[],
+            mensaje_error="Selecciona al menos un alimento."
+        )
+
+    compra = {
+        "productos": productos_seleccionados,
+        "total": total,
+        "fecha_compra": ahora_local(),
+        "tipo": "alimentos"
+    }
+
+    try:
+        resultado = compras_alimentos.insert_one(compra)
+
+        return render_template(
+            "alimentos.html",
+            precios=PRECIOS_ALIMENTOS,
+            compra_confirmada=True,
+            total=total,
+            productos_seleccionados=productos_seleccionados,
+            folio=str(resultado.inserted_id)
+        )
+
+    except PyMongoError:
+        abort(503)
 
 
 # =========================

@@ -19,13 +19,18 @@
     <h2>¡Compra de alimentos confirmada!</h2>
     <p>Folio: <strong>{{ folio }}</strong></p>
     <p>Total pagado: <strong>${{ "%.2f"|format(total) }} MXN</strong></p>
+
     <h3>Resumen de tu compra</h3>
     {% for producto in productos_seleccionados %}
     <p>
-        {{ producto.producto }} × {{ producto.cantidad }}
+        {{ producto.producto }}
+        {% if producto.sabor %} — Sabor: {{ producto.sabor }}{% endif %}
+        {% if producto.preparacion %} — Preparación: {{ producto.preparacion }}{% endif %}
+        × {{ producto.cantidad }}
         — ${{ "%.2f"|format(producto.subtotal) }} MXN
     </p>
     {% endfor %}
+
     <a href="{{ url_for('alimentos') }}" class="btn btn-primary">
         Hacer otra compra de alimentos
     </a>
@@ -35,53 +40,93 @@
 <form action="{{ url_for('comprar_alimentos') }}" method="POST">
     {% set grupos = [
         ("🍿 Palomitas", [
-            ("Palomitas Takis", "Palomitas sabor Takis"),
-            ("Palomitas mantequilla", "Palomitas clásicas"),
-            ("Palomitas caramelo", "Palomitas dulces")
+            ("Palomitas Takis", "Palomitas sabor Takis", "palomitas_takis.jpg"),
+            ("Palomitas mantequilla", "Palomitas clásicas", "palomitas_mantequilla.jpg"),
+            ("Palomitas caramelo", "Palomitas dulces", "palomitas_caramelo.jpg")
         ]),
         ("🥤 Refrescos", [
-            ("Coca-Cola", "Refresco"),
-            ("Pepsi", "Refresco"),
-            ("ICE", "Bebida fría"),
-            ("Fanta", "Refresco"),
-            ("Sprite", "Refresco")
+            ("Coca-Cola", "Refresco", "coca_cola.jpg"),
+            ("Pepsi", "Refresco", "pepsi.jpg"),
+            ("ICE", "Bebida fría: elige tu sabor", "ice.jpg"),
+            ("Fanta", "Refresco", "fanta.jpg"),
+            ("Sprite", "Refresco", "sprite.jpg")
         ]),
         ("🍫 Dulces y chocolates", [
-            ("M&M's", "Chocolate con cubierta dulce"),
-            ("Oreo", "Galletas de chocolate"),
-            ("Hershey's", "Chocolate"),
-            ("Skwinkles", "Dulces enchilados")
+            ("M&M's", "Chocolate con cubierta dulce", "mms.jpg"),
+            ("Oreo", "Galletas de chocolate", "oreo.jpg"),
+            ("Hershey's", "Chocolate", "hersheys.jpg"),
+            ("Skwinkles", "Dulces enchilados", "skwinkcles.jpg")
         ]),
         ("🌭 Snacks", [
-            ("Hot dogs", "Hot dog clásico"),
-            ("Papas fritas", "Porción de papas")
+            ("Hot dogs", "Hot dog clásico", "hot_dogs.jpg"),
+            ("Papas fritas", "Elige naturales o con chile", "papas_fritas.jpg")
         ])
     ] %}
 
     {% for grupo, productos in grupos %}
     <section class="alimentos-seccion">
         <h2>{{ grupo }}</h2>
+
         <div class="alimentos-grid">
-            {% for nombre, descripcion in productos %}
+            {% for nombre, descripcion, imagen in productos %}
             <article class="alimento-card">
-                <div class="alimento-imagen">Espacio para imagen</div>
+
+                <div class="alimento-imagen">
+                    <img
+                        src="{{ url_for('static', filename='alimentos/' ~ imagen) }}"
+                        alt="{{ nombre }}"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <span class="imagen-no-disponible" style="display:none;">
+                        Imagen no disponible
+                    </span>
+                </div>
+
                 <h3>{{ nombre }}</h3>
                 <p>{{ descripcion }}</p>
+
+                {% if nombre == "ICE" %}
+                <label for="sabor-ice-{{ loop.index }}">Sabor:</label>
+                <select
+                    name="sabor_ICE"
+                    id="sabor-ice-{{ loop.index }}"
+                    class="form-select sabor-alimento"
+                >
+                    <option value="Mora roja">Mora roja</option>
+                    <option value="Mora azul">Mora azul</option>
+                </select>
+                {% endif %}
+
+                {% if nombre == "Papas fritas" %}
+                <label for="tipo-papas-{{ loop.index }}">Preparación:</label>
+                <select
+                    name="tipo_papas"
+                    id="tipo-papas-{{ loop.index }}"
+                    class="form-select sabor-alimento"
+                >
+                    <option value="Naturales">Naturales</option>
+                    <option value="Con chile">Con chile</option>
+                </select>
+                {% endif %}
+
                 <strong>${{ precios[nombre] }} MXN</strong>
 
-                <label for="cantidad-{{ loop.index }}-{{ loop.index0 }}-{{ loop.index }}">
+                <label for="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}">
                     Cantidad:
                 </label>
+
                 <input
                     type="number"
                     name="{{ nombre }}"
-                    id="cantidad-{{ grupo|replace(' ', '-') }}-{{ nombre|replace(' ', '-') }}"
+                    id="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}"
                     class="form-control cantidad-alimento"
                     min="0"
                     max="50"
                     value="0"
                     inputmode="numeric"
                 >
+
                 <p class="subtotal-alimento">
                     Subtotal: $<span>0.00</span> MXN
                 </p>
@@ -94,9 +139,11 @@
     <section class="alimentos-resumen">
         <h2>Resumen de alimentos</h2>
         <p>El total se actualizará cuando cambies las cantidades.</p>
+
         <p class="alimentos-total">
             Total: $<span id="total-alimentos">0.00</span> MXN
         </p>
+
         <button type="submit" class="btn btn-primary btn-lg">
             Confirmar compra de alimentos
         </button>
@@ -123,7 +170,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const precioTexto = tarjeta.querySelector("strong").textContent;
             const precio = parseFloat(
                 precioTexto.replace("$", "").replace(" MXN", "")
-            );
+            ) || 0;
+
             const subtotal = cantidad * precio;
 
             tarjeta.querySelector(".subtotal-alimento span").textContent =
@@ -137,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     cantidades.forEach(function (campo) {
         campo.addEventListener("input", actualizarTotal);
+        campo.addEventListener("change", actualizarTotal);
     });
 
     actualizarTotal();

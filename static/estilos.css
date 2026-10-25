@@ -247,8 +247,8 @@ a {
 
 .cine-filtros {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: 10px;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
     align-items: end;
     margin-bottom: 24px;
     width: 100%;
@@ -269,6 +269,7 @@ a {
 
 .cine-filtros .form-control,
 .cine-filtros .form-select {
+    display: block;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -1269,5 +1270,150 @@ footer.container {
     #gridPeliculas.cine-movie-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px 12px;
+    }
+}
+
+/* Ajuste definitivo de los filtros de cartelera */
+#cartelera .cine-filtros {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: end !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+}
+
+#cartelera .cine-filtro-busqueda,
+#cartelera .cine-filtro-estado,
+#cartelera .cine-filtro-genero {
+    display: block !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+#cartelera .cine-filtros .form-control,
+#cartelera .cine-filtros .form-select {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 650px) {
+    #cartelera .cine-filtros {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    #cartelera .cine-filtro-busqueda {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+/* Portada cinematográfica de Cinépolis */
+.cine-hero-portada {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 440px;
+    padding: 55px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5, 10, 22, 0.97) 0%,
+            rgba(5, 10, 22, 0.82) 42%,
+            rgba(5, 10, 22, 0.15) 100%
+        ),
+        url("/static/portada-cine.png") center / cover no-repeat;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+}
+
+.cine-hero-portada .cine-hero-content {
+    position: relative;
+    z-index: 1;
+    width: 58%;
+    max-width: 680px;
+}
+
+.cine-hero-portada h2 {
+    margin: 18px 0;
+    color: #fff;
+    font-size: clamp(2.4rem, 5vw, 4.3rem);
+    font-weight: 800;
+    line-height: 1.05;
+}
+
+.cine-hero-portada p {
+    max-width: 570px;
+    color: #d6deed;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.cine-hero-botones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.cine-hero-botones .btn-cine {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 14px 25px;
+    text-decoration: none;
+}
+
+.btn-cine-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 13px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.btn-cine-secundario:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+@media (max-width: 650px) {
+    .cine-hero-portada {
+        min-height: 390px;
+        padding: 28px 22px;
+        background-position: center;
+    }
+
+    .cine-hero-portada .cine-hero-content {
+        width: 100%;
+    }
+
+    .cine-hero-portada h2 {
+        font-size: 2.4rem;
+    }
+
+    .cine-hero-portada p {
+        font-size: 1rem;
+    }
+
+    .cine-hero-botones {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cine-hero-botones a {
+        width: 100%;
     }
 }

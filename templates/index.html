@@ -16,10 +16,7 @@
         </p>
 
         <div class="cine-hero-botones">
-            <a href="#cartelera" class="btn-cine">
-                Ver cartelera
-            </a>
-
+            <a href="#cartelera" class="btn-cine">Ver cartelera</a>
             <a href="#cartelera" class="btn-cine-secundario">
                 Próximas películas
             </a>
@@ -43,7 +40,9 @@
     <section id="cartelera" class="mb-5">
         <div class="cine-section-heading">
             <div>
-                <span class="cine-hero-label">ENCUENTRA TU PRÓXIMA PELÍCULA</span>
+                <span class="cine-hero-label">
+                    ENCUENTRA TU PRÓXIMA PELÍCULA
+                </span>
                 <h2>Cartelera</h2>
                 <p>Busca por nombre, disponibilidad o género.</p>
             </div>
@@ -73,9 +72,7 @@
             </div>
 
             <div class="cine-filtro-genero">
-                <label for="filtroGenero" class="form-label">
-                    Género
-                </label>
+                <label for="filtroGenero" class="form-label">Género</label>
                 <select id="filtroGenero" class="form-select">
                     <option value="todos">Todos los géneros</option>
                     <option value="accion">Acción</option>
@@ -86,6 +83,7 @@
                     <option value="fantasia">Fantasía</option>
                     <option value="comedia">Comedia</option>
                     <option value="romance">Romance</option>
+                    <option value="drama">Drama</option>
                 </select>
             </div>
         </div>
@@ -102,7 +100,38 @@
             {% set nombre_normalizado = nombre|lower %}
             {% set poster_local = '' %}
 
-            {% if 'spider' in nombre_normalizado %}
+            {# Los títulos más específicos deben ir primero #}
+            {% if 'toy story 5' in nombre_normalizado %}
+                {% set poster_local = 'toy_story_5.jpg' %}
+            {% elif 'toy story 4' in nombre_normalizado %}
+                {% set poster_local = 'toy_story_4.jpg' %}
+            {% elif 'cars 3' in nombre_normalizado %}
+                {% set poster_local = 'cars_3.jpg' %}
+            {% elif 'cars 2' in nombre_normalizado %}
+                {% set poster_local = 'cars_2.jpg' %}
+            {% elif 'street fighter' in nombre_normalizado %}
+                {% set poster_local = 'street_fighter.jpg' %}
+            {% elif 'resident evil' in nombre_normalizado %}
+                {% set poster_local = 'resident_evil.jpg' %}
+            {% elif 'corazon bestia' in nombre_normalizado %}
+                {% set poster_local = 'corazon_bestia.jpg' %}
+            {% elif 'poder red' in nombre_normalizado %}
+                {% set poster_local = 'poder_red.jpg' %}
+            {% elif 'digger' in nombre_normalizado %}
+                {% set poster_local = 'digger.jpg' %}
+            {% elif 'isla olvidada' in nombre_normalizado %}
+                {% set poster_local = 'isla_olvidada.jpg' %}
+            {% elif 'verity' in nombre_normalizado %}
+                {% set poster_local = 'verity.jpg' %}
+            {% elif 'charro negro' in nombre_normalizado %}
+                {% set poster_local = 'charro_negro.jpg' %}
+            {% elif 'madre siniestra' in nombre_normalizado %}
+                {% set poster_local = 'madre_siniestra.jpg' %}
+            {% elif 'laberinto fauno' in nombre_normalizado %}
+                {% set poster_local = 'laberinto_fauno.jpg' %}
+            {% elif 'tadeo' in nombre_normalizado %}
+                {% set poster_local = 'tadeo.jpg' %}
+            {% elif 'spider' in nombre_normalizado %}
                 {% set poster_local = 'spiderman-brand-new-day.jpg' %}
             {% elif 'mario' in nombre_normalizado %}
                 {% set poster_local = 'Super Mario Bros.jpg' %}
@@ -126,10 +155,13 @@
                 <div class="cine-movie-poster">
                     {% if poster_local %}
                     <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
-                         alt="Póster de {{ nombre }}" loading="lazy">
+                         alt="Póster de {{ nombre }}"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'cine-poster-placeholder\'><span>🎬</span><span>CINÉPOLIS</span></div>';">
                     {% elif pelicula.get('poster') or pelicula.get('imagen') %}
                     <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
-                         alt="Póster de {{ nombre }}" loading="lazy">
+                         alt="Póster de {{ nombre }}"
+                         loading="lazy">
                     {% else %}
                     <div class="cine-poster-placeholder">
                         <span>🎬</span>

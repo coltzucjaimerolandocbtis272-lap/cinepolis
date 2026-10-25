@@ -138,12 +138,25 @@ def aplicar_poster(pelicula):
 
 def leer_formulario():
     datos = {
-        "titulo": request.form.get("titulo", "").strip(),
-        "genero": request.form.get("genero", "").strip(),
+        "titulo": request.form.get(
+            "titulo", request.form.get("nombre", "")
+        ).strip(),
+        "genero": request.form.get(
+            "genero", request.form.get("categoria", "")
+        ).strip(),
         "duracion": request.form.get("duracion", "").strip(),
-        "clasificacion": request.form.get("clasificacion", "").strip(),
-        "descripcion": request.form.get("descripcion", "").strip(),
-        "poster": request.form.get("poster", "").strip()
+        "clasificacion": request.form.get(
+            "clasificacion", ""
+        ).strip(),
+        "descripcion": request.form.get(
+            "descripcion", ""
+        ).strip(),
+        "poster": request.form.get(
+            "poster", ""
+        ).strip(),
+        "estado": request.form.get(
+            "estado", "Disponible"
+        ).strip()
     }
     return datos
 

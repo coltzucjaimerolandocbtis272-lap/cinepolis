@@ -42,6 +42,8 @@ ZONA_HORARIA = ZoneInfo("America/Cancun")
 PRECIO_BOLETO = 80
 MAXIMO_PELICULAS = 15
 MAXIMO_ASIENTOS = 6
+DURACION_MINIMA = 1
+DURACION_MAXIMA = 600
 
 HORARIOS_VALIDOS = ["12:00", "15:00", "18:00", "21:00"]
 ASIENTOS_VALIDOS = list(range(1, 49))
@@ -156,15 +158,32 @@ def aplicar_poster(pelicula):
 
     return pelicula
 
+
 def leer_formulario():
-    datos = {
-        "titulo": request.form.get(
-            "titulo", request.form.get("nombre", "")
-        ).strip(),
-        "genero": request.form.get(
-            "genero", request.form.get("categoria", "")
-        ).strip(),
-        "duracion": request.form.get("duracion", "").strip(),
+    # Acepta los nombres de los formularios actuales
+    # y los nombres antiguos por compatibilidad.
+    nombre = request.form.get(
+        "nombre", request.form.get("titulo", "")
+    ).strip()
+
+    categoria = request.form.get(
+        "categoria", request.form.get("genero", "")
+    ).strip()
+
+    duracion_texto = request.form.get(
+        "duracion", ""
+    ).strip()
+
+    try:
+        duracion = int(duracion_texto)
+    except (ValueError, TypeError):
+        duracion = None
+
+    return {
+        "nombre": nombre,
+        "titulo": nombre,
+        "categoria": categoria,
+        "duracion": duracion,
         "clasificacion": request.form.get(
             "clasificacion", ""
         ).strip(),
@@ -178,7 +197,6 @@ def leer_formulario():
             "estado", "Disponible"
         ).strip()
     }
-    return datos
 
 
 def consultar_asientos_ocupados(pelicula_id, fecha, horario):
@@ -323,18 +341,9 @@ def inicio():
         agregada=request.args.get("agregada")
     )
 
-@app.route("/alimentos")
-def alimentos():
-    return render_template(
-        "alimentos.html",
-        precios=PRECIOS_ALIMENTOS,
-        compra_confirmada=False,
-        total=0,
-        productos_seleccionados=[]
-    )
 
 # =========================
-# COMPRA DE ALIMENTOS
+# ALIMENTOS
 # =========================
 
 PRECIOS_ALIMENTOS = {
@@ -353,6 +362,17 @@ PRECIOS_ALIMENTOS = {
     "Hot dogs": 60,
     "Papas fritas": 45
 }
+
+
+@app.route("/alimentos")
+def alimentos():
+    return render_template(
+        "alimentos.html",
+        precios=PRECIOS_ALIMENTOS,
+        compra_confirmada=False,
+        total=0,
+        productos_seleccionados=[]
+    )
 
 
 @app.route("/comprar-alimentos", methods=["GET", "POST"])
@@ -444,7 +464,7 @@ def comprar_alimentos():
 
 
 # =========================
-# PÁGINA DE PELÍCULAS REGISTRADAS
+# PELÍCULAS REGISTRADAS
 # =========================
 
 @app.route("/peliculas")
@@ -469,7 +489,6 @@ def peliculas_registradas():
 
 @app.route("/agregar", methods=["GET", "POST"])
 def agregar():
-    # GET: muestra la página del formulario.
     if request.method == "GET":
         total_peliculas = alumnos.count_documents({})
 
@@ -479,15 +498,23 @@ def agregar():
             error=request.args.get("error")
         )
 
-    # POST: procesa y guarda la película.
     nombre = request.form.get("nombre", "").strip()
     categoria = request.form.get("categoria", "").strip()
     estado = request.form.get("estado", "").strip()
+    duracion_texto = request.form.get("duracion", "").strip()
 
-    if not nombre or not categoria:
-        return redirect(url_for("agregar") + "?error=datos")
+    try:
+        duracion = int(duracion_texto)
+    except (ValueError, TypeError):
+        duracion = None
 
-    if estado not in ["Disponible", "Agotado"]:
+    if (
+        not nombre
+        or not categoria
+        or duracion is None
+        or not DURACION_MINIMA <= duracion <= DURACION_MAXIMA
+        or estado not in ["Disponible", "Agotado"]
+    ):
         return redirect(url_for("agregar") + "?error=datos")
 
     try:
@@ -496,11 +523,15 @@ def agregar():
 
         alumnos.insert_one({
             "nombre": nombre,
+            "titulo": nombre,
             "categoria": categoria,
+            "duracion": duracion,
             "estado": estado
         })
 
-        return redirect(url_for("inicio") + "?agregada=1")
+        return redirect(
+            url_for("peliculas_registradas") + "?agregada=1"
+        )
 
     except PyMongoError:
         abort(503)
@@ -520,21 +551,41 @@ def editar(id):
     if request.method == "POST":
         datos = leer_formulario()
 
-        if not datos["titulo"]:
-            aplicar_poster(pelicula)
+        if not datos["nombre"]:
             return render_template(
                 "editar.html",
                 pelicula=pelicula,
-                mensaje_error="Escribe el título de la película."
+                mensaje_error="Escribe el nombre de la película."
+            )
+
+        if not datos["categoria"]:
+            return render_template(
+                "editar.html",
+                pelicula=pelicula,
+                mensaje_error="Escribe la categoría de la película."
+            )
+
+        if (
+            datos["duracion"] is None
+            or not DURACION_MINIMA <= datos["duracion"] <= DURACION_MAXIMA
+        ):
+            return render_template(
+                "editar.html",
+                pelicula=pelicula,
+                mensaje_error=(
+                    "La duración debe ser un número "
+                    "entre 1 y 600 minutos."
+                )
+            )
+
+        if datos["estado"] not in ["Disponible", "Agotado"]:
+            return render_template(
+                "editar.html",
+                pelicula=pelicula,
+                mensaje_error="Selecciona un estado válido."
             )
 
         try:
-            if datos["duracion"]:
-                datos["duracion"] = int(datos["duracion"])
-
-            datos["nombre"] = datos["titulo"]
-            datos["categoria"] = datos["genero"]
-
             alumnos.update_one(
                 {"_id": pelicula["_id"]},
                 {"$set": datos}
@@ -542,19 +593,15 @@ def editar(id):
 
             return redirect(url_for("peliculas_registradas"))
 
-        except ValueError:
-            aplicar_poster(pelicula)
-            return render_template(
-                "editar.html",
-                pelicula=pelicula,
-                mensaje_error="La duración debe ser un número."
-            )
-
         except PyMongoError:
             abort(503)
 
     aplicar_poster(pelicula)
-    return render_template("editar.html", pelicula=pelicula)
+
+    return render_template(
+        "editar.html",
+        pelicula=pelicula
+    )
 
 
 # =========================
@@ -634,7 +681,6 @@ def comprar(id):
     if accion not in ["consultar", "continuar", "confirmar"]:
         abort(400)
 
-    # Si cambia la fecha o la función, consulta disponibilidad.
     if accion == "consultar":
         error = validar_fecha_horario(fecha, horario)
 
@@ -714,7 +760,6 @@ def comprar(id):
 
     total = cantidad * PRECIO_BOLETO
 
-    # Mostrar el resumen antes de confirmar la compra.
     if accion == "continuar":
         return render_template(
             "comprar.html",
@@ -739,7 +784,6 @@ def comprar(id):
     documentos_insertados = []
 
     try:
-        # Registrar los asientos seleccionados.
         for numero in seleccionados:
             resultado = asientos.insert_one({
                 "pelicula_id": str(pelicula["_id"]),
@@ -755,7 +799,6 @@ def comprar(id):
 
             documentos_insertados.append(resultado.inserted_id)
 
-        # Registrar la compra.
         compra = {
             "pelicula_id": str(pelicula["_id"]),
             "titulo_pelicula": pelicula.get(
@@ -860,6 +903,26 @@ def api_productos():
             "error": "El título es obligatorio"
         }), 400
 
+    # Si se envía duración, debe estar entre 1 y 600 minutos.
+    if "duracion" in datos:
+        try:
+            duracion = int(datos["duracion"])
+        except (ValueError, TypeError):
+            return jsonify({
+                "error": "La duración debe ser un número entero"
+            }), 400
+
+        if not DURACION_MINIMA <= duracion <= DURACION_MAXIMA:
+            return jsonify({
+                "error": "La duración debe estar entre 1 y 600 minutos"
+            }), 400
+
+        datos["duracion"] = duracion
+
+    # Normalizar categoría y mantener compatibilidad con género antiguo.
+    if "categoria" not in datos and "genero" in datos:
+        datos["categoria"] = datos["genero"]
+
     try:
         if alumnos.count_documents({}) >= MAXIMO_PELICULAS:
             return jsonify({
@@ -910,6 +973,24 @@ def api_producto(id):
             }), 400
 
         datos.pop("_id", None)
+
+        if "duracion" in datos:
+            try:
+                duracion = int(datos["duracion"])
+            except (ValueError, TypeError):
+                return jsonify({
+                    "error": "La duración debe ser un número entero"
+                }), 400
+
+            if not DURACION_MINIMA <= duracion <= DURACION_MAXIMA:
+                return jsonify({
+                    "error": "La duración debe estar entre 1 y 600 minutos"
+                }), 400
+
+            datos["duracion"] = duracion
+
+        if "categoria" not in datos and "genero" in datos:
+            datos["categoria"] = datos["genero"]
 
         try:
             resultado = alumnos.update_one(

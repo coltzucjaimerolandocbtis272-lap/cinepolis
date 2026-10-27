@@ -1,45 +1,81 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% block titulo %}Cinépolis | Editar película{% endblock %}
+{% block contenido %}
 
-{% block title %}Editar película | Cinépolis{% endblock %}
-{% block titulo %}Editar película{% endblock %}
+<section class="cine-admin-page">
 
-{% block content %}
+  <div class="cine-page-heading">
+    <span class="cine-etiqueta">PANEL DE ADMINISTRACIÓN</span>
+    <h1>Editar película</h1>
+    <p>Modifica la información de la película registrada.</p>
+  </div>
 
-<div class="container mt-4">
-    <h2>Editar película</h2>{% if mensaje_error %}
-<div class="alert alert-danger">{{ mensaje_error }}</div>
-{% endif %}
+  {% if mensaje_error %}
+  <div class="alert alert-danger" role="alert">
+    {{ mensaje_error }}
+  </div>
+  {% endif %}
 
-<form method="POST" action="{{ url_for('editar', id=pelicula._id) }}">
-    <div class="mb-3">
-        <label class="form-label">Título</label>
-        <input type="text" name="nombre" class="form-control"
-               value="{{ pelicula.get('nombre', pelicula.get('titulo', '')) }}" required>
-    </div>
+  <div class="cine-panel">
+    <form method="POST" action="{{ url_for('editar', id=pelicula._id) }}">
+      <div class="cine-form-grid">
 
-    <div class="mb-3">
-        <label class="form-label">Género</label>
-        <input type="text" name="categoria" class="form-control"
-               value="{{ pelicula.get('categoria', pelicula.get('genero', '')) }}" required>
-    </div>
+        <div>
+          <label for="nombre" class="form-label">Nombre de la película</label>
+          <input type="text" id="nombre" name="nombre"
+                 class="form-control" maxlength="80"
+                 value="{{ pelicula.get('nombre', pelicula.get('titulo', '')) }}"
+                 required>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label">Duración (minutos)</label>
-        <input type="number" name="duracion" class="form-control"
-               value="{{ pelicula.get('duracion', '') }}">
-    </div>
+        <div>
+          <label for="categoria" class="form-label">Categoría</label>
+          <input type="text" id="categoria" name="categoria"
+                 class="form-control" maxlength="40"
+                 value="{{ pelicula.get('categoria', pelicula.get('genero', '')) }}"
+                 required>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label">Estado</label>
-        <select name="estado" class="form-select">
-            <option value="Disponible" {% if pelicula.get('estado') == 'Disponible' %}selected{% endif %}>Disponible</option>
-            <option value="Agotado" {% if pelicula.get('estado') == 'Agotado' %}selected{% endif %}>Agotado</option>
-        </select>
-    </div>
+        <div>
+          <label for="duracion" class="form-label">Duración (minutos)</label>
+          <input type="number" id="duracion" name="duracion"
+                 class="form-control" min="1" max="600"
+                 value="{{ pelicula.get('duracion', '') }}"
+                 placeholder="Ej. 120" required>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a href="{{ url_for('peliculas_registradas') }}" class="btn btn-secondary">Cancelar</a>
-</form>
+        <div>
+          <label for="estado" class="form-label">Estado</label>
+          <select id="estado" name="estado" class="form-select" required>
+            <option value="Disponible"
+              {% if pelicula.get('estado') == 'Disponible' %}selected{% endif %}>
+              Disponible
+            </option>
+            <option value="Agotado"
+              {% if pelicula.get('estado') == 'Agotado' %}selected{% endif %}>
+              Agotado
+            </option>
+          </select>
+        </div>
 
-</div>
+      </div>
+
+      <div class="cine-form-actions">
+        <button type="submit" class="btn btn-cine">
+          Guardar cambios
+        </button>
+        <a href="{{ url_for('peliculas_registradas') }}"
+           class="btn btn-outline-secondary">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <a href="{{ url_for('peliculas_registradas') }}" class="cine-back-link">
+    ← Volver a películas registradas
+  </a>
+
+</section>
+
 {% endblock %}

@@ -50,7 +50,8 @@
         <thead>
           <tr>
             <th>Película</th>
-            <th>Género</th>
+            <th>Categoría</th>
+            <th>Duración</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -64,7 +65,15 @@
             </td>
 
             <td>
-              {{ pelicula.get('categoria', pelicula.get('genero', 'Sin género')) }}
+              {{ pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) }}
+            </td>
+
+            <td>
+              {% if pelicula.get('duracion') %}
+                {{ pelicula.get('duracion') }} min
+              {% else %}
+                Sin registrar
+              {% endif %}
             </td>
 
             <td>

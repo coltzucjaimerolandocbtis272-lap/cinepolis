@@ -1,3 +1,4 @@
+```html
 {% extends 'base.html' %}
 
 {% block contenido %}
@@ -124,15 +125,19 @@
                             <label for="cantidad" class="form-label">
                                 <strong>¿Cuántos boletos deseas comprar?</strong>
                             </label>
+
                             <select class="form-select" id="cantidad" name="cantidad" required>
-                                {% for n in range(1, 7) %}
+                                {% for n in range(1, 49) %}
                                 <option value="{{ n }}"
                                     {% if cantidad | default(1) | int == n %}selected{% endif %}>
                                     {{ n }} boleto{% if n > 1 %}s{% endif %} — ${{ n * 80 }} MXN
                                 </option>
                                 {% endfor %}
                             </select>
-                            <small class="text-muted">Puedes comprar de 1 a 6 boletos por operación.</small>
+
+                            <small class="text-muted">
+                                Puedes seleccionar hasta 48 boletos, según los asientos disponibles.
+                            </small>
                         </div>
 
                         <button type="submit"
@@ -158,7 +163,9 @@
                         <div class="mapa-asientos mx-auto">
                             {% for fila in range(6) %}
                             <div class="fila-asientos">
-                                <strong class="nombre-fila">{{ ['A', 'B', 'C', 'D', 'E', 'F'][fila] }}</strong>
+                                <strong class="nombre-fila">
+                                    {{ ['A', 'B', 'C', 'D', 'E', 'F'][fila] }}
+                                </strong>
 
                                 {% for columna in range(1, 9) %}
                                     {% set numero = fila * 8 + columna %}
@@ -188,9 +195,12 @@
                         <div class="resumen-compra p-3 rounded mb-3">
                             <p class="mb-1">Asientos seleccionados:</p>
                             <strong id="listaAsientos">Ninguno</strong>
+
                             <p class="mb-1 mt-3">Boletos elegidos:</p>
                             <strong id="contadorAsientos">0 de 1</strong>
+
                             <hr>
+
                             <p class="mb-1">Total estimado:</p>
                             <h3 id="totalCompra">$0 MXN</h3>
                         </div>
@@ -208,7 +218,11 @@
 </section>
 
 <style>
-.mapa-asientos { max-width: 460px; width: 100%; }
+.mapa-asientos {
+    max-width: 460px;
+    width: 100%;
+}
+
 .fila-asientos {
     display: grid;
     grid-template-columns: 22px repeat(8, minmax(0, 1fr));
@@ -216,8 +230,18 @@
     align-items: center;
     margin-bottom: 10px;
 }
-.nombre-fila { text-align: center; }
-.asiento-etiqueta { display: block; margin: 0; cursor: pointer; min-width: 0; }
+
+.nombre-fila {
+    text-align: center;
+}
+
+.asiento-etiqueta {
+    display: block;
+    margin: 0;
+    cursor: pointer;
+    min-width: 0;
+}
+
 .asiento-boton {
     display: flex;
     align-items: center;
@@ -230,28 +254,64 @@
     user-select: none;
     transition: background-color .15s, transform .15s;
 }
-.asiento-disponible { background-color: #198754; }
-.asiento-ocupado { background-color: #dc3545; opacity: .7; cursor: not-allowed; }
+
+.asiento-disponible {
+    background-color: #198754;
+}
+
+.asiento-ocupado {
+    background-color: #dc3545;
+    opacity: .7;
+    cursor: not-allowed;
+}
+
 .asiento-checkbox:checked + .asiento-boton {
     background-color: #0d6efd;
     outline: 3px solid #9ec5fe;
     transform: scale(1.04);
 }
-.asiento-checkbox:disabled + .asiento-boton { cursor: not-allowed; }
-.asiento-checkbox:focus-visible + .asiento-boton { outline: 3px solid #ffc107; }
+
+.asiento-checkbox:disabled + .asiento-boton {
+    cursor: not-allowed;
+}
+
+.asiento-checkbox:focus-visible + .asiento-boton {
+    outline: 3px solid #ffc107;
+}
+
 .pantalla-cine {
     background: #333;
     color: white;
     letter-spacing: 2px;
     box-shadow: 0 5px 12px #0002;
 }
-.leyenda-disponible { color: #198754; }
-.leyenda-seleccionado { color: #0d6efd; }
-.leyenda-ocupado { color: #dc3545; }
-.resumen-compra { background: #f2f2f2; color: #111; }
-#totalCompra, .resumen-compra h2 { color: #111; }
+
+.leyenda-disponible {
+    color: #198754;
+}
+
+.leyenda-seleccionado {
+    color: #0d6efd;
+}
+
+.leyenda-ocupado {
+    color: #dc3545;
+}
+
+.resumen-compra {
+    background: #f2f2f2;
+    color: #111;
+}
+
+#totalCompra,
+.resumen-compra h2 {
+    color: #111;
+}
+
 @media (max-width: 380px) {
-    .fila-asientos { gap: 4px; }
+    .fila-asientos {
+        gap: 4px;
+    }
 }
 </style>
 
@@ -260,7 +320,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const formulario = document.getElementById("formCompra");
     if (!formulario) return;
 
-    const casillas = Array.from(formulario.querySelectorAll(".asiento-checkbox"));
+    const casillas = Array.from(
+        formulario.querySelectorAll(".asiento-checkbox")
+    );
+
     const total = document.getElementById("totalCompra");
     const lista = document.getElementById("listaAsientos");
     const contador = document.getElementById("contadorAsientos");
@@ -285,11 +348,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const elegidos = elegidosActuales();
         const objetivo = Number(cantidad.value);
 
-        lista.textContent = elegidos.length ? elegidos.join(", ") : "Ninguno";
+        lista.textContent = elegidos.length
+            ? elegidos.join(", ")
+            : "Ninguno";
+
         contador.textContent = elegidos.length + " de " + objetivo;
         total.textContent = "$" + (objetivo * precio) + " MXN";
 
         botonContinuar.disabled = elegidos.length !== objetivo;
+
         botonContinuar.textContent = elegidos.length === objetivo
             ? "Continuar con la compra"
             : "Selecciona " + objetivo + " asiento(s)";
@@ -302,8 +369,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (elegidos.length > objetivo) {
                 casilla.checked = false;
-                alert("Elegiste " + objetivo + " boleto(s). No puedes seleccionar más de " + objetivo + " asiento(s).");
+
+                alert(
+                    "Elegiste " + objetivo +
+                    " boleto(s). No puedes seleccionar más de " +
+                    objetivo + " asiento(s)."
+                );
             }
+
             actualizar();
         });
     });
@@ -315,6 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function consultarDisponibilidad() {
         if (consultando) return;
+
         consultando = true;
         accion.value = "consultar";
         formulario.submit();
@@ -333,15 +407,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const objetivo = Number(cantidad.value);
         const elegidos = elegidosActuales();
 
-        if (elegidos.length !== objetivo) {
+        if (
+            !Number.isInteger(objetivo) ||
+            objetivo < 1 ||
+            objetivo > casillas.length
+        ) {
             evento.preventDefault();
-            alert("Debes seleccionar exactamente " + objetivo + " asiento(s) para continuar.");
+            alert("La cantidad de boletos no es válida.");
             return;
         }
 
-        if (objetivo < 1 || objetivo > 6) {
+        if (elegidos.length !== objetivo) {
             evento.preventDefault();
-            alert("Puedes comprar de 1 a 6 boletos.");
+
+            alert(
+                "Debes seleccionar exactamente " +
+                objetivo + " asiento(s) para continuar."
+            );
         }
     });
 
@@ -349,3 +431,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 {% endblock %}
+```

@@ -41,12 +41,13 @@ compras_alimentos = base_datos["compras_alimentos"]
 ZONA_HORARIA = ZoneInfo("America/Cancun")
 PRECIO_BOLETO = 80
 MAXIMO_PELICULAS = 15
-MAXIMO_ASIENTOS = 6
+
 DURACION_MINIMA = 1
 DURACION_MAXIMA = 600
 
 HORARIOS_VALIDOS = ["12:00", "15:00", "18:00", "21:00"]
 ASIENTOS_VALIDOS = list(range(1, 49))
+MAXIMO_ASIENTOS = len(ASIENTOS_VALIDOS)
 
 # Evita vender el mismo asiento dos veces.
 asientos.create_index(
@@ -249,7 +250,10 @@ def leer_asientos_seleccionados(cantidad_esperada=None):
         return None, "Selecciona los asientos de tus boletos."
 
     if len(valores) > MAXIMO_ASIENTOS:
-        return None, "Solo puedes comprar hasta 6 boletos."
+        return None, (
+            f"Solo puedes seleccionar hasta "
+            f"{MAXIMO_ASIENTOS} asientos."
+        )
 
     try:
         seleccionados = [int(valor) for valor in valores]
@@ -274,14 +278,13 @@ def leer_asientos_seleccionados(cantidad_esperada=None):
 
     return sorted(seleccionados), None
 
-
 def leer_cantidad():
     try:
         cantidad = int(request.values.get("cantidad", "1"))
     except (ValueError, TypeError):
         return None
 
-    if not 1 <= cantidad <= MAXIMO_ASIENTOS:
+    if not 1 <= cantidad <= len(ASIENTOS_VALIDOS):
         return None
 
     return cantidad
@@ -658,7 +661,9 @@ def comprar(id):
 
     if cantidad is None:
         cantidad = 1
-        mensaje_cantidad = "Selecciona entre 1 y 6 boletos."
+        mensaje_cantidad = (
+            f"Selecciona entre 1 y {MAXIMO_ASIENTOS} boletos."
+        )
 
     if request.method == "GET":
         if not fecha or not horario:
@@ -739,6 +744,20 @@ def comprar(id):
     ocupados = consultar_asientos_ocupados(
         pelicula["_id"], fecha, horario
     )
+
+    disponibles = len(ASIENTOS_VALIDOS) - len(ocupados)
+
+    if cantidad > disponibles:
+        return mostrar_mapa(
+            pelicula,
+            fecha,
+            horario,
+            mensaje_error=(
+                f"Solo quedan {disponibles} asientos disponibles "
+                "para esta función."
+            ),
+            cantidad=max(1, min(cantidad, disponibles))
+        )
 
     repetidos = [
         numero for numero in seleccionados
@@ -862,8 +881,7 @@ def comprar(id):
 
         abort(503)
 
-
-# =========================
+        # =========================
 # API DE PELÍCULAS
 # =========================
 

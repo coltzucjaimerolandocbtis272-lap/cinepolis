@@ -1,16 +1,24 @@
 
 from flask import (
     Flask, render_template, request, redirect,
-    url_for, abort, jsonify
+    url_for, abort, jsonify,session
 )
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError, DuplicateKeyError
 from bson import ObjectId
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import os
+import uuid
 
 app = Flask(__name__)
+
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+
+if not app.secret_key:
+    if os.environ.get("RENDER"):
+        raise RuntimeError("Falta configurar FLASK_SECRET_KEY en Render.")
+    app.secret_key = "clave-local-cinepolis-desarrollo"
 
 # =========================
 # CONEXIÓN A MONGODB ATLAS
@@ -33,6 +41,7 @@ alumnos = base_datos["peliculas"]
 compras = base_datos["compras"]
 asientos = base_datos["asientos"]
 compras_alimentos = base_datos["compras_alimentos"]
+reservas = base_datos["reservas"]
 
 # =========================
 # CONFIGURACIÓN
@@ -40,6 +49,7 @@ compras_alimentos = base_datos["compras_alimentos"]
 
 ZONA_HORARIA = ZoneInfo("America/Cancun")
 PRECIO_BOLETO = 80
+DURACION_RESERVA_MINUTOS = 5
 MAXIMO_PELICULAS = 15
 
 DURACION_MINIMA = 1
@@ -68,6 +78,103 @@ asientos.create_index(
 
 def ahora_local():
     return datetime.now(ZONA_HORARIA)
+
+def obtener_reserva_id():
+    if "reserva_id" not in session:
+        session["reserva_id"] = str(uuid.uuid4())
+
+    return session["reserva_id"]
+
+def ahora_utc():
+    return datetime.now(timezone.utc)
+
+
+def liberar_reservas_vencidas():
+    ahora = ahora_utc()
+
+    reservas.update_many(
+        {
+            "estado": "Activa",
+            "vence_en": {"$lte": ahora}
+        },
+        {
+            "$set": {"estado": "Vencida"}
+        }
+    )
+
+    asientos.delete_many({
+        "estado": "Reservado",
+        "vence_en": {"$lte": ahora}
+    })
+
+def reservar_asientos_temporalmente(
+    pelicula, fecha, horario, seleccionados
+):
+    liberar_reservas_vencidas()
+
+    reserva_id = str(uuid.uuid4())
+    visitante_id = obtener_reserva_id()
+    ahora = ahora_utc()
+    vence_en = ahora + timedelta(
+        minutes=DURACION_RESERVA_MINUTOS
+    )
+
+    documentos_insertados = []
+
+    try:
+        for numero in seleccionados:
+            resultado = asientos.insert_one({
+                "pelicula_id": str(pelicula["_id"]),
+                "titulo_pelicula": pelicula.get(
+                    "titulo", pelicula.get("nombre", "")
+                ),
+                "fecha": fecha,
+                "horario": horario,
+                "asiento": numero,
+                "estado": "Reservado",
+                "reserva_id": reserva_id,
+                "visitante_id": visitante_id,
+                "fecha_registro": ahora,
+                "vence_en": vence_en
+            })
+
+            documentos_insertados.append(resultado.inserted_id)
+
+        reservas.insert_one({
+            "reserva_id": reserva_id,
+            "visitante_id": visitante_id,
+            "pelicula_id": str(pelicula["_id"]),
+            "fecha": fecha,
+            "horario": horario,
+            "asientos": seleccionados,
+            "estado": "Activa",
+            "creada_en": ahora,
+            "vence_en": vence_en
+        })
+
+        session["reserva_activa_id"] = reserva_id
+
+        return True, vence_en
+
+    except DuplicateKeyError:
+        if documentos_insertados:
+            asientos.delete_many({
+                "_id": {"$in": documentos_insertados}
+            })
+
+        return False, (
+            "Uno o más asientos acaban de ser reservados "
+            "por otra persona. Consulta nuevamente."
+        )
+
+    except PyMongoError:
+        if documentos_insertados:
+            asientos.delete_many({
+                "_id": {"$in": documentos_insertados}
+            })
+
+        raise
+
 
 
 def siguiente_funcion():
@@ -201,13 +308,15 @@ def leer_formulario():
 
 
 def consultar_asientos_ocupados(pelicula_id, fecha, horario):
+    liberar_reservas_vencidas()
+
     documentos = asientos.find({
         "pelicula_id": str(pelicula_id),
         "fecha": fecha,
         "horario": horario,
-        "estado": "Ocupado"
+        "estado": {"$in": ["Ocupado", "Reservado"]}
     })
-
+    
     ocupados = set()
 
     for documento in documentos:
@@ -297,9 +406,49 @@ def mostrar_mapa(
     mensaje_error=None,
     cantidad=1
 ):
-    ocupados = consultar_asientos_ocupados(
+    todos_ocupados = consultar_asientos_ocupados(
         pelicula["_id"], fecha, horario
     )
+
+    documentos_reservados = asientos.find({
+        "pelicula_id": str(pelicula["_id"]),
+        "fecha": fecha,
+        "horario": horario,
+        "estado": "Reservado"
+    })
+
+    reservados = set()
+
+    for documento in documentos_reservados:
+        valor = documento.get("asiento")
+
+        if isinstance(valor, str):
+            valor = valor.strip().upper()
+
+            if len(valor) >= 2 and valor[0] in "ABCDEF":
+                try:
+                    columna = int(valor[1:])
+                    fila = "ABCDEF".index(valor[0])
+
+                    if 1 <= columna <= 8:
+                        valor = fila * 8 + columna
+                except ValueError:
+                    continue
+            else:
+                try:
+                    valor = int(valor)
+                except ValueError:
+                    continue
+
+        try:
+            numero = int(valor)
+        except (ValueError, TypeError):
+            continue
+
+        if numero in ASIENTOS_VALIDOS:
+            reservados.add(numero)
+
+    ocupados = sorted(set(todos_ocupados) - reservados)
 
     return render_template(
         "comprar.html",
@@ -319,9 +468,9 @@ def mostrar_mapa(
         fecha_seleccionada=fecha,
         horario_seleccionado=horario,
         asientos_ocupados=ocupados,
+        asientos_reservados=sorted(reservados),
         mensaje_error=mensaje_error
     )
-
 
 # =========================
 # PÁGINA PRINCIPAL
@@ -683,8 +832,42 @@ def comprar(id):
 
     accion = request.form.get("accion", "continuar").strip()
 
-    if accion not in ["consultar", "continuar", "confirmar"]:
+    if accion not in ["consultar", "continuar", "confirmar", "cancelar"]:
         abort(400)
+
+    if accion == "cancelar":
+        reserva_id = session.get("reserva_activa_id")
+
+        if reserva_id:
+            try:
+                reservas.update_one(
+                    {
+                        "reserva_id": reserva_id,
+                        "visitante_id": obtener_reserva_id(),
+                        "estado": "Activa"
+                    },
+                    {
+                        "$set": {"estado": "Cancelada"}
+                    }
+                )
+
+                asientos.delete_many({
+                    "reserva_id": reserva_id,
+                    "estado": "Reservado"
+                })
+
+                session.pop("reserva_activa_id", None)
+
+            except PyMongoError:
+                abort(503)
+
+        return mostrar_mapa(
+            pelicula,
+            fecha,
+            horario,
+            mensaje_error="La reserva fue cancelada. Puedes seleccionar otros asientos.",
+            cantidad=cantidad
+        )
 
     if accion == "consultar":
         error = validar_fecha_horario(fecha, horario)
@@ -745,7 +928,55 @@ def comprar(id):
         pelicula["_id"], fecha, horario
     )
 
-    disponibles = len(ASIENTOS_VALIDOS) - len(ocupados)
+    reserva_id = session.get("reserva_activa_id")
+    asientos_propios = set()
+
+    if accion == "confirmar":
+        reserva = reservas.find_one({
+            "reserva_id": reserva_id,
+            "visitante_id": obtener_reserva_id(),
+            "estado": "Activa",
+            "vence_en": {"$gt": ahora_utc()},
+            "pelicula_id": str(pelicula["_id"]),
+            "fecha": fecha,
+            "horario": horario
+        }) if reserva_id else None
+
+        if not reserva:
+            liberar_reservas_vencidas()
+            session.pop("reserva_activa_id", None)
+
+            return mostrar_mapa(
+                pelicula,
+                fecha,
+                horario,
+                mensaje_error=(
+                    "Tu reserva venció o ya no está activa. "
+                    "Selecciona los asientos nuevamente."
+                ),
+                cantidad=cantidad
+            )
+
+        asientos_propios = set(reserva.get("asientos", []))
+
+        if asientos_propios != set(seleccionados):
+            return mostrar_mapa(
+                pelicula,
+                fecha,
+                horario,
+                mensaje_error=(
+                    "Los asientos de la reserva no coinciden. "
+                    "Selecciona nuevamente."
+                ),
+                cantidad=cantidad
+            )
+
+    ocupados_otros = [
+        numero for numero in ocupados
+        if numero not in asientos_propios
+    ]
+
+    disponibles = len(ASIENTOS_VALIDOS) - len(ocupados_otros)
 
     if cantidad > disponibles:
         return mostrar_mapa(
@@ -761,7 +992,7 @@ def comprar(id):
 
     repetidos = [
         numero for numero in seleccionados
-        if numero in ocupados
+        if numero in ocupados_otros
     ]
 
     if repetidos:
@@ -770,7 +1001,7 @@ def comprar(id):
             fecha,
             horario,
             mensaje_error=(
-                "Estos asientos ya están ocupados: "
+                "Estos asientos ya están ocupados o reservados: "
                 + ", ".join(map(str, repetidos))
                 + ". Consulta de nuevo la disponibilidad."
             ),
@@ -780,6 +1011,22 @@ def comprar(id):
     total = cantidad * PRECIO_BOLETO
 
     if accion == "continuar":
+        try:
+            reservada, vence_en = reservar_asientos_temporalmente(
+                pelicula, fecha, horario, seleccionados
+            )
+        except PyMongoError:
+            abort(503)
+
+        if not reservada:
+            return mostrar_mapa(
+                pelicula,
+                fecha,
+                horario,
+                mensaje_error=vence_en,
+                cantidad=cantidad
+            )
+
         return render_template(
             "comprar.html",
             pelicula=pelicula,
@@ -797,26 +1044,77 @@ def comprar(id):
             fecha_seleccionada=fecha,
             horario_seleccionado=horario,
             asientos_ocupados=ocupados,
+            vence_en=vence_en,
             mensaje_error=None
         )
 
-    documentos_insertados = []
+    reserva_id = session.get("reserva_activa_id")
+
+    if not reserva_id:
+        return mostrar_mapa(
+            pelicula,
+            fecha,
+            horario,
+            mensaje_error="Tu reserva no está activa. Selecciona los asientos nuevamente.",
+            cantidad=cantidad
+        )
 
     try:
-        for numero in seleccionados:
-            resultado = asientos.insert_one({
-                "pelicula_id": str(pelicula["_id"]),
-                "titulo_pelicula": pelicula.get(
-                    "titulo", pelicula.get("nombre", "")
-                ),
-                "fecha": fecha,
-                "horario": horario,
-                "asiento": numero,
-                "estado": "Ocupado",
-                "fecha_registro": ahora_local()
-            })
+        reserva = reservas.find_one({
+            "reserva_id": reserva_id,
+            "visitante_id": obtener_reserva_id(),
+            "estado": "Activa",
+            "vence_en": {"$gt": ahora_utc()},
+            "pelicula_id": str(pelicula["_id"]),
+            "fecha": fecha,
+            "horario": horario
+        })
 
-            documentos_insertados.append(resultado.inserted_id)
+        if not reserva or set(reserva.get("asientos", [])) != set(seleccionados):
+            session.pop("reserva_activa_id", None)
+            liberar_reservas_vencidas()
+            return mostrar_mapa(
+                pelicula,
+                fecha,
+                horario,
+                mensaje_error="Tu reserva venció o ya no está disponible. Selecciona los asientos nuevamente.",
+                cantidad=cantidad
+            )
+
+        resultado_actualizacion = asientos.update_many(
+            {
+                "reserva_id": reserva_id,
+                "estado": "Reservado",
+                "vence_en": {"$gt": ahora_utc()},
+                "asiento": {"$in": seleccionados}
+            },
+                 {
+                "$set": {"estado": "Ocupado"}
+            }
+        )
+
+        if resultado_actualizacion.modified_count != len(seleccionados):
+            asientos.update_many(
+                {
+                    "reserva_id": reserva_id,
+                    "estado": "Ocupado",
+                    "asiento": {"$in": seleccionados}
+                },
+                {
+                    "$set": {"estado": "Reservado"}
+                }
+            )
+
+            return mostrar_mapa(
+                pelicula,
+                fecha,
+                horario,
+                mensaje_error=(
+                    "No se pudieron confirmar todos los asientos. "
+                    "Tu reserva sigue activa; intenta nuevamente."
+                ),
+                cantidad=cantidad
+            )
 
         compra = {
             "pelicula_id": str(pelicula["_id"]),
@@ -833,6 +1131,13 @@ def comprar(id):
         }
 
         resultado_compra = compras.insert_one(compra)
+
+        reservas.update_one(
+            {"reserva_id": reserva_id},
+            {"$set": {"estado": "Confirmada"}}
+        )
+
+        session.pop("reserva_activa_id", None)
 
         return render_template(
             "comprar.html",
@@ -853,29 +1158,19 @@ def comprar(id):
             mensaje_error=None
         )
 
-    except DuplicateKeyError:
-        if documentos_insertados:
-            asientos.delete_many({
-                "_id": {"$in": documentos_insertados}
-            })
-
-        return mostrar_mapa(
-            pelicula,
-            fecha,
-            horario,
-            mensaje_error=(
-                "Uno de los asientos acaba de ser ocupado. "
-                "Consulta nuevamente la disponibilidad."
-            ),
-            cantidad=cantidad
-        )
-
     except PyMongoError:
-        if documentos_insertados:
+        if "resultado_compra" not in locals():
             try:
-                asientos.delete_many({
-                    "_id": {"$in": documentos_insertados}
-                })
+                asientos.update_many(
+                    {
+                        "reserva_id": reserva_id,
+                        "estado": "Ocupado",
+                        "asiento": {"$in": seleccionados}
+                    },
+                    {
+                        "$set": {"estado": "Reservado"}
+                    }
+                )
             except PyMongoError:
                 pass
 

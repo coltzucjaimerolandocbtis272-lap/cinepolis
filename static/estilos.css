@@ -519,6 +519,29 @@ a {
   --bs-table-hover-color: white;
 }
 
+/* Alinear el contenido de las filas de la tabla */
+.cine-tabla th,
+.cine-tabla td {
+  vertical-align: middle;
+}
+
+/* Alinear las etiquetas de estado */
+.cine-tabla .cine-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 105px;
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .cine-tabla thead th {
   padding: 15px 12px;
   border-bottom: 1px solid #3b4962;
@@ -531,7 +554,22 @@ a {
 
 .cine-tabla td {
   padding: 15px 12px;
-  vertical-align: middle;
+  vertical-align: middle !important;
+}
+
+.cine-tabla td:nth-child(1) {
+  width: 30%;
+  overflow-wrap: anywhere;
+}
+
+.cine-tabla td:nth-child(4) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.cine-tabla td:nth-child(4) .cine-estado {
+  width: 105px;
+  min-height: 32px;
 }
 
 .cine-tabla .fw-bold {
@@ -1762,4 +1800,23 @@ footer.container {
     .alimento-card p {
         font-size: 14px;
     }
+}
+
+/* Alinear las etiquetas de estado en películas registradas */
+.cine-tabla td {
+    vertical-align: middle !important;
+}
+
+.cine-tabla td .cine-estado {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 105px;
+    min-height: 32px;
+    padding: 6px 10px;
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: middle;
 }

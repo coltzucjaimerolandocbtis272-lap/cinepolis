@@ -1,7 +1,7 @@
 
 from flask import (
     Flask, render_template, request, redirect,
-    url_for, abort, jsonify,session
+    url_for, abort, jsonify, session
 )
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError, DuplicateKeyError
@@ -71,7 +71,6 @@ asientos.create_index(
     name="asiento_unico_por_funcion"
 )
 
-
 # =========================
 # FUNCIONES AUXILIARES
 # =========================
@@ -79,11 +78,13 @@ asientos.create_index(
 def ahora_local():
     return datetime.now(ZONA_HORARIA)
 
+
 def obtener_reserva_id():
     if "reserva_id" not in session:
         session["reserva_id"] = str(uuid.uuid4())
 
     return session["reserva_id"]
+
 
 def ahora_utc():
     return datetime.now(timezone.utc)
@@ -106,6 +107,7 @@ def liberar_reservas_vencidas():
         "estado": "Reservado",
         "vence_en": {"$lte": ahora}
     })
+
 
 def reservar_asientos_temporalmente(
     pelicula, fecha, horario, seleccionados
@@ -174,7 +176,6 @@ def reservar_asientos_temporalmente(
             })
 
         raise
-
 
 
 def siguiente_funcion():
@@ -268,8 +269,6 @@ def aplicar_poster(pelicula):
 
 
 def leer_formulario():
-    # Acepta los nombres de los formularios actuales
-    # y los nombres antiguos por compatibilidad.
     nombre = request.form.get(
         "nombre", request.form.get("titulo", "")
     ).strip()
@@ -316,13 +315,12 @@ def consultar_asientos_ocupados(pelicula_id, fecha, horario):
         "horario": horario,
         "estado": {"$in": ["Ocupado", "Reservado"]}
     })
-    
+
     ocupados = set()
 
     for documento in documentos:
         valor = documento.get("asiento")
 
-        # Compatibilidad con registros antiguos: A1, A2 ... F8.
         if isinstance(valor, str):
             valor = valor.strip().upper()
 
@@ -386,6 +384,7 @@ def leer_asientos_seleccionados(cantidad_esperada=None):
         )
 
     return sorted(seleccionados), None
+
 
 def leer_cantidad():
     try:
@@ -472,6 +471,7 @@ def mostrar_mapa(
         mensaje_error=mensaje_error
     )
 
+
 # =========================
 # PÁGINA PRINCIPAL
 # =========================
@@ -499,20 +499,86 @@ def inicio():
 # =========================
 
 PRECIOS_ALIMENTOS = {
-    "Palomitas Takis": 75,
-    "Palomitas mantequilla": 65,
-    "Palomitas caramelo": 75,
-    "Coca-Cola": 45,
-    "Pepsi": 40,
-    "ICE": 40,
-    "Fanta": 40,
-    "Sprite": 40,
-    "M&M's": 45,
-    "Oreo": 35,
-    "Hershey's": 40,
-    "Skwinkles": 30,
-    "Hot dogs": 60,
-    "Papas fritas": 45
+    # NUEVOS LANZAMIENTOS
+    "Hot Dog Doritos": 145,
+    "Hot Dog Chips Jalapeño": 145,
+    "M&M Mega Peanut Butter": 86,
+    "Solero Paradise®": 65,
+
+    # COMBOS
+    "Combo Clásico": 278,
+    "Combo Nachos en Pareja": 367,
+    "Combo Junior": 264,
+    "Combo Ciel®": 187,
+    "Combo Cuates": 298,
+    "Combo Nachos": 282,
+    "Combo Cornetto®": 257,
+    "Combo Magnum®": 270,
+    "Combo Snickers® con Hot Dog": 350,
+    "Combo Lifesavers®": 377,
+    "Combo ICEE® con Skwinkles®": 350,
+    "Combo M&M's® con Nachos": 350,
+    "Combo Skittles®": 372,
+    "Combo Micha": 382,
+
+    # PARA COMPARTIR
+    "Maxicombo Personalizado Jumbo": 550,
+    "Maxicombo Personalizado P/Llevar": 480,
+    "Maxicombo Familiar Jumbo": 534,
+    "Maxicombo Familiar": 490,
+    "Maxicombo Micha Mix": 492,
+    "Maxicombo Mix": 440,
+    "Maxicombo M&M's® Para Lllevar": 480,
+    "Maxicombo M&M's® Jumbo": 520,
+    "Maxicombo Nachos Grandes": 460,
+    "Maxicombo Nachos": 442,
+    "Maxicombo Hot Dog": 432,
+
+    # CLÁSICOS
+    "Refresco": 109,
+    "Nachos": 105,
+    "Palomitas": 107,
+    "Hot Dog Individual": 127,
+    "Agua Embotellada": 42,
+    "ICEE®": 115,
+
+    # SNACKS
+    "Hot Dog Takis": 145,
+    "Papas Fritas": 75,
+    "Extra Queso": 27,
+    "Extra Guacamole": 30,
+
+    # HELADOS
+    "Cornetto®.": 53,
+    "Magnum®.": 65,
+    "Mordisko® Oreo®": 55,
+    "Helado Micha": 60,
+
+    # DULCES Y CHOCOLATES
+    "Milky Way®": 45,
+    "Hershey's® Cookies And Cream": 51,
+    "Skittles® Pouch": 79,
+    "Hershey's® Cookies And Cream King Size": 75,
+    "Pon Pons®": 50,
+    "Lifesavers®": 85,
+    "Skwinkles® Chunks sandia": 78,
+    "Snickers®": 45,
+    "Skwinkles® Salsagheti": 45,
+    "Pelón Pelonazo®": 45,
+    "Skittles®": 79,
+    "Skwinkles® Rellenos": 45,
+    "M&M's®": 55,
+    "M&M's® Mega": 86,
+    "Vaso Granel": 89,
+    "Ositos Enchilados Cinépolis": 89,
+    "Aritos Enchilados Cinépolis": 89,
+    "Aritos Ácidos Cinépolis": 89,
+    "Skittles gomitas": 79,
+    "Hershey's": 51,
+
+    # PRODUCTOS ANTERIORES QUE CONSERVAMOS
+    "Hot dogs": 127,
+    "Papas fritas": 75
 }
 
 
@@ -561,7 +627,7 @@ def comprar_alimentos():
             "subtotal": cantidad * precio
         }
 
-        if producto == "ICE":
+        if producto == "ICEE®":
             detalle["sabor"] = request.form.get(
                 "sabor_ICE", "Mora roja"
             )
@@ -569,7 +635,7 @@ def comprar_alimentos():
             if detalle["sabor"] not in ["Mora roja", "Mora azul"]:
                 detalle["sabor"] = "Mora roja"
 
-        if producto == "Papas fritas":
+        if producto == "Papas Fritas":
             detalle["preparacion"] = request.form.get(
                 "tipo_papas", "Naturales"
             )
@@ -1088,7 +1154,7 @@ def comprar(id):
                 "vence_en": {"$gt": ahora_utc()},
                 "asiento": {"$in": seleccionados}
             },
-                 {
+            {
                 "$set": {"estado": "Ocupado"}
             }
         )
@@ -1176,7 +1242,8 @@ def comprar(id):
 
         abort(503)
 
-        # =========================
+
+# =========================
 # API DE PELÍCULAS
 # =========================
 
@@ -1216,7 +1283,6 @@ def api_productos():
             "error": "El título es obligatorio"
         }), 400
 
-    # Si se envía duración, debe estar entre 1 y 600 minutos.
     if "duracion" in datos:
         try:
             duracion = int(datos["duracion"])
@@ -1232,7 +1298,6 @@ def api_productos():
 
         datos["duracion"] = duracion
 
-    # Normalizar categoría y mantener compatibilidad con género antiguo.
     if "categoria" not in datos and "genero" in datos:
         datos["categoria"] = datos["genero"]
 

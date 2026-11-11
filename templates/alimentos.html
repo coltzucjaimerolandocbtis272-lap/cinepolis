@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Alimentos | Cinépolis{% endblock %}
@@ -38,116 +39,180 @@
 {% else %}
 
 <form action="{{ url_for('comprar_alimentos') }}" method="POST">
-    {% set grupos = [
-        ("🍿 Palomitas", [
-            ("Palomitas Takis", "Palomitas sabor Takis", "palomitas_takis.jpg"),
-            ("Palomitas mantequilla", "Palomitas clásicas", "palomitas_mantequilla.jpg"),
-            ("Palomitas caramelo", "Palomitas dulces", "palomitas_caramelo.jpg")
-        ]),
-        ("🥤 Refrescos", [
-            ("Coca-Cola", "Refresco", "coca_cola.jpg"),
-            ("Pepsi", "Refresco", "pepsi.jpg"),
-            ("ICE", "Bebida fría: elige tu sabor", "ice.jpg"),
-            ("Fanta", "Refresco", "fanta.jpg"),
-            ("Sprite", "Refresco", "sprite.jpg")
-        ]),
-        ("🍫 Dulces y chocolates", [
-            ("M&M's", "Chocolate con cubierta dulce", "mms.jpg"),
-            ("Oreo", "Galletas de chocolate", "oreo.jpg"),
-            ("Hershey's", "Chocolate", "hersheys.jpg"),
-            ("Skwinkles", "Dulces enchilados", "skwinkcles.jpg")
-        ]),
-        ("🌭 Snacks", [
-            ("Hot dogs", "Hot dog clásico", "hot_dogs.jpg"),
-            ("Papas fritas", "Elige naturales o con chile", "papas_fritas.jpg")
-        ])
-    ] %}
 
-    {% for grupo, productos in grupos %}
-    <section class="alimentos-seccion">
-        <h2>{{ grupo }}</h2>
+{% set grupos = [
+    ("🍿 Nuevos Lanzamientos", [
+        ("Hot Dog Doritos", "Hot dog con Doritos", "hot_dog_doritos.jpg"),
+        ("Hot Dog Chips Jalapeño", "Hot dog con Chips Jalapeño", "hot_dog_chips.jpg"),
+        ("M&M Mega Peanut Butter", "Chocolate M&M con crema de cacahuate", "mm_peanut_butter.jpg"),
+        ("Solero Paradise®", "Helado Solero", "solero_paradise.jpg")
+    ]),
 
-        <div class="alimentos-grid">
-            {% for nombre, descripcion, imagen in productos %}
-            <article class="alimento-card">
+    ("🍿 Combos", [
+        ("Combo Clásico", "Combo clásico Cinépolis", "combo_clasico.jpg"),
+        ("Combo Nachos en Pareja", "Combo para compartir", "combo_nachos_pareja.jpg"),
+        ("Combo Junior", "Combo junior", "combo_junior.jpg"),
+        ("Combo Ciel®", "Combo Ciel", "combo_ciel.jpg"),
+        ("Combo Cuates", "Combo para compartir", "combo_cuates.jpg"),
+        ("Combo Nachos", "Combo con nachos", "combo_nachos.jpg"),
+        ("Combo Cornetto®", "Combo con Cornetto", "combo_cornetto.jpg"),
+        ("Combo Magnum®", "Combo con Magnum", "combo_magnum.jpg"),
+        ("Combo Snickers® con Hot Dog", "Combo especial", "combo_snickers.jpg"),
+        ("Combo Lifesavers®", "Combo con Lifesavers", "combo_lifesavers.jpg"),
+        ("Combo ICEE® con Skwinkles®", "Combo con ICEE y Skwinkles", "combo_icee_skwinkles.jpg"),
+        ("Combo M&M's® con Nachos", "Combo con M&M's y nachos", "combo_mms_nachos.jpg"),
+        ("Combo Skittles®", "Combo con Skittles", "combo_skittles.jpg"),
+        ("Combo Micha", "Combo especial Micha", "combo_micha.jpg")
+    ]),
 
-                <div class="alimento-imagen">
-                    <img
-                        src="{{ url_for('static', filename='alimentos/' ~ imagen) }}"
-                        alt="{{ nombre }}"
-                        loading="lazy"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-                    >
-                    <span class="imagen-no-disponible" style="display:none;">
-                        Imagen no disponible
-                    </span>
-                </div>
+    ("👨‍👩‍👧‍👦 Para Compartir", [
+        ("Maxicombo Personalizado Jumbo", "Maxicombo personalizado", "maxi_personalizado_jumbo.jpg"),
+        ("Maxicombo Personalizado P/Llevar", "Maxicombo para llevar", "maxi_personalizado_llevar.jpg"),
+        ("Maxicombo Familiar Jumbo", "Maxicombo familiar jumbo", "maxi_familiar_jumbo.jpg"),
+        ("Maxicombo Familiar", "Maxicombo familiar", "maxi_familiar.jpg"),
+        ("Maxicombo Micha Mix", "Maxicombo Micha Mix", "maxi_micha_mix.jpg"),
+        ("Maxicombo Mix", "Maxicombo Mix", "maxi_mix.jpg"),
+        ("Maxicombo M&M's® Para Lllevar", "Maxicombo para llevar", "maxi_mms_llevar.jpg"),
+        ("Maxicombo M&M's® Jumbo", "Maxicombo M&M's jumbo", "maxi_mms_jumbo.jpg"),
+        ("Maxicombo Nachos Grandes", "Maxicombo con nachos grandes", "maxi_nachos_grandes.jpg"),
+        ("Maxicombo Nachos", "Maxicombo con nachos", "maxi_nachos.jpg"),
+        ("Maxicombo Hot Dog", "Maxicombo con hot dog", "maxi_hot_dog.jpg")
+    ]),
 
-                <h3>{{ nombre }}</h3>
-                <p>{{ descripcion }}</p>
+    ("🥤 Clásicos", [
+        ("Refresco", "Refresco", "refresco.jpg"),
+        ("Nachos", "Nachos clásicos", "nachos.jpg"),
+        ("Palomitas", "Palomitas clásicas", "palomitas.jpg"),
+        ("Hot Dog Individual", "Hot dog individual", "hot_dog_individual.jpg"),
+        ("Agua Embotellada", "Agua embotellada", "agua.jpg"),
+        ("ICEE®", "Bebida fría ICEE", "icee.jpg")
+    ]),
 
-                {% if nombre == "ICE" %}
-                <label for="sabor-ice-{{ loop.index }}">Sabor:</label>
-                <select
-                    name="sabor_ICE"
-                    id="sabor-ice-{{ loop.index }}"
-                    class="form-select sabor-alimento"
+    ("🌭 Snacks", [
+        ("Hot Dog Takis", "Hot dog con Takis", "hot_dog_takis.jpg"),
+        ("Papas Fritas", "Papas fritas", "papas_fritas.jpg"),
+        ("Extra Queso", "Porción extra de queso", "extra_queso.jpg"),
+        ("Extra Guacamole", "Porción extra de guacamole", "extra_guacamole.jpg")
+    ]),
+
+    ("🍦 Helados", [
+        ("Cornetto®.", "Helado Cornetto", "cornetto.jpg"),
+        ("Magnum®.", "Helado Magnum", "magnum.jpg"),
+        ("Mordisko® Oreo®", "Helado Mordisko Oreo", "mordisko_oreo.jpg"),
+        ("Helado Micha", "Helado Micha", "helado_micha.jpg")
+    ]),
+
+    ("🍫 Dulces y Chocolates", [
+        ("Milky Way®", "Chocolate Milky Way", "milky_way.jpg"),
+        ("Hershey's® Cookies And Cream", "Chocolate Hershey's", "hersheys_cookies.jpg"),
+        ("Skittles® Pouch", "Bolsa de Skittles", "skittles_pouch.jpg"),
+        ("Hershey's® Cookies And Cream King Size", "Hershey's tamaño grande", "hersheys_king.jpg"),
+        ("Pon Pons®", "Dulces Pon Pons", "pon_pons.jpg"),
+        ("Lifesavers®", "Dulces Lifesavers", "lifesavers.jpg"),
+        ("Skwinkles® Chunks sandia", "Skwinkles sabor sandía", "skwinkles_chunks.jpg"),
+        ("Snickers®", "Chocolate Snickers", "snickers.jpg"),
+        ("Skwinkles® Salsagheti", "Skwinkles Salsagheti", "skwinkles_salsagheti.jpg"),
+        ("Pelón Pelonazo®", "Dulce Pelón", "pelon_pelonazo.jpg"),
+        ("Skittles®", "Dulces Skittles", "skittles.jpg"),
+        ("Skwinkles® Rellenos", "Skwinkles rellenos", "skwinkles_rellenos.jpg"),
+        ("M&M's®", "Chocolate M&M's", "mms.jpg"),
+        ("M&M's® Mega", "M&M's tamaño mega", "mms_mega.jpg"),
+        ("Vaso Granel", "Dulces a granel", "vaso_granel.jpg"),
+        ("Ositos Enchilados Cinépolis", "Gomitas enchiladas", "ositos_enchilados.jpg"),
+        ("Aritos Enchilados Cinépolis", "Aritos enchilados", "aritos_enchilados.jpg"),
+        ("Aritos Ácidos Cinépolis", "Aritos ácidos", "aritos_acidos.jpg"),
+        ("Skittles gomitas", "Gomitas Skittles", "skittles_gomitas.jpg"),
+        ("Hershey's", "Chocolate Hershey's", "hersheys.jpg")
+    ])
+] %}
+
+{% for grupo, productos in grupos %}
+<section class="alimentos-seccion">
+    <h2>{{ grupo }}</h2>
+
+    <div class="alimentos-grid">
+        {% for nombre, descripcion, imagen in productos %}
+        <article class="alimento-card">
+
+            <div class="alimento-imagen">
+                <img
+                    src="{{ url_for('static', filename='alimentos/' ~ imagen) }}"
+                    alt="{{ nombre }}"
+                    loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
                 >
-                    <option value="Mora roja">Mora roja</option>
-                    <option value="Mora azul">Mora azul</option>
-                </select>
-                {% endif %}
+                <span class="imagen-no-disponible" style="display:none;">
+                    Imagen no disponible
+                </span>
+            </div>
 
-                {% if nombre == "Papas fritas" %}
-                <label for="tipo-papas-{{ loop.index }}">Preparación:</label>
-                <select
-                    name="tipo_papas"
-                    id="tipo-papas-{{ loop.index }}"
-                    class="form-select sabor-alimento"
-                >
-                    <option value="Naturales">Naturales</option>
-                    <option value="Con chile">Con chile</option>
-                </select>
-                {% endif %}
+            <h3>{{ nombre }}</h3>
+            <p>{{ descripcion }}</p>
 
-                <strong>${{ precios[nombre] }} MXN</strong>
+            {% if nombre == "ICEE®" %}
+            <label for="sabor-ice-{{ loop.index }}">Sabor:</label>
+            <select
+                name="sabor_ICE"
+                id="sabor-ice-{{ loop.index }}"
+                class="form-select sabor-alimento"
+            >
+                <option value="Mora roja">Mora roja</option>
+                <option value="Mora azul">Mora azul</option>
+            </select>
+            {% endif %}
 
-                <label for="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}">
-                    Cantidad:
-                </label>
+            {% if nombre == "Papas Fritas" %}
+            <label for="tipo-papas-{{ loop.index }}">Preparación:</label>
+            <select
+                name="tipo_papas"
+                id="tipo-papas-{{ loop.index }}"
+                class="form-select sabor-alimento"
+            >
+                <option value="Naturales">Naturales</option>
+                <option value="Con chile">Con chile</option>
+            </select>
+            {% endif %}
 
-                <input
-                    type="number"
-                    name="{{ nombre }}"
-                    id="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}"
-                    class="form-control cantidad-alimento"
-                    min="0"
-                    max="50"
-                    value="0"
-                    inputmode="numeric"
-                >
+            <strong>${{ precios[nombre] }} MXN</strong>
 
-                <p class="subtotal-alimento">
-                    Subtotal: $<span>0.00</span> MXN
-                </p>
-            </article>
-            {% endfor %}
-        </div>
-    </section>
-    {% endfor %}
+            <label for="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}">
+                Cantidad:
+            </label>
 
-    <section class="alimentos-resumen">
-        <h2>Resumen de alimentos</h2>
-        <p>El total se actualizará cuando cambies las cantidades.</p>
+            <input
+                type="number"
+                name="{{ nombre }}"
+                id="cantidad-{{ loop.index }}-{{ nombre|replace(' ', '-') }}"
+                class="form-control cantidad-alimento"
+                min="0"
+                max="50"
+                value="0"
+                inputmode="numeric"
+            >
 
-        <p class="alimentos-total">
-            Total: $<span id="total-alimentos">0.00</span> MXN
-        </p>
+            <p class="subtotal-alimento">
+                Subtotal: $<span>0.00</span> MXN
+            </p>
 
-        <button type="submit" class="btn btn-primary btn-lg">
-            Confirmar compra de alimentos
-        </button>
-    </section>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endfor %}
+
+<section class="alimentos-resumen">
+    <h2>Resumen de alimentos</h2>
+    <p>El total se actualizará cuando cambies las cantidades.</p>
+
+    <p class="alimentos-total">
+        Total: $<span id="total-alimentos">0.00</span> MXN
+    </p>
+
+    <button type="submit" class="btn btn-primary btn-lg">
+        Confirmar compra de alimentos
+    </button>
+</section>
+
 </form>
 
 <script>
@@ -168,6 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const tarjeta = campo.closest(".alimento-card");
             const precioTexto = tarjeta.querySelector("strong").textContent;
+
             const precio = parseFloat(
                 precioTexto.replace("$", "").replace(" MXN", "")
             ) || 0;

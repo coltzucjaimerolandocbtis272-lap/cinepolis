@@ -1,0 +1,102 @@
+
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0 p-4">
+
+                <div class="text-center mb-4">
+                    <h2>Comprobante de reserva</h2>
+                    <p class="text-muted">
+                        Cinepolis - Consulta de reservación
+                    </p>
+                </div>
+
+                {% if reserva.estado == 'Activa' %}
+                    <div class="alert alert-warning text-center">
+                        <h4>Reserva activa</h4>
+                        Tu reservación todavía está pendiente de confirmación.
+                    </div>
+
+                {% elif reserva.estado == 'Confirmada' %}
+                    <div class="alert alert-success text-center">
+                        <h4>Compra confirmada</h4>
+                        Tu reservación fue confirmada correctamente.
+                    </div>
+
+                {% elif reserva.estado == 'Cancelada' %}
+                    <div class="alert alert-secondary text-center">
+                        <h4>Reserva cancelada</h4>
+                        Esta reservación fue cancelada.
+                    </div>
+
+                {% elif reserva.estado == 'Vencida' %}
+                    <div class="alert alert-danger text-center">
+                        <h4>Reserva vencida</h4>
+                        El tiempo para confirmar esta reservación terminó.
+                    </div>
+                {% endif %}
+
+                <hr>
+
+                <h4 class="mb-3">Datos de la función</h4>
+
+                <p>
+                    <strong>Película:</strong>
+                    {% if pelicula %}
+                        {{ pelicula.get('nombre', pelicula.get('titulo', 'Película no disponible')) }}
+                    {% else %}
+                        Película no disponible
+                    {% endif %}
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    {{ reserva.fecha }}
+                </p>
+
+                <p>
+                    <strong>Horario:</strong>
+                    {{ reserva.horario }}
+                </p>
+
+                <p>
+                    <strong>Asientos:</strong>
+                    {{ reserva.asientos | join(', ') }}
+                </p>
+
+                <p>
+                    <strong>Cantidad de boletos:</strong>
+                    {{ reserva.asientos | length }}
+                </p>
+
+                <p>
+                    <strong>Estado:</strong>
+                    {{ reserva.estado }}
+                </p>
+
+                <hr>
+
+                <div class="text-center">
+                    <a href="{{ url_for('inicio') }}"
+                       class="btn btn-primary w-100">
+                        Volver a cartelera
+                    </a>
+                </div>
+
+                <p class="text-muted text-center mt-3 mb-0">
+                    Este comprobante muestra el estado actual
+                    de la reservación.
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

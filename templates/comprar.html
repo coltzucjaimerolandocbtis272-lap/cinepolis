@@ -51,6 +51,25 @@
 
                     <p class="text-muted">Compra simulada. No se realizó ningún cobro real.</p>
 
+                    {% if qr_reserva %}
+    <div class="text-center my-4">
+        <h3 class="h5">Tu código QR</h3>
+
+        <p>Escanea este código para consultar tu comprobante.</p>
+
+        <img
+            src="data:image/png;base64,{{ qr_reserva }}"
+            alt="Código QR de tu reserva"
+            class="img-fluid border rounded p-2"
+            style="width: 220px;"
+        >
+
+        <p class="text-muted mt-2">
+            Conserva este código para consultar tu reserva.
+        </p>
+    </div>
+{% endif %}
+
                     <a href="{{ url_for('inicio') }}" class="btn btn-primary w-100">
                         Volver a la cartelera
                     </a>

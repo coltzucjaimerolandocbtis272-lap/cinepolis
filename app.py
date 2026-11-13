@@ -10,8 +10,29 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import os
 import uuid
+import qrcode
+import base64
+from io import BytesIO
 
 app = Flask(__name__)
+def generar_qr_reserva(reserva_id):
+    base_url = os.environ.get(
+        "PUBLIC_BASE_URL",
+        "https://cinepolis-imuz.onrender.com"
+    ).rstrip("/")
+
+    enlace = f"{base_url}/comprobante/{reserva_id}"
+
+    imagen = qrcode.make(enlace)
+
+    buffer = BytesIO()
+    imagen.save(buffer, format="PNG")
+
+    qr_base64 = base64.b64encode(
+        buffer.getvalue()
+    ).decode("utf-8")
+
+    return qr_base64
 
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
@@ -846,6 +867,34 @@ def eliminar(id):
     return render_template("eliminar.html", pelicula=pelicula)
 
 
+@app.route("/comprobante/<reserva_id>")
+def comprobante_reserva(reserva_id):
+    try:
+        liberar_reservas_vencidas()
+
+        reserva = reservas.find_one({
+            "reserva_id": reserva_id
+        })
+
+        if not reserva:
+            abort(404)
+
+        pelicula = buscar_alumno(
+            reserva.get("pelicula_id", "")
+        )
+
+        if pelicula:
+            aplicar_poster(pelicula)
+
+        return render_template(
+            "comprobante.html",
+            reserva=reserva,
+            pelicula=pelicula
+        )
+
+    except PyMongoError:
+        abort(503)
+
 # =========================
 # AYUDA
 # =========================
@@ -1211,6 +1260,7 @@ def comprar(id):
             compra_confirmada=True,
             confirmar=False,
             folio=str(resultado_compra.inserted_id),
+            qr_reserva=generar_qr_reserva(reserva_id),
             fecha=fecha,
             horario=horario,
             seleccionados=seleccionados,

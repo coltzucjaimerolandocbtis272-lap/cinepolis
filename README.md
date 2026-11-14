@@ -110,11 +110,9 @@ No compartir ni publicar estas credenciales.
 # Publicación
 
 Aplicación publicada en Render:
-
 https://cinepolis-imuz.onrender.com/
 
 Repositorio de GitHub:
-
 https://github.com/coltzucjaimerolandocbtis272-lap/cinepolis
 
 # Pruebas realizadas

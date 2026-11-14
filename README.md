@@ -5,7 +5,7 @@ Este proyecto es una aplicación web inspirada en Cinépolis, desarrollada para 
 Como parte del proyecto final de Aplicaciones Web, se integró un sistema de reservas temporales y códigos QR para consultar los comprobantes de compra.
 
 # Integrantes
-Col Tzuc Jaime Rolando
+Col Tzuc Jaime Rolando y
 Martinez Merlin Alexander
 
 # Problema que resuelve

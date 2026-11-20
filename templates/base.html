@@ -3,25 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10121b">
+  <meta name="theme-color" content="#07122f">
 
   <title>{% block title %}{% block titulo %}Cinépolis | Cine en grande{% endblock %}{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet"
         href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
   <link rel="stylesheet"
         href="{{ url_for('static', filename='estilos.css') }}">
 
+  <style>
+    /* =========================================
+       BARRA DE NAVEGACIÓN OSCURA EN TODAS LAS PÁGINAS
+       (Inicio, Alimentos, Agregar película,
+        Películas registradas y Ayuda)
+       ========================================= */
+
+    .cine-navbar,
+    body .cine-navbar {
+      background: #07122f !important;
+      background-color: #07122f !important;
+      border-bottom: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .cine-navbar .cine-logo,
+    .cine-navbar .navbar-brand {
+      color: #fff !important;
+    }
+
+    .cine-navbar .nav-link {
+      color: #fff !important;
+      opacity: .92;
+      transition: opacity .2s, color .2s;
+    }
+
+    .cine-navbar .nav-link:hover,
+    .cine-navbar .nav-link:focus,
+    .cine-navbar .nav-link.active {
+      color: #fff !important;
+      opacity: 1;
+    }
+
+    .cine-navbar .navbar-toggler {
+      border-color: rgba(255, 255, 255, .45);
+    }
+
+    /* Un poco de aire bajo la barra en las páginas que no son el inicio
+       (el inicio ya empieza con su carrusel pegado a la barra) */
+    body:not(.pag-inicio) .cine-main {
+      padding-top: 32px;
+    }
+  </style>
+
   {% block estilos %}{% endblock %}
 </head>
-<body class="cine-body">
+<body class="cine-body {% block bodyclase %}{% endblock %}">
 
   <nav class="navbar navbar-expand-lg navbar-dark cine-navbar sticky-top"
        aria-label="Menú principal">
     <div class="container">
-      <a class="navbar-brand cine-logo" href="{{ url_for('inicio') }}">
-        <span>CINÉ</span>POLIS
-      </a>
+      <a class="navbar-brand cine-logo" href="{{ url_for('inicio') }}">cinépolis</a>
 
       <button class="navbar-toggler" type="button"
               data-bs-toggle="collapse"
@@ -33,14 +79,13 @@
       </button>
 
       <div class="collapse navbar-collapse" id="menuPrincipal">
-        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <ul class="navbar-nav ms-lg-4 me-auto align-items-lg-center gap-lg-1">
           <li class="nav-item">
-            <li class="nav-item">
-  <a class="nav-link" href="{{ url_for('inicio') }}">Inicio</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="{{ url_for('alimentos') }}">Alimentos</a>
-</li>
+            <a class="nav-link" href="{{ url_for('inicio') }}">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('alimentos') }}">Alimentos</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('agregar') }}">Agregar película</a>
           </li>

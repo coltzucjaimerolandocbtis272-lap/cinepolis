@@ -1,12 +1,24 @@
+/* =====================================================
+   estilos.css – Tema claro (morado, azul claro y blanco)
+   Conserva las clases que ya usan tus pantallas:
+   inicio, alimentos, comprar, comprobante, agregar,
+   editar y películas registradas.
+   ===================================================== */
+
 :root {
+  --cine-fondo: #ffffff;
+  --cine-panel: #ffffff;
+  --cine-texto: #0b2a5b;
+  --cine-secundario: #5a6178;
+  --cine-borde: #e3e7f0;
+  --cine-morado: #4a3fb5;
+  --cine-morado-oscuro: #2a1f6b;
+  --cine-marino: #0e1330;
+  --cine-azul: #5bb4ff;
+  --cine-azul-fuerte: #1d6fd6;
   --cine-rojo: #e31837;
   --cine-rojo-oscuro: #b5122b;
-  --cine-azul: #0878d1;
-  --cine-fondo: #0b1020;
-  --cine-panel: #141c2e;
-  --cine-texto: #f5f7fb;
-  --cine-secundario: #aab5c8;
-  --cine-borde: rgba(255, 255, 255, 0.09);
+  --cine-sombra: 0 8px 24px rgba(40, 40, 100, 0.12);
 }
 
 * {
@@ -19,16 +31,11 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   background: var(--cine-fondo);
   color: var(--cine-texto);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
   line-height: 1.6;
-}
-
-main.container {
-  max-width: 1200px;
-  padding-top: 32px;
-  padding-bottom: 40px;
 }
 
 h1,
@@ -37,6 +44,7 @@ h3,
 h4 {
   color: var(--cine-texto);
   font-weight: 800;
+  letter-spacing: -0.4px;
 }
 
 p {
@@ -47,301 +55,390 @@ a {
   text-decoration: none;
 }
 
-.navbar {
-  background: #080c17 !important;
-  border-bottom: none !important;
-  padding-top: 16px;
-  padding-bottom: 16px;
+main.container,
+.cine-main {
+  max-width: 1200px;
+  padding-top: 0;
+  padding-bottom: 80px;
 }
 
+
+/* ==========================================================
+   MENÚ
+   ========================================================== */
+
+.cine-navbar {
+  background: #fff !important;
+  border-bottom: 1px solid #eef0f5 !important;
+  padding: 10px 0;
+}
+
+.cine-logo,
 .navbar-brand {
-  color: white !important;
-  font-size: 1.45rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.navbar-brand .text-primary {
-  color: var(--cine-rojo) !important;
+  color: #1f2a44 !important;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -1.2px;
 }
 
 .nav-link {
-  color: #d8deea !important;
-  font-weight: 600;
-  transition: color 0.2s ease;
+  color: #0b2a5b !important;
+  font-weight: 500;
+  font-size: .92rem;
+  padding: 8px 14px !important;
+  border-radius: 8px;
+  transition: color .2s, background .2s;
 }
 
 .nav-link:hover,
 .nav-link:focus {
-  color: #ff5269 !important;
+  color: #3b6be3 !important;
+  background: #f0f4ff;
 }
 
-.cine-hero {
+/* Menú oscuro solo en la página de inicio */
+.pag-inicio .cine-navbar {
+  background: #070d28 !important;
+  border-bottom: 0 !important;
+}
+
+.pag-inicio .cine-logo,
+.pag-inicio .navbar-brand {
+  color: #fff !important;
+}
+
+.pag-inicio .nav-link {
+  color: #e6e9f7 !important;
+}
+
+.pag-inicio .nav-link:hover,
+.pag-inicio .nav-link:focus {
+  color: #fff !important;
+  background: rgba(255,255,255,.12);
+}
+
+.pag-inicio .navbar-toggler {
+  border-color: rgba(255,255,255,.5);
+}
+
+.pag-inicio .navbar-toggler-icon {
+  filter: invert(1);
+}
+
+
+/* ==========================================================
+   PORTADA (CARRUSEL DE INICIO)
+   ========================================================== */
+
+.cine-hero,
+.cine-hero-portada {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  min-height: 340px;
-  overflow: hidden;
-  padding: 48px;
-  border: 1px solid var(--cine-borde);
-  border-radius: 24px;
-  background:
-    radial-gradient(ellipse at 85% 40%, rgba(227, 24, 55, 0.3), transparent 38%),
-    radial-gradient(ellipse at 10% 100%, rgba(8, 120, 209, 0.25), transparent 45%),
-    linear-gradient(120deg, #18243d, #0c1222 75%);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  justify-content: center;
+  gap: clamp(20px, 3vw, 40px);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  min-height: clamp(340px, 28vw, 430px);
+  padding: 48px 24px 68px;
+  color: #fff;
+  background: linear-gradient(90deg, #7a2cc8 0%, #4d27a8 28%, #141a50 62%, #050b28 100%);
 }
 
 .cine-hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 620px;
-}
-
-.cine-etiqueta {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: #ff6278;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 2px;
+  width: clamp(260px, 22vw, 360px);
 }
 
 .cine-hero h2 {
-  margin: 8px 0 16px;
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
-  line-height: 1.08;
-  letter-spacing: -1.5px;
+  margin: 0 0 16px;
+  color: #fff;
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.5px;
 }
 
 .cine-hero p {
-  max-width: 500px;
-  margin-bottom: 26px;
-  font-size: 1.05rem;
-}
-
-.cine-hero-decoration {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 210px;
-  height: 210px;
-  flex-shrink: 0;
-  margin: 0 30px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.035);
-  box-shadow: 0 0 0 25px rgba(255, 255, 255, 0.025),
-              0 0 0 50px rgba(255, 255, 255, 0.018);
-}
-
-.cine-play {
-  width: 0;
-  height: 0;
-  margin-left: 12px;
-  border-top: 32px solid transparent;
-  border-bottom: 32px solid transparent;
-  border-left: 48px solid var(--cine-rojo);
-  filter: drop-shadow(0 0 15px rgba(227, 24, 55, 0.5));
+  margin: 0 0 24px;
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .btn-cine {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 11px 22px;
-  border: 1px solid var(--cine-rojo);
-  border-radius: 9px;
-  background: var(--cine-rojo);
-  color: white;
-  font-weight: 800;
-  transition: background 0.2s ease, transform 0.2s ease;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #3b6be3;
+  color: #fff;
+  font-weight: 700;
+  font-size: .95rem;
+  transition: background .2s, transform .2s;
 }
 
 .btn-cine:hover {
-  border-color: var(--cine-rojo-oscuro);
-  background: var(--cine-rojo-oscuro);
-  color: white;
+  background: #2f58c4;
+  color: #fff;
   transform: translateY(-2px);
 }
 
-.cine-beneficios {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin: 28px 0 52px;
+.cine-hero-poster {
+  width: clamp(240px, 20vw, 340px);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #e9a23b, #6b3a12);
+  box-shadow: 0 14px 34px rgba(0,0,0,.5);
 }
 
-.cine-beneficio {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 92px;
-  padding: 18px;
-  border: 1px solid var(--cine-borde);
-  border-radius: 14px;
-  background: var(--cine-panel);
-}
-
-.beneficio-linea {
-  width: 4px;
-  height: 42px;
-  flex-shrink: 0;
-  border-radius: 5px;
-  background: var(--cine-rojo);
-}
-
-.cine-beneficio:nth-child(2) .beneficio-linea {
-  background: var(--cine-azul);
-}
-
-.cine-beneficio:nth-child(3) .beneficio-linea {
-  background: #8d72ff;
-}
-
-.cine-beneficio strong {
+.cine-hero-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  color: var(--cine-texto);
-  font-size: 0.95rem;
 }
 
-.cine-beneficio p {
-  margin: 3px 0 0;
-  font-size: 0.85rem;
+.cine-hero-flecha {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: #0a1544;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
 }
+
+.cine-hero-flecha:hover {
+  background: #3b6be3;
+}
+
+.cine-hero-izq {
+  left: 22.7%;
+}
+
+.cine-hero-der {
+  left: 76.6%;
+}
+
+.cine-hero-barras {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.cine-hero-barras button {
+  width: clamp(30px, 3.4vw, 55px);
+  height: 23px;
+  padding: 10px 0;
+  border: 0;
+  cursor: pointer;
+  background: rgba(255,255,255,.75) content-box;
+  border-radius: 2px;
+}
+
+.cine-hero-barras button.on {
+  background: #3b6be3 content-box;
+}
+
+@media (max-width: 768px) {
+  .cine-hero,
+  .cine-hero-portada {
+    flex-direction: column;
+    padding: 40px 20px 68px;
+  }
+
+  .cine-hero-content,
+  .cine-hero-poster {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .cine-hero-flecha {
+    top: 30px;
+  }
+
+  .cine-hero-izq {
+    left: 28px;
+  }
+
+  .cine-hero-der {
+    left: calc(100% - 28px);
+  }
+}
+
+
+/* ==========================================================
+   SECCIONES
+   ========================================================== */
 
 .cine-section {
   margin-bottom: 48px;
-  scroll-margin-top: 25px;
+  scroll-margin-top: 90px;
 }
 
 .cine-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
+  text-align: center;
+  margin: 28px 0 18px;
 }
 
 .cine-section-heading h2 {
-  margin: 0 0 7px;
-  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  display: inline-block;
+  margin: 0;
+  padding: 10px 28px 8px;
+  border-bottom: 3px solid #3b6be3;
+  color: #3b6be3;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
-.cine-section-heading p {
-  margin: 0;
+.cine-section-heading p,
+.cine-section-heading .cine-hero-label {
+  display: none;
 }
 
 .cine-contador {
-  flex-shrink: 0;
-  padding: 8px 13px;
-  border: 1px solid rgba(227, 24, 55, 0.35);
+  padding: 8px 14px;
   border-radius: 30px;
-  background: rgba(227, 24, 55, 0.1);
-  color: #ff7588;
-  font-size: 0.85rem;
+  background: #eef2ff;
+  color: var(--cine-morado);
+  font-size: .85rem;
   font-weight: 700;
 }
 
+.cine-resultados {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--cine-secundario);
+  font-size: .85rem;
+  font-weight: 500;
+}
+
+
+/* ==========================================================
+   FORMULARIOS Y FILTROS
+   ========================================================== */
+
 .cine-filtros {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: 12px;
-    align-items: end;
-    margin-bottom: 24px;
-    width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 20px;
+  border: 1px solid var(--cine-borde);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--cine-sombra);
 }
 
 .cine-filtro-busqueda,
 .cine-filtro-estado,
 .cine-filtro-genero {
-    min-width: 0;
-    width: 100%;
-    margin: 0;
+  min-width: 0;
+  margin: 0;
 }
 
-.cine-filtros .form-label {
-    display: block;
-    margin-bottom: 7px;
-}
-
-.cine-filtros .form-control,
-.cine-filtros .form-select {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
-
-@media (max-width: 650px) {
-    .cine-filtros {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-
-    .cine-filtro-busqueda {
-        grid-column: 1 / -1;
-    }
+.form-label {
+  color: var(--cine-secundario);
+  font-size: .85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 .form-control,
 .form-select {
-  min-height: 46px;
-  border: 1px solid #303c53;
-  border-radius: 9px;
-  background-color: #111a2c;
+  min-height: 48px;
+  border: 1px solid var(--cine-borde);
+  border-radius: 12px;
+  background-color: #fff;
   color: var(--cine-texto);
 }
 
 .form-control::placeholder {
-  color: #8491a7;
+  color: #8b92a8;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--cine-azul);
-  background-color: #111a2c;
-  color: white;
-  box-shadow: 0 0 0 3px rgba(8, 120, 209, 0.18);
+  border-color: var(--cine-azul-fuerte);
+  box-shadow: 0 0 0 .22rem rgba(29, 111, 214, .2);
 }
 
-.form-select option {
-  background: #111a2c;
-  color: white;
+@media (max-width: 768px) {
+  .cine-filtros {
+    grid-template-columns: 1fr;
+  }
 }
 
+
+/* ==========================================================
+   CARTELERA
+   ========================================================== */
+
+.cine-filtros {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 10px;
+  box-shadow: none;
+  background: #f9fafc;
+}
+
+.cine-movie-grid,
 .cine-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 22px 16px;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .cine-movie-card {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--cine-borde);
-  border-radius: 15px;
-  background: var(--cine-panel);
-  transition: transform 0.22s ease, border-color 0.22s ease;
+  background: transparent;
+  box-shadow: none;
+  transition: transform .2s;
 }
 
 .cine-movie-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(227, 24, 55, 0.65);
+  transform: translateY(-4px);
 }
 
-.cine-movie-card[hidden] {
+.cine-movie-card[hidden],
+.cine-sin-resultados[hidden] {
   display: none !important;
 }
 
+.cine-movie-poster,
 .cine-poster {
-  position: relative;
-  overflow: hidden;
   aspect-ratio: 2 / 3;
-  background: linear-gradient(145deg, #202e4a, #101625 70%);
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(160deg, #6f45c8, #2a1f6b);
+  box-shadow: 0 4px 14px rgba(20,20,60,.18);
 }
 
+.cine-movie-poster img,
 .cine-poster img {
   display: block;
   width: 100%;
@@ -350,79 +447,139 @@ a {
 }
 
 .cine-poster-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  width: 100%;
-  height: 100%;
-  padding: 22px;
-  text-align: center;
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(227, 24, 55, 0.3), transparent 50%),
-    linear-gradient(145deg, #202e4a, #101625 70%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    padding: 12px;
+    background: linear-gradient(160deg, #6f45c8, #2a1f6b);
+    color: #fff;
+    font-weight: 800;
+    font-size: .75rem;
+    letter-spacing: 1px;
+    text-align: center;
 }
 
-.poster-brand {
-  color: #ff647a;
-  font-size: 0.8rem;
-  font-weight: 900;
-  letter-spacing: 3px;
+.cine-poster-placeholder span:first-child {
+    font-size: 2rem;
 }
 
-.poster-title {
-  color: white;
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
-  font-weight: 900;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.poster-category {
-  color: #b8c5da;
-  font-size: 0.85rem;
+.cine-poster-placeholder span:first-child {
+  font-size: 2rem;
 }
 
 .cine-movie-info {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: 17px;
-}
-
-.cine-genero {
-  color: #77baff;
-  font-size: 0.77rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  gap: 5px;
+  padding: 8px 0 0;
+  flex: 1;
 }
 
 .cine-movie-info h3 {
   width: 100%;
   margin: 0;
-  font-size: 1.05rem;
+  color: #1f2a44;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.3;
   overflow-wrap: anywhere;
+  letter-spacing: 0;
+}
+
+.cine-movie-genre,
+.cine-genero {
+  margin: 0;
+  color: #3b6be3;
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+.cine-movie-duration {
+  margin: 0;
+  font-size: .72rem;
+}
+
+.cine-clasif {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #cfd6e6;
+  color: #1b1b1b;
+  font-size: .62rem;
+  font-weight: 800;
+}
+
+.cine-clasif-a,
+.cine-clasif-aa {
+  background: #7ddc8f;
+}
+
+.cine-clasif-b {
+  background: #f5c518;
+}
+
+.cine-clasif-b15 {
+  background: #f59e18;
+}
+
+.cine-clasif-c {
+  background: #ef5a5a;
+}
+
+.cine-movie-info .badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: .66rem;
+  font-weight: 700;
+}
+
+.cine-movie-info .btn {
+  margin-top: auto !important;
+  min-height: 36px;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cine-movie-info .btn-primary {
+  background: #3b6be3;
+  border-color: #3b6be3;
+}
+
+.cine-movie-info .btn-primary:hover {
+  background: #2f58c4;
+  border-color: #2f58c4;
 }
 
 .cine-estado {
   display: inline-block;
   padding: 5px 10px;
   border-radius: 20px;
-  font-size: 0.78rem;
+  font-size: .78rem;
   font-weight: 700;
 }
 
 .cine-estado.disponible {
-  background: rgba(25, 170, 110, 0.13);
-  color: #63e6a6;
+  background: #dff7ec;
+  color: #157a4b;
 }
 
 .cine-estado.agotado {
-  background: rgba(227, 24, 55, 0.13);
-  color: #ff8293;
+  background: #fde3e7;
+  color: #b5122b;
 }
 
 .btn-cine-outline {
@@ -431,58 +588,303 @@ a {
   width: 100%;
   margin-top: 5px;
   padding: 9px 12px;
-  border: 1px solid #3a4963;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.87rem;
+  border: 1px solid #c9d2e6;
+  border-radius: 10px;
+  color: #0b2a5b;
   font-weight: 700;
 }
 
 .btn-cine-outline:hover {
-  border-color: var(--cine-azul);
-  background: rgba(8, 120, 209, 0.12);
-  color: #8acaff;
+  border-color: #3b6be3;
+  background: #eef2ff;
 }
 
 .cine-vacio {
   grid-column: 1 / -1;
   padding: 45px 20px;
-  border: 1px dashed #35425a;
-  border-radius: 14px;
-  background: var(--cine-panel);
+  border: 2px dashed #cdd5e8;
+  border-radius: 16px;
+  background: #fff;
   text-align: center;
-}
-
-.cine-vacio h3 {
-  margin-bottom: 10px;
-}
-
-.cine-vacio p {
-  margin-bottom: 20px;
 }
 
 .cine-sin-resultados {
   margin-top: 20px;
   padding: 18px;
-  border-radius: 10px;
-  background: var(--cine-panel);
+  border-radius: 12px;
+  background: #f9fafc;
   text-align: center;
 }
 
-.cine-sin-resultados[hidden] {
-  display: none !important;
+@media (max-width: 992px) {
+  .cine-movie-grid,
+  .cine-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
+
+@media (max-width: 680px) {
+  .cine-movie-grid,
+  .cine-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+}
+
+/* Carrusel (si alguna pantalla lo usa) */
+.cine-carousel {
+  padding: 16px;
+  border: 1px solid var(--cine-borde);
+  border-radius: 20px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.cine-carousel-track {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 4px 4px 16px;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.cine-carousel-track > .cine-movie-card {
+  flex: 0 0 230px;
+  scroll-snap-align: start;
+}
+
+.cine-carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cine-carousel-controls button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--cine-borde);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--cine-morado-oscuro);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.cine-carousel-controls button:hover {
+  background: var(--cine-azul-fuerte);
+  color: #fff;
+  border-color: var(--cine-azul-fuerte);
+}
+
+
+/* ==========================================================
+   ALIMENTOS (TARJETAS CON FONDO LAVANDA)
+   ========================================================== */
+
+/* El título de la página queda oculto visualmente pero sigue disponible para lectores de pantalla */
+.alimentos-portada {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.alimentos-seccion {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+
+.alimentos-seccion h2 {
+  margin: 0 0 28px;
+  color: #0b2a5b;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -.5px;
+}
+
+.alimentos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 16px;
+}
+
+.alimento-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 14px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(20,20,80,.12);
+  transition: transform .2s, box-shadow .2s;
+}
+
+.alimento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(20,20,80,.18);
+}
+
+.alimento-imagen {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(#6e3fb5 0 40%, #a98ae8 40% 100%);
+}
+
+.alimento-imagen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagen-no-disponible {
+  padding: 8px;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.alimento-card > :not(.alimento-imagen) {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+
+.alimento-card h3 {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  color: #0b2a5b;
+  font-size: .92rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.alimento-card h3 + p {
+  display: none;
+}
+
+.alimento-card label {
+  margin-top: 8px;
+  color: #5a6178;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.alimento-card strong {
+  margin-top: auto;
+  padding-top: 10px;
+  color: #0b2a5b;
+  font-size: .95rem;
+}
+
+.alimento-card .form-select,
+.alimento-card .form-control {
+  min-height: 38px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 8px;
+  font-size: .85rem;
+}
+
+.subtotal-alimento {
+  margin-top: 8px;
+  margin-bottom: 0;
+  color: #5a6178;
+  font-size: .78rem;
+}
+
+.subtotal-alimento span {
+  color: #3b6be3;
+  font-weight: 700;
+}
+
+/* Barra de total fija abajo */
+.alimentos-resumen {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 24px;
+  max-width: 1000px;
+  margin: 32px auto 0;
+  padding: 14px 20px;
+  border-radius: 14px 14px 0 0;
+  background: #fff;
+  box-shadow: 0 -6px 20px rgba(20,20,80,.14);
+}
+
+.alimentos-resumen h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.alimentos-resumen p {
+  margin: 0;
+  font-size: .8rem;
+}
+
+.alimentos-resumen .alimentos-total {
+  margin-left: auto;
+  color: #0b2a5b;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.alimentos-resumen .btn-primary {
+  min-height: 46px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .alimentos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .alimentos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+
+  .alimentos-resumen .alimentos-total {
+    margin-left: 0;
+  }
+
+  .alimentos-resumen .btn-primary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .alimentos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ==========================================================
+   PANEL DE ADMINISTRACIÓN (AGREGAR / EDITAR)
+   ========================================================== */
 
 .cine-admin {
   padding: 28px;
   border: 1px solid var(--cine-borde);
   border-radius: 18px;
-  background: var(--cine-panel);
-}
-
-.cine-admin .form-label {
-  color: #e4eaf5;
-  font-weight: 700;
+  background: #fff;
+  box-shadow: var(--cine-sombra);
 }
 
 .cine-form-grid {
@@ -498,63 +900,43 @@ a {
   margin-top: 22px;
 }
 
-.cine-admin .btn-outline-secondary {
-  border-color: #4a5870;
-  color: #d4dceb;
+@media (max-width: 768px) {
+  .cine-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cine-admin {
+    padding: 20px 15px;
+  }
 }
 
-.cine-admin .btn-outline-secondary:hover {
-  background: #29364d;
-  color: white;
-}
+
+/* ==========================================================
+   TABLA DE PELÍCULAS REGISTRADAS
+   ========================================================== */
 
 .cine-tabla {
   margin-bottom: 0;
-  color: #e4eaf5;
-  --bs-table-color: #e4eaf5;
+  --bs-table-color: var(--cine-texto);
   --bs-table-bg: transparent;
-  --bs-table-border-color: #2b374d;
-  --bs-table-striped-bg: rgba(255, 255, 255, 0.025);
-  --bs-table-hover-bg: rgba(8, 120, 209, 0.08);
-  --bs-table-hover-color: white;
+  --bs-table-border-color: var(--cine-borde);
+  --bs-table-striped-bg: #f7f8fc;
+  --bs-table-hover-bg: #eef2ff;
 }
 
-/* Alinear el contenido de las filas de la tabla */
 .cine-tabla th,
-.cine-tabla td {
-  vertical-align: middle;
-}
-
-/* Alinear las etiquetas de estado */
-.cine-tabla .cine-estado {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 105px;
-  min-height: 30px;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.cine-tabla thead th {
-  padding: 15px 12px;
-  border-bottom: 1px solid #3b4962;
-  color: #9ecfff;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
 .cine-tabla td {
   padding: 15px 12px;
   vertical-align: middle !important;
+}
+
+.cine-tabla thead th {
+  color: var(--cine-morado);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--cine-borde);
 }
 
 .cine-tabla td:nth-child(1) {
@@ -567,13 +949,14 @@ a {
   white-space: nowrap;
 }
 
-.cine-tabla td:nth-child(4) .cine-estado {
+.cine-tabla .cine-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 105px;
-  min-height: 32px;
-}
-
-.cine-tabla .fw-bold {
-  color: white;
+  min-height: 30px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .cine-acciones {
@@ -587,1323 +970,165 @@ a {
 }
 
 .cine-acciones .btn-outline-primary {
-  border-color: #1688ff;
-  color: #80bdff;
+  border-color: var(--cine-azul-fuerte);
+  color: var(--cine-azul-fuerte);
 }
 
 .cine-acciones .btn-outline-primary:hover {
-  background: #0878d1;
-  color: white;
+  background: var(--cine-azul-fuerte);
+  color: #fff;
 }
 
 .cine-acciones .btn-outline-danger {
-  border-color: #e34a60;
-  color: #ff8998;
+  border-color: var(--cine-rojo);
+  color: var(--cine-rojo);
 }
 
 .cine-acciones .btn-outline-danger:hover {
-  background: #b5122b;
-  color: white;
-}
-
-footer.container {
-  max-width: none;
-  margin-top: 25px;
-  padding: 25px 20px;
-  border-top: 1px solid #263249 !important;
-  color: #8f9bb0 !important;
-  text-align: center;
-}
-
-@media (max-width: 992px) {
-  .cine-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .cine-hero {
-    padding: 36px;
-  }
-
-  .cine-hero-decoration {
-    width: 145px;
-    height: 145px;
-    margin: 0 15px;
-  }
-
-  .cine-play {
-    border-top-width: 23px;
-    border-bottom-width: 23px;
-    border-left-width: 35px;
-  }
+  background: var(--cine-rojo);
+  color: #fff;
 }
 
 @media (max-width: 768px) {
-  main.container {
-    padding-top: 22px;
-  }
-
-  .cine-hero {
-    min-height: 300px;
-    padding: 30px 24px;
-  }
-
-  .cine-hero-decoration {
-    position: absolute;
-    right: -65px;
-    bottom: -35px;
-    width: 155px;
-    height: 155px;
-    opacity: 0.45;
-  }
-
-  .cine-hero h2 {
-    font-size: 2.5rem;
-  }
-
-  .cine-hero-content {
-    max-width: 100%;
-  }
-
-  .cine-beneficios {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 38px;
-  }
-
-  .cine-beneficio {
-    min-height: 75px;
-    padding: 14px;
-  }
-
-  .cine-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 13px;
-  }
-
-  .cine-movie-info {
-    padding: 12px;
-    gap: 8px;
-  }
-
-  .cine-movie-info h3 {
-    font-size: 0.95rem;
-  }
-
-  .cine-filtros {
-    grid-template-columns: 1fr;
-  }
-
-  .cine-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cine-admin {
-    padding: 20px 15px;
-  }
-
-  .cine-section-heading {
-    align-items: flex-start;
-  }
-
-  .cine-contador {
-    font-size: 0.75rem;
-  }
-
   .cine-tabla {
     min-width: 650px;
   }
 }
 
-@media (max-width: 380px) {
-  .cine-grid {
-    grid-template-columns: 1fr;
-  }
 
-  .cine-hero {
-    padding: 25px 20px;
-  }
+/* ==========================================================
+   COMPRA Y COMPROBANTE
+   ========================================================== */
 
-  .cine-hero h2 {
-    font-size: 2.1rem;
-  }
-
-  .cine-section-heading {
-    flex-direction: column;
-  }
+.cine-section .card {
+  border: 1px solid var(--cine-borde);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--cine-sombra);
 }
-/* Corrección del precio y total en la página de compra */
+
+.btn-primary {
+  background: var(--cine-azul-fuerte);
+  border-color: var(--cine-azul-fuerte);
+}
+
+.btn-primary:hover {
+  background: var(--cine-morado);
+  border-color: var(--cine-morado);
+}
+
 #total-vivo {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-  background-color: #ffffff !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-  font-size: 30px !important;
-  font-weight: 800 !important;
+  color: var(--cine-morado-oscuro);
+  font-size: 30px;
+  font-weight: 800;
 }
 
-/* Fondo claro y texto negro para el cuadro del precio */
-.cine-section .card div:has(> #total-vivo) {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
 
-.cine-section .card div:has(> #total-vivo) p,
-.cine-section .card div:has(> #total-vivo) strong {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-/* Total del resumen de compra */
-.cine-section .card h2[style*="font-weight:800"] {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-/* ========================================
-   MEJORAS VISUALES DE CINÉPOLIS
-   ======================================== */
-
-/* Menú sin línea roja */
-.cine-navbar,
-.navbar {
-  border-bottom: none !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-/* Más espacio al final de la página */
-.cine-main {
-  padding-bottom: 100px !important;
-}
+/* ==========================================================
+   PIE DE PÁGINA
+   ========================================================== */
 
 .cine-footer {
-  margin-top: 70px;
-  padding: 55px 0 35px;
-  background: #070d20;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.cine-footer .container {
-  max-width: 1240px;
-}
-
-.cine-footer span {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: #fff;
-  font-size: 1.35rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
-
-.cine-footer p {
-  margin: 0;
-  color: #8996ad;
-  font-size: 0.9rem;
-}
-
-/* Buscador ordenado encima del carrusel */
-.cine-filtros {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 230px;
-  gap: 14px;
-  margin: 0 0 22px;
-}
-
-.cine-filtros .form-control,
-.cine-filtros .form-select {
-  min-height: 50px;
-  border-radius: 12px;
-  background-color: #111a2d;
-}
-
-/* Marco ancho del carrusel */
-.cine-carousel {
-  position: relative;
-  overflow: hidden;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 22px;
-  background:
-    radial-gradient(
-      ellipse at 50% 0%,
-      rgba(25, 73, 130, 0.2),
-      transparent 70%
-    ),
-    #10182a;
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.2);
-}
-
-/* Fila horizontal de películas */
-.cine-carousel-track {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 4px 3px 16px;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-color: #40516e #111a2d;
-  scrollbar-width: thin;
-}
-
-.cine-carousel-track .cine-movie-card {
-  flex: 0 0 220px;
-  scroll-snap-align: start;
-}
-
-/* Mantiene el póster estático dentro de su tarjeta */
-.cine-carousel .cine-poster {
-  aspect-ratio: 2 / 3;
-}
-
-.cine-carousel .cine-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Nombre y disponibilidad legibles */
-.cine-carousel .cine-movie-info {
-  min-height: 155px;
-  padding: 17px;
-}
-
-.cine-carousel .cine-movie-info h3 {
-  line-height: 1.35;
-}
-
-.cine-carousel .cine-movie-info .btn {
-  width: 100%;
-}
-
-/* Botones para recorrer las películas */
-.cine-carousel-controls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.cine-carousel-controls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid #34445f;
-  border-radius: 50%;
-  background: #17233a;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.cine-carousel-controls button:hover {
-  border-color: #1688ff;
-  background: #203657;
-}
-
-/* Las tarjetas agotadas siguen visibles en el carrusel */
-.cine-carousel .cine-movie-card[hidden] {
-  display: none !important;
-}
-
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 768px) {
-  .cine-main {
-    padding-bottom: 65px !important;
-  }
-
-  .cine-filtros {
-    grid-template-columns: 1fr;
-  }
-
-  .cine-carousel {
-    padding: 10px;
-    border-radius: 16px;
-  }
-
-  .cine-carousel-track {
-    gap: 13px;
-  }
-
-  .cine-carousel-track .cine-movie-card {
-    flex-basis: 175px;
-  }
-
-  .cine-footer {
-    margin-top: 40px;
-    padding: 38px 0 28px;
-  }
-}
-
-/* BUSCADOR Y ESTADOS ENCIMA DEL CARRUSEL */
-#cartelera > .cine-filtros {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 230px !important;
-  gap: 14px;
-  width: 100%;
-  margin: 0 0 22px !important;
-}
-
-#cartelera > .cine-filtros input,
-#cartelera > .cine-filtros select {
-  min-width: 0;
-  min-height: 50px;
-}
-
-/* MARCO DEL CARRUSEL */
-.cine-carousel {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* FILA QUE SE DESPLAZA */
-#gridPeliculas.cine-carousel-track {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch;
-  gap: 20px;
-  width: 100%;
-  overflow-x: auto !important;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  padding: 5px 4px 18px;
-}
-
-#gridPeliculas.cine-carousel-track > .cine-movie-card {
-  display: flex;
-  flex: 0 0 230px !important;
-  flex-direction: column;
-  min-width: 0;
-  scroll-snap-align: start;
-}
-
-/* Evita que las tarjetas se estiren para llenar el espacio */
-#gridPeliculas .cine-movie-info {
-  flex: 1;
-}
-
-/* Mantiene los pósteres dentro de su tarjeta */
-#gridPeliculas .cine-poster {
-  flex: 0 0 auto;
-  width: 100%;
-  aspect-ratio: 2 / 3;
-}
-
-#gridPeliculas .cine-poster img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* FLECHAS */
-.cine-carousel-controls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 10px 4px 2px;
-}
-
-.cine-carousel-controls button {
-  position: relative;
-  z-index: 2;
-  width: 44px;
-  height: 44px;
-  border: 1px solid #34445f;
-  border-radius: 50%;
-  background: #17233a;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.cine-carousel-controls button:hover {
-  background: #0878d1;
-  border-color: #0878d1;
-}
-
-/* Las películas que no coinciden con la búsqueda se ocultan */
-#gridPeliculas .cine-movie-card[hidden] {
-  display: none !important;
-}
-
-@media (max-width: 600px) {
-  #cartelera > .cine-filtros {
-    grid-template-columns: 1fr !important;
-  }
-
-  #gridPeliculas.cine-carousel-track {
-    gap: 13px;
-  }
-
-  #gridPeliculas.cine-carousel-track > .cine-movie-card {
-    flex-basis: 180px !important;
-  }
-}
-
-/* ===== CORRECCIÓN DEFINITIVA DEL CARRUSEL ===== */
-
-/* Buscador y estados SIEMPRE encima del carrusel */
-#cartelera > .cine-filtros {
-  position: relative !important;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 230px !important;
-  width: 100% !important;
-  margin: 0 0 20px !important;
-  gap: 14px !important;
-}
-
-#cartelera > .cine-filtros input,
-#cartelera > .cine-filtros select {
-  width: 100% !important;
-  min-height: 50px !important;
-}
-
-/* Ventana del carrusel */
-#cartelera .cine-carousel {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  padding: 16px !important;
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 20px;
-  background: #10182a;
-}
-
-/* Una sola fila horizontal */
-#cartelera #gridPeliculas.cine-carousel-track {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  justify-content: flex-start !important;
-  align-items: stretch !important;
-  gap: 18px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  padding: 5px 3px 18px !important;
-  scroll-behavior: smooth !important;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: #526783 #111a2c;
-}
-
-/* Ancho fijo: evita que todas las películas quepan en pantalla */
-#cartelera #gridPeliculas.cine-carousel-track > .cine-movie-card {
-  display: flex;
-  flex: 0 0 230px !important;
-  flex-direction: column !important;
-  width: 230px !important;
-  max-width: 230px !important;
-  min-width: 230px !important;
-  margin: 0 !important;
-  scroll-snap-align: start;
-}
-
-/* Mantener proporciones del póster */
-#cartelera #gridPeliculas .cine-poster {
-  display: block;
-  width: 100%;
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-}
-
-#cartelera #gridPeliculas .cine-poster img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-#cartelera #gridPeliculas .cine-movie-info {
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* Controles debajo de las películas */
-#cartelera .cine-carousel-controls {
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-#cartelera .cine-carousel-controls button {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  flex-shrink: 0;
-  border: 1px solid #34445f;
-  border-radius: 50%;
-  background: #17233a;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-#cartelera .cine-carousel-controls button:hover {
-  background: #0878d1;
-  border-color: #0878d1;
-}
-
-#cartelera #gridPeliculas .cine-movie-card[hidden] {
-  display: none !important;
-}
-
-@media (max-width: 600px) {
-  #cartelera > .cine-filtros {
-    grid-template-columns: 1fr !important;
-  }
-
-  #cartelera #gridPeliculas.cine-carousel-track > .cine-movie-card {
-    flex-basis: 180px !important;
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
-  }
-}
-
-/* ===== ALINEAR TARJETAS Y BOTONES DE COMPRA ===== */
-
-#cartelera #gridPeliculas .cine-movie-card {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-}
-
-#cartelera #gridPeliculas .cine-movie-info {
-    display: flex !important;
-    flex-direction: column !important;
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-}
-
-#cartelera #gridPeliculas .cine-movie-info h3 {
-    min-height: 2.8em;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
-}
-
-#cartelera #gridPeliculas .cine-movie-info .cine-movie-genre {
-    min-height: 2.5em;
-}
-
-#cartelera #gridPeliculas .cine-movie-info > .btn {
-    margin-top: auto !important;
-    min-height: 48px;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    white-space: normal !important;
-    line-height: 1.3;
-}
-
-/* Reducir la altura de las tarjetas de películas */
-#cartelera #gridPeliculas .cine-movie-card {
-    height: auto !important;
-    min-height: 0 !important;
-}
-
-/* Reducir la altura de los pósteres */
-#cartelera .cine-movie-poster,
-#cartelera .cine-poster {
-    height: 260px !important;
-    aspect-ratio: auto !important;
-    overflow: hidden;
-}
-
-/* Ajustar las imágenes al póster */
-#cartelera .cine-movie-poster img,
-#cartelera .cine-poster img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Reducir el espacio interior */
-#cartelera .cine-movie-info {
-    padding: 12px !important;
-    gap: 6px !important;
-}
-
-/* Evitar que los títulos agranden las tarjetas */
-#cartelera .cine-movie-info h3 {
-    min-height: 0 !important;
-    margin-bottom: 4px;
-}
-
-/* CARTELERA: cuadrícula sin carrusel */
-#gridPeliculas.cine-movie-grid {
-    display: grid !important;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 24px 12px;
-    width: 100%;
-    overflow: visible !important;
-    overflow-x: visible !important;
-    scroll-behavior: auto !important;
-    transform: none !important;
-}
-
-#gridPeliculas .cine-movie-card {
-    display: flex;
-    flex-direction: column;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    margin: 0 !important;
-    flex: initial !important;
-}
-
-#gridPeliculas .cine-movie-card[hidden] {
-    display: none !important;
-}
-
-#gridPeliculas .cine-movie-poster {
-    width: 100%;
-    aspect-ratio: 2 / 3;
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-#gridPeliculas .cine-movie-poster img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-#gridPeliculas .cine-movie-info {
-    min-width: 0;
-    padding-top: 8px;
-}
-
-#gridPeliculas .cine-movie-info h3 {
-    font-size: 15px;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-}
-
-@media (max-width: 1100px) {
-    #gridPeliculas.cine-movie-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 700px) {
-    #gridPeliculas.cine-movie-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px 12px;
-    }
-}
-
-/* Ajuste definitivo de los filtros de cartelera */
-#cartelera .cine-filtros {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 12px !important;
-    align-items: end !important;
-    width: 100% !important;
-    margin-bottom: 24px !important;
-}
-
-#cartelera .cine-filtro-busqueda,
-#cartelera .cine-filtro-estado,
-#cartelera .cine-filtro-genero {
-    display: block !important;
-    grid-column: auto !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-}
-
-#cartelera .cine-filtros .form-control,
-#cartelera .cine-filtros .form-select {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-}
-
-@media (max-width: 650px) {
-    #cartelera .cine-filtros {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    }
-
-    #cartelera .cine-filtro-busqueda {
-        grid-column: 1 / -1 !important;
-    }
-}
-
-/* Portada cinematográfica de Cinépolis */
-.cine-hero-portada {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: 440px;
-    padding: 55px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
-    background:
-        linear-gradient(
-            90deg,
-            rgba(5, 10, 22, 0.97) 0%,
-            rgba(5, 10, 22, 0.82) 42%,
-            rgba(5, 10, 22, 0.15) 100%
-        ),
-        url("/static/portada-cine.png") center / cover no-repeat;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
-}
-
-.cine-hero-portada .cine-hero-content {
-    position: relative;
-    z-index: 1;
-    width: 58%;
-    max-width: 680px;
-}
-
-.cine-hero-portada h2 {
-    margin: 18px 0;
-    color: #fff;
-    font-size: clamp(2.4rem, 5vw, 4.3rem);
-    font-weight: 800;
-    line-height: 1.05;
-}
-
-.cine-hero-portada p {
-    max-width: 570px;
-    color: #d6deed;
-    font-size: 1.1rem;
-    line-height: 1.7;
-}
-
-.cine-hero-botones {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px;
-    margin-top: 28px;
-}
-
-.cine-hero-botones .btn-cine {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 52px;
-    padding: 14px 25px;
-    text-decoration: none;
-}
-
-.btn-cine-secundario {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 52px;
-    padding: 13px 22px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.2s ease;
-}
-
-.btn-cine-secundario:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-}
-
-@media (max-width: 650px) {
-    .cine-hero-portada {
-        min-height: 390px;
-        padding: 28px 22px;
-        background-position: center;
-    }
-
-    .cine-hero-portada .cine-hero-content {
-        width: 100%;
-    }
-
-    .cine-hero-portada h2 {
-        font-size: 2.4rem;
-    }
-
-    .cine-hero-portada p {
-        font-size: 1rem;
-    }
-
-    .cine-hero-botones {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .cine-hero-botones a {
-        width: 100%;
-    }
-}
-
-/* ===== PIE DE PÁGINA CINÉPOLIS ===== */
-.cine-footer {
-    margin-top: 70px;
-    padding-top: 65px;
-    background: linear-gradient(135deg, #06142f, #071d40);
-    color: #d5e2ff;
-    border-top: 1px solid rgba(76, 151, 255, 0.2);
+  margin-top: 24px;
+  background: #1a0f45;
+  color: #cfc8ef;
 }
 
 .cine-footer-columnas {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 35px;
-    padding: 25px 0 75px;
-}
-
-.cine-footer-columna {
-    min-width: 0;
-    padding: 5px 25px;
-}
-
-.cine-footer-columna + .cine-footer-columna {
-    border-left: 1px solid rgba(74, 151, 255, 0.45);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 52px 0 36px;
 }
 
 .cine-footer-columna h3 {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 22px;
-    color: #fff;
-    font-size: 1.55rem;
-    font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 1rem;
 }
 
 .cine-footer-icono {
-    color: #55a7ff;
-    font-size: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(91, 180, 255, .18);
+  color: var(--cine-azul);
 }
 
 .cine-footer-columna p {
-    margin: 8px 0;
-    color: #c8d8f8;
-    font-size: 1.05rem;
-    line-height: 1.65;
-    overflow-wrap: anywhere;
+  margin: 0 0 6px;
+  color: #cfc8ef;
+  font-size: .9rem;
 }
 
 .cine-footer-columna a {
-    color: #c8d8f8;
-    text-decoration: none;
+  color: #cfc8ef;
 }
 
 .cine-footer-columna a:hover {
-    color: #fff;
-    text-decoration: underline;
+  color: #fff;
+  text-decoration: underline;
 }
 
 .cine-footer-inferior {
-    padding: 25px 0;
-    background: rgba(16, 54, 105, 0.35);
-    border-top: 1px solid rgba(74, 151, 255, 0.3);
+  padding: 18px 0;
+  background: #12092f;
+  border-top: 1px solid rgba(255, 255, 255, .08);
 }
 
 .cine-footer-marca {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    color: #fff;
-    font-size: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 24px;
+  font-size: .9rem;
 }
 
 .cine-footer-marca strong {
-    font-weight: 900;
-    letter-spacing: 1.5px;
+  color: #fff;
+  letter-spacing: 1px;
 }
 
 .cine-footer-marca span {
-    font-weight: 700;
+  color: #cfc8ef;
 }
 
-@media (max-width: 767px) {
-    .cine-footer {
-        margin-top: 40px;
-        padding-top: 30px;
-    }
-
-    .cine-footer-columnas {
-        grid-template-columns: 1fr;
-        gap: 22px;
-        padding-bottom: 35px;
-    }
-
-    .cine-footer-columna {
-        padding: 18px 5px;
-    }
-
-    .cine-footer-columna + .cine-footer-columna {
-        border-left: none;
-        border-top: 1px solid rgba(74, 151, 255, 0.35);
-        padding-top: 28px;
-    }
-
-    .cine-footer-columna h3 {
-        font-size: 1.3rem;
-    }
-
-    .cine-footer-marca {
-        align-items: flex-start;
-        flex-direction: column;
-        font-size: 1rem;
-    }
-}
-
-/* ===== PÁGINA DE ALIMENTOS ===== */
-.alimentos-portada {
-    margin: 25px 0 45px;
-    padding: 45px 35px;
-    border: 1px solid rgba(100, 160, 255, 0.25);
-    border-radius: 22px;
-    background: linear-gradient(120deg, #07152e, #123c78);
-    color: #fff;
-}
-
-.alimentos-etiqueta {
-    color: #80baff;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.alimentos-portada h1 {
-    margin: 12px 0;
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 900;
-}
-
-.alimentos-portada p {
-    margin-bottom: 0;
-    color: #d5e3ff;
-    font-size: 1.1rem;
-}
-
-.alimentos-seccion {
-    margin: 45px 0;
-}
-
-.alimentos-seccion h2 {
-    margin-bottom: 22px;
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: 800;
-}
-
-.alimentos-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (max-width: 768px) {
+  .cine-footer-columnas {
+    grid-template-columns: 1fr;
     gap: 22px;
-}
+    padding: 36px 0 24px;
+  }
 
-.alimento-card {
-    overflow: hidden;
-    padding: 15px;
-    border: 1px solid rgba(120, 165, 230, 0.22);
-    border-radius: 18px;
-    background: #111c31;
-    color: #fff;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.alimento-card:hover {
-    transform: translateY(-4px);
-    border-color: #4c9cff;
-}
-
-.alimento-imagen {
-    display: flex;
-    min-height: 170px;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-    border: 1px dashed #5276a8;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #172640, #0b1425);
-    color: #9eb9e2;
-    text-align: center;
-}
-
-.alimento-card h3 {
-    font-size: 1.25rem;
-    font-weight: 800;
-}
-
-.alimento-card p {
-    min-height: 24px;
-    color: #b9c8df;
-}
-
-.alimento-card strong {
-    color: #76b6ff;
-    font-size: 1.15rem;
-}
-
-.alimentos-nota {
-    margin: 35px 0;
-    color: #b9c8df;
-    text-align: center;
-}
-
-@media (max-width: 767px) {
-    .alimentos-portada {
-        padding: 30px 22px;
-    }
-
-    .alimentos-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 13px;
-    }
-
-    .alimento-card {
-        padding: 10px;
-    }
-
-    .alimento-imagen {
-        min-height: 125px;
-        font-size: 0.85rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .alimentos-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* =========================================
-   ALIMENTOS CINÉPOLIS - TARJETAS E IMÁGENES
-   ========================================= */
-
-.alimentos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px;
-    align-items: stretch;
-}
-
-.alimento-card {
-    display: flex;
+  .cine-footer-marca {
     flex-direction: column;
-    min-width: 0;
-    height: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
-    border-radius: 14px;
-}
-
-/* Contenedor uniforme de las imágenes */
-.alimento-imagen {
-    width: 100%;
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-/* Imagen adaptada al contenedor */
-.alimento-imagen img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-/* Mensaje cuando falta una imagen */
-.alimento-imagen .imagen-no-disponible {
-    text-align: center;
-    color: #666666;
-    font-size: 14px;
-    padding: 12px;
-}
-
-/* Nombre del producto */
-.alimento-card h3 {
-    margin-top: 14px;
-    margin-bottom: 8px;
-}
-
-/* Descripción */
-.alimento-card p {
-    overflow-wrap: break-word;
-}
-
-/* Precio */
-.alimento-card strong {
-    display: block;
-    margin: 8px 0;
-}
-
-/* Campo de cantidad */
-.alimento-card .cantidad-alimento {
-    width: 100%;
-    margin-top: 6px;
-}
-
-/* Subtotal */
-.alimento-card .subtotal-alimento {
-    margin-top: auto;
-    padding-top: 12px;
-    margin-bottom: 0;
-}
-
-/* =========================================
-   AJUSTES PARA CELULARES
-   ========================================= */
-
-@media (max-width: 576px) {
-    .alimentos-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .alimento-imagen {
-        height: 160px;
-    }
-
-    .alimento-card {
-        padding: 10px;
-    }
-
-    .alimento-card h3 {
-        font-size: 16px;
-    }
-
-    .alimento-card p {
-        font-size: 14px;
-    }
-}
-
-/* Alinear las etiquetas de estado en películas registradas */
-.cine-tabla td {
-    vertical-align: middle !important;
-}
-
-.cine-tabla td .cine-estado {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-width: 105px;
-    min-height: 32px;
-    padding: 6px 10px;
-    margin: 0;
-    line-height: 1;
-    white-space: nowrap;
-    vertical-align: middle;
+  }
 }
 
 
-/* ALINEACIÓN DE PRODUCTOS DE ALIMENTOS */
+/* ==========================================================
+   ACCESIBILIDAD
+   ========================================================== */
 
-.alimentos-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    align-items: stretch;
-    gap: 24px;
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--cine-azul);
+  outline-offset: 2px;
 }
 
-.alimento-card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-width: 0;
-}
-
-.alimento-imagen {
-    width: 100%;
-    height: 220px;
-    flex-shrink: 0;
-    overflow: hidden;
-}
-
-.alimento-imagen img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.alimento-card h3 {
-    min-height: 2.5em;
-    margin-top: 12px;
-}
-
-.alimento-card > p {
-    min-height: 2.5em;
-}
-
-.alimento-card > strong {
-    display: block;
-    margin-top: auto;
-    margin-bottom: 12px;
-}
-
-.alimento-card .cantidad-alimento {
-    width: 100%;
-}
-
-.alimento-card .subtotal-alimento {
-    margin-top: auto;
-    padding-top: 20px;
-}
-
-/* TABLET */
-@media (max-width: 992px) {
-    .alimentos-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-/* CELULAR */
-@media (max-width: 576px) {
-    .alimentos-grid {
-        grid-template-columns: 1fr;
-    }
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 
-
-/* Ajuste de imágenes de alimentos */
-.alimento-imagen {
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-    border-radius: 14px;
-    background: #7650a8;
-}
-
-.alimento-imagen img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-    object-position: center;
-}

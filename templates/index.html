@@ -2,39 +2,535 @@
 
 {% block title %}Inicio | Cinépolis{% endblock %}
 {% block titulo %}Inicio | Cinépolis{% endblock %}
+{% block bodyclase %}pag-inicio{% endblock %}
 
 {% block content %}
-<section class="cine-hero cine-hero-portada">
-    <div class="cine-hero-content">
-        <span class="cine-etiqueta">BIENVENIDO A CINÉPOLIS</span>
-        <h2>Vive la magia del cine</h2>
-        <p>
-            Descubre las mejores películas, disfruta de grandes
-            historias y vive una experiencia única en la pantalla grande.
-        </p>
-        <div class="cine-hero-botones">
-            <a href="#cartelera" class="btn-cine">Ver cartelera</a>
-            <a href="#cartelera" class="btn-cine-secundario">
-                Próximas películas
-            </a>
+
+<style>
+    /* =========================================
+       CARRUSEL PRINCIPAL
+       Tamaño FIJO para todas las diapositivas:
+       - Contenido máx. 1000px, caja de imagen de alto fijo
+       - La imagen se ve completa (object-fit: contain),
+         tanto si es vertical como horizontal
+       ========================================= */
+
+    body.pag-inicio {
+        overflow-x: hidden;
+    }
+
+    .cine-hero.cine-hero-portada {
+        position: relative;
+        display: block !important;
+        box-sizing: border-box;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        padding: 32px 0 60px;
+        overflow: hidden;
+        background: linear-gradient(100deg, #7b2cc9 0%, #3b1c78 42%, #07122f 78%);
+        color: #fff;
+    }
+
+    /* Cada diapositiva: 2 columnas centradas */
+    .cine-hero.cine-hero-portada .cine-hero-slide:not([hidden]) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+        align-items: center;
+        gap: clamp(24px, 2.7vw, 51px);
+        width: min(900px, calc(100% - 200px));
+        margin: 0 auto;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Texto */
+    .cine-hero.cine-hero-portada .cine-hero-content {
+        width: 100%;
+        text-align: left !important;
+        justify-self: start;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-content h2 {
+        margin: 0 0 24px;
+        color: #fff;
+        font-size: clamp(1.8rem, 3vw, 3.2rem);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-weight: 800;
+        line-height: 1.12;
+        letter-spacing: -1px;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-content p {
+        margin: 0 0 28px;
+        color: #fff;
+        font-size: clamp(1rem, 1.3vw, 1.4rem);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    /* Botón */
+    .cine-hero.cine-hero-portada .btn-cine {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: clamp(52px, 4.2vw, 66px);
+        padding: 12px 20px;
+        border: 0;
+        border-radius: 16px;
+        background: #405be0;
+        color: #fff;
+        font-size: clamp(1rem, 1.2vw, 1.3rem);
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none;
+        transition: background .2s, transform .2s;
+    }
+
+    .cine-hero.cine-hero-portada .btn-cine:hover {
+        background: #526df5;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* Póster / banner (4:3) */
+    .cine-hero.cine-hero-portada .cine-hero-poster {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: clamp(190px, 21vw, 280px);
+        background: none;
+        box-shadow: none;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-poster img {
+        display: block;
+        width: auto;
+        height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        object-position: center;
+        border-radius: 16px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+    }
+
+    /* Flechas */
+    .cine-hero.cine-hero-portada .cine-hero-flecha {
+        position: absolute;
+        z-index: 5;
+        top: 46%;
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-50%);
+        border: 0;
+        border-radius: 16px;
+        background: #142b58;
+        color: #fff;
+        font-size: 2.4rem;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .3);
+        transition: background .2s;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-flecha:hover {
+        background: #3156bd;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-izq {
+        left: max(16px, calc(50% - 546px));
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-der {
+        left: auto;
+        right: max(16px, calc(50% - 546px));
+    }
+
+    /* Indicadores (barras) */
+    .cine-hero.cine-hero-portada .cine-hero-barras {
+        position: absolute;
+        z-index: 5;
+        right: 12%;
+        bottom: 24px;
+        left: 12%;
+        display: flex;
+        justify-content: center;
+        gap: clamp(8px, 1.3vw, 25px);
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-barras button {
+        width: clamp(30px, 6.4vw, 122px);
+        height: 10px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: #c9cde0;
+        cursor: pointer;
+    }
+
+    .cine-hero.cine-hero-portada .cine-hero-barras button.on {
+        background: #3675ff;
+    }
+
+    /* Pantallas medianas */
+    @media (max-width: 1000px) {
+        .cine-hero.cine-hero-portada {
+            padding: 28px 0 56px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-slide:not([hidden]) {
+            width: calc(100% - 160px);
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-content p {
+            margin-bottom: 24px;
+        }
+
+        .cine-hero.cine-hero-portada .btn-cine {
+            border-radius: 14px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-flecha {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 1.8rem;
+        }
+    }
+
+    /* Celulares */
+    @media (max-width: 768px) {
+        .cine-hero.cine-hero-portada {
+            padding: 40px 0 95px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-slide:not([hidden]) {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 25px;
+            width: calc(100% - 48px);
+        }
+
+        /* En móvil el póster va arriba y el texto abajo */
+        .cine-hero.cine-hero-portada .cine-hero-poster {
+            order: -1;
+            height: clamp(180px, 52vw, 260px);
+            border-radius: 15px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-content h2 {
+            margin-bottom: 14px;
+            font-size: 2rem;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-content p {
+            margin-bottom: 22px;
+            font-size: 1rem;
+        }
+
+        .cine-hero.cine-hero-portada .btn-cine {
+            min-height: 56px;
+            font-size: 1rem;
+            border-radius: 12px;
+        }
+
+        /* Flechas abajo, a los lados de las barras */
+        .cine-hero.cine-hero-portada .cine-hero-flecha {
+            top: auto;
+            bottom: 14px;
+            width: 42px;
+            height: 42px;
+            transform: none;
+            border-radius: 12px;
+            font-size: 1.4rem;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-izq {
+            left: 16px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-der {
+            right: 16px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-barras {
+            right: 70px;
+            bottom: 30px;
+            left: 70px;
+            gap: 6px;
+        }
+
+        .cine-hero.cine-hero-portada .cine-hero-barras button {
+            width: 100%;
+            max-width: 30px;
+            height: 6px;
+        }
+    }
+
+    /* =========================================
+       TARJETAS DE CARTELERA ALINEADAS
+       - Mismo tamaño de póster en todas
+       - Título reservado a 2 líneas
+       - Botón siempre pegado abajo
+       ========================================= */
+
+    body.pag-inicio .cine-movie-grid {
+        align-items: stretch;
+    }
+
+    body.pag-inicio .cine-movie-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    body.pag-inicio .cine-movie-card[hidden] {
+        display: none !important;
+    }
+
+    body.pag-inicio .cine-movie-poster {
+        flex: none;
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        overflow: hidden;
+    }
+
+    body.pag-inicio .cine-movie-poster img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    body.pag-inicio .cine-movie-poster .cine-poster-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    body.pag-inicio .cine-movie-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+    }
+
+    body.pag-inicio .cine-movie-info h3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.25;
+        min-height: 2.5em;
+    }
+
+    body.pag-inicio .cine-movie-info .badge,
+    body.pag-inicio .cine-movie-info .cine-clasif {
+        align-self: flex-start;
+    }
+
+    body.pag-inicio .cine-movie-info > :nth-last-child(2) {
+        margin-bottom: .5rem;
+    }
+
+    body.pag-inicio .cine-movie-info > .btn {
+        margin-top: auto !important;
+    }
+</style>
+
+
+{% macro poster_de(nombre) -%}
+    {%- if 'wildwood' in nombre -%}
+        wildwood.jpg
+    {%- elif 'clayface' in nombre -%}
+        clayface.jpg
+    {%- elif 'gato con sombrero' in nombre or 'cat in the hat' in nombre -%}
+        gato_con_sombrero.jpg
+    {%- elif 'godzilla minus zero' in nombre -%}
+        godzilla_minus_zero.jpg
+    {%- elif 'amanecer en la cosecha' in nombre or 'sunrise on the reaping' in nombre -%}
+        juegos_del_hambre_amanecer.jpg
+    {%- elif 'paw patrol' in nombre or 'patrulla canina' in nombre -%}
+        paw_patrol_dinosaurios.jpg
+    {%- elif 'minions' in nombre and 'monsters' in nombre -%}
+        minions_monsters.jpg
+    {%- elif 'toy story 5' in nombre -%}
+        toy_story_5.jpg
+    {%- elif 'toy story 4' in nombre -%}
+        toy_story_4.jpg
+    {%- elif 'cars 3' in nombre -%}
+        cars_3.jpg
+    {%- elif 'cars 2' in nombre -%}
+        cars_2.jpg
+    {%- elif 'street fighter' in nombre -%}
+        street_fighter.jpg
+    {%- elif 'resident evil' in nombre -%}
+        resident_evil.jpg
+    {%- elif 'corazon bestia' in nombre or 'corazón bestia' in nombre -%}
+        corazon_bestia.jpg
+    {%- elif 'poder red' in nombre -%}
+        poder_red.jpg
+    {%- elif 'digger' in nombre -%}
+        digger.jpg
+    {%- elif 'isla olvidada' in nombre -%}
+        isla_olvidada.jpg
+    {%- elif 'verity' in nombre -%}
+        verity.jpg
+    {%- elif 'charro negro' in nombre -%}
+        charro_negro.jpg
+    {%- elif 'madre siniestra' in nombre -%}
+        madre_siniestra.jpg
+    {%- elif 'laberinto fauno' in nombre -%}
+        laberinto_fauno.jpg
+    {%- elif 'tadeo' in nombre -%}
+        tadeo.jpg
+    {%- elif 'spider' in nombre -%}
+        spiderman-brand-new-day.jpg
+    {%- elif 'mario' in nombre -%}
+        Super Mario Bros.jpg
+    {%- elif 'jurassic' in nombre -%}
+        Jurassic World.jpg
+    {%- elif 'intensamente' in nombre -%}
+        Intensamente 2.jpg
+    {%- elif 'coco' in nombre -%}
+        Coco.jpg
+    {%- elif 'cars' in nombre -%}
+        Cars.webp
+    {%- endif -%}
+{%- endmacro %}
+
+{% set portada_respaldo = url_for('static', filename='portada-cine.png') %}
+{% set destacadas = namespace(lista=[]) %}
+
+{% for p in alumnos %}
+    {% set estado_p = p.get('estado', 'Disponible')|lower %}
+    {% if destacadas.lista|length < 10 and estado_p not in ['agotado', 'no disponible'] %}
+        {% set destacadas.lista = destacadas.lista + [p] %}
+    {% endif %}
+{% endfor %}
+
+<section class="cine-hero cine-hero-portada" aria-label="Películas destacadas">
+
+    <button type="button"
+            class="cine-hero-flecha cine-hero-izq"
+            id="heroPrev"
+            aria-label="Anterior">&#8592;</button>
+
+    {% for pelicula in destacadas.lista %}
+        {% set nombre = pelicula.get('nombre', pelicula.get('titulo', 'Sin título')) %}
+        {% set genero = pelicula.get('categoria', pelicula.get('genero', '')) %}
+        {% set poster = poster_de(nombre|lower)|trim %}
+        {% set banner = pelicula.get('banner') %}
+        {% set descripcion = pelicula.get('descripcion') or pelicula.get('sinopsis') %}
+
+        {% if not descripcion %}
+            {% set descripcion = genero %}
+            {% if pelicula.get('duracion') %}
+                {% set descripcion = descripcion ~ ' · ' ~ pelicula.get('duracion') ~ ' min' %}
+            {% endif %}
+            {% if pelicula.get('clasificacion') %}
+                {% set descripcion = descripcion ~ ' · Clasificación ' ~ pelicula.get('clasificacion') %}
+            {% endif %}
+        {% endif %}
+
+        <div class="cine-hero-slide" data-slide {% if not loop.first %}hidden{% endif %}>
+
+            <div class="cine-hero-content">
+                <h2>{{ nombre }}</h2>
+                <p>{{ descripcion|truncate(200) }}</p>
+
+                <a href="{{ url_for('comprar', id=pelicula['_id']) }}" class="btn-cine">
+                    Elige tus lugares
+                </a>
+            </div>
+
+            <div class="cine-hero-poster">
+                {% if banner %}
+                    <img src="{{ banner }}"
+                         alt="Imagen de {{ nombre }}"
+                         onerror="this.onerror=null;this.src='{{ portada_respaldo }}';">
+
+                {% elif poster %}
+                    <img src="{{ url_for('static', filename='posters/' ~ poster) }}"
+                         alt="Póster de {{ nombre }}"
+                         onerror="this.onerror=null;this.src='{{ portada_respaldo }}';">
+
+                {% elif pelicula.get('poster') or pelicula.get('imagen') %}
+                    <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
+                         alt="Póster de {{ nombre }}"
+                         onerror="this.onerror=null;this.src='{{ portada_respaldo }}';">
+
+                {% else %}
+                    <img src="{{ portada_respaldo }}"
+                         alt="Portada de cine">
+                {% endif %}
+            </div>
+
         </div>
-    </div>
+    {% else %}
+        <div class="cine-hero-slide" data-slide>
+            <div class="cine-hero-content">
+                <h2>Vive la magia del cine</h2>
+                <p>Descubre las mejores películas y vive una experiencia única en la pantalla grande.</p>
+                <a href="#cartelera" class="btn-cine">Ver cartelera</a>
+            </div>
+
+            <div class="cine-hero-poster">
+                <img src="{{ portada_respaldo }}" alt="Portada de cine">
+            </div>
+        </div>
+    {% endfor %}
+
+    <button type="button"
+            class="cine-hero-flecha cine-hero-der"
+            id="heroNext"
+            aria-label="Siguiente">&#8594;</button>
+
+    <div class="cine-hero-barras" id="heroBarras"></div>
+
 </section>
 
-<div class="container py-4">
+<div class="container pt-2 pb-4">
+
     {% if agregada %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        ¡La película se registró correctamente!
-        <button type="button" class="btn-close"
-                data-bs-dismiss="alert" aria-label="Cerrar"></button>
-    </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ¡La película se registró correctamente!
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Cerrar"></button>
+        </div>
     {% endif %}
 
     {% if error %}
-    <div class="alert alert-danger" role="alert">{{ error }}</div>
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
     {% endif %}
 
     <section id="cartelera" class="mb-5">
+
         <div class="cine-section-heading">
             <div>
                 <span class="cine-hero-label">ENCUENTRA TU PRÓXIMA PELÍCULA</span>
@@ -44,9 +540,11 @@
         </div>
 
         <div class="cine-filtros">
+
             <div class="cine-filtro-busqueda">
                 <label for="buscarPelicula" class="form-label">Buscar película</label>
-                <input type="search" id="buscarPelicula"
+                <input type="search"
+                       id="buscarPelicula"
                        class="form-control"
                        placeholder="Nombre de la película..."
                        autocomplete="off">
@@ -76,6 +574,7 @@
                     <option value="drama">Drama</option>
                 </select>
             </div>
+
         </div>
 
         <div class="cine-resultados mb-3" id="contadorPeliculas">
@@ -83,130 +582,79 @@
         </div>
 
         <div id="gridPeliculas" class="cine-movie-grid">
+
             {% for pelicula in alumnos %}
-            {% set nombre = pelicula.get('nombre', pelicula.get('titulo', 'Sin título')) %}
-            {% set genero = pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) %}
-            {% set estado = pelicula.get('estado', 'Disponible')|lower %}
-            {% set nombre_normalizado = nombre|lower %}
-            {% set poster_local = '' %}
+                {% set nombre = pelicula.get('nombre', pelicula.get('titulo', 'Sin título')) %}
+                {% set genero = pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) %}
+                {% set estado = pelicula.get('estado', 'Disponible')|lower %}
+                {% set nombre_normalizado = nombre|lower %}
+                {% set poster_local = poster_de(nombre_normalizado)|trim %}
+                {% set estado_agotado = estado in ['agotado', 'no disponible'] %}
 
-            {# Pósteres nuevos #}
-            {% if 'wildwood' in nombre_normalizado %}
-                {% set poster_local = 'wildwood.jpg' %}
-            {% elif 'clayface' in nombre_normalizado %}
-                {% set poster_local = 'clayface.jpg' %}
-            {% elif 'gato con sombrero' in nombre_normalizado or 'cat in the hat' in nombre_normalizado %}
-                {% set poster_local = 'gato_con_sombrero.jpg' %}
-            {% elif 'godzilla minus zero' in nombre_normalizado %}
-                {% set poster_local = 'godzilla_minus_zero.jpg' %}
-            {% elif 'amanecer en la cosecha' in nombre_normalizado or 'sunrise on the reaping' in nombre_normalizado %}
-                {% set poster_local = 'juegos_del_hambre_amanecer.jpg' %}
-            {% elif 'paw patrol' in nombre_normalizado or 'patrulla canina' in nombre_normalizado %}
-                {% set poster_local = 'paw_patrol_dinosaurios.jpg' %}
-            {% elif 'minions' in nombre_normalizado and 'monsters' in nombre_normalizado %}
-                {% set poster_local = 'minions_monsters.jpg' %}
+                <article class="cine-movie-card"
+                         data-nombre="{{ nombre|lower }}"
+                         data-genero="{{ genero|lower }}"
+                         data-estado="{{ 'agotado' if estado_agotado else 'disponible' }}">
 
-            {# Pósteres anteriores #}
-            {% elif 'toy story 5' in nombre_normalizado %}
-                {% set poster_local = 'toy_story_5.jpg' %}
-            {% elif 'toy story 4' in nombre_normalizado %}
-                {% set poster_local = 'toy_story_4.jpg' %}
-            {% elif 'cars 3' in nombre_normalizado %}
-                {% set poster_local = 'cars_3.jpg' %}
-            {% elif 'cars 2' in nombre_normalizado %}
-                {% set poster_local = 'cars_2.jpg' %}
-            {% elif 'street fighter' in nombre_normalizado %}
-                {% set poster_local = 'street_fighter.jpg' %}
-            {% elif 'resident evil' in nombre_normalizado %}
-                {% set poster_local = 'resident_evil.jpg' %}
-            {% elif 'corazon bestia' in nombre_normalizado or 'corazón bestia' in nombre_normalizado %}
-                {% set poster_local = 'corazon_bestia.jpg' %}
-            {% elif 'poder red' in nombre_normalizado %}
-                {% set poster_local = 'poder_red.jpg' %}
-            {% elif 'digger' in nombre_normalizado %}
-                {% set poster_local = 'digger.jpg' %}
-            {% elif 'isla olvidada' in nombre_normalizado %}
-                {% set poster_local = 'isla_olvidada.jpg' %}
-            {% elif 'verity' in nombre_normalizado %}
-                {% set poster_local = 'verity.jpg' %}
-            {% elif 'charro negro' in nombre_normalizado %}
-                {% set poster_local = 'charro_negro.jpg' %}
-            {% elif 'madre siniestra' in nombre_normalizado %}
-                {% set poster_local = 'madre_siniestra.jpg' %}
-            {% elif 'laberinto fauno' in nombre_normalizado %}
-                {% set poster_local = 'laberinto_fauno.jpg' %}
-            {% elif 'tadeo' in nombre_normalizado %}
-                {% set poster_local = 'tadeo.jpg' %}
-            {% elif 'spider' in nombre_normalizado %}
-                {% set poster_local = 'spiderman-brand-new-day.jpg' %}
-            {% elif 'mario' in nombre_normalizado %}
-                {% set poster_local = 'Super Mario Bros.jpg' %}
-            {% elif 'jurassic' in nombre_normalizado %}
-                {% set poster_local = 'Jurassic World.jpg' %}
-            {% elif 'intensamente' in nombre_normalizado %}
-                {% set poster_local = 'Intensamente 2.jpg' %}
-            {% elif 'coco' in nombre_normalizado %}
-                {% set poster_local = 'Coco.jpg' %}
-            {% elif 'cars' in nombre_normalizado %}
-                {% set poster_local = 'Cars.webp' %}
-            {% endif %}
+                    <div class="cine-movie-poster">
 
-            {% set estado_agotado = estado in ['agotado', 'no disponible'] %}
+                        {% if poster_local %}
+                            <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
+                                 alt="Póster de {{ nombre }}"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;cine-poster-placeholder&quot;><span>🎬</span><span>CINÉPOLIS</span></div>';">
+                        {% elif pelicula.get('poster') or pelicula.get('imagen') %}
+                            <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
+                                 alt="Póster de {{ nombre }}"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;cine-poster-placeholder&quot;><span>🎬</span><span>CINÉPOLIS</span></div>';">
+                        {% else %}
+                            <div class="cine-poster-placeholder">
+                                <span>🎬</span>
+                                <span>CINÉPOLIS</span>
+                            </div>
+                        {% endif %}
 
-            <article class="cine-movie-card"
-                     data-nombre="{{ nombre|lower }}"
-                     data-genero="{{ genero|lower }}"
-                     data-estado="{{ 'agotado' if estado_agotado else 'disponible' }}">
-
-                <div class="cine-movie-poster">
-                    {% if poster_local %}
-                    <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
-                         alt="Póster de {{ nombre }}" loading="lazy"
-                         onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'cine-poster-placeholder\'><span>🎬</span><span>CINÉPOLIS</span></div>';">
-                    {% elif pelicula.get('poster') or pelicula.get('imagen') %}
-                    <img src="{{ pelicula.get('poster') or pelicula.get('imagen') }}"
-                         alt="Póster de {{ nombre }}" loading="lazy">
-                    {% else %}
-                    <div class="cine-poster-placeholder">
-                        <span>🎬</span>
-                        <span>CINÉPOLIS</span>
                     </div>
-                    {% endif %}
-                </div>
 
-                <div class="cine-movie-info">
-                    <h3>{{ nombre }}</h3>
-                    <p class="cine-movie-genre">{{ genero }}</p>
+                    <div class="cine-movie-info">
+                        <h3>{{ nombre }}</h3>
+                        <p class="cine-movie-genre">{{ genero }}</p>
 
-                    {% if estado_agotado %}
-                    <span class="badge text-bg-danger">Agotado</span>
-                    {% else %}
-                    <span class="badge text-bg-success">Disponible</span>
-                    {% endif %}
+                        {% if estado_agotado %}
+                            <span class="badge text-bg-danger">Agotado</span>
+                        {% else %}
+                            <span class="badge text-bg-success">Disponible</span>
+                        {% endif %}
 
-                    {% if pelicula.get('duracion') %}
-                    <p class="cine-movie-duration">{{ pelicula.get('duracion') }} min</p>
-                    {% endif %}
+                        {% if pelicula.get('duracion') %}
+                            <p class="cine-movie-duration">
+                                {{ pelicula.get('duracion') }} min
+                            </p>
+                        {% endif %}
 
-                    {% if pelicula.get('clasificacion') %}
-                    <p class="cine-movie-classification">
-                        Clasificación: {{ pelicula.get('clasificacion') }}
-                    </p>
-                    {% endif %}
+                        {% if pelicula.get('clasificacion') %}
+                            <span class="cine-clasif cine-clasif-{{ pelicula.get('clasificacion')|string|lower|replace(' ', '') }}"
+                                  title="Clasificación {{ pelicula.get('clasificacion') }}">
+                                {{ pelicula.get('clasificacion') }}
+                            </span>
+                        {% endif %}
 
-                    {% if not estado_agotado %}
-                    <a href="{{ url_for('comprar', id=pelicula['_id']) }}"
-                       class="btn btn-primary w-100 mt-2">
-                        Comprar boletos
-                    </a>
-                    {% else %}
-                    <button class="btn btn-secondary w-100 mt-2" disabled>
-                        No disponible
-                    </button>
-                    {% endif %}
-                </div>
-            </article>
+                        {% if not estado_agotado %}
+                            <a href="{{ url_for('comprar', id=pelicula['_id']) }}"
+                               class="btn btn-primary w-100 mt-2">
+                                Comprar boletos
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary w-100 mt-2" disabled>
+                                No disponible
+                            </button>
+                        {% endif %}
+                    </div>
+
+                </article>
             {% endfor %}
+
         </div>
 
         <div id="sinResultados" class="alert alert-info mt-3" hidden>
@@ -214,86 +662,185 @@
         </div>
 
         {% if not alumnos %}
-        <div class="alert alert-secondary mt-3">
-            Todavía no hay películas registradas.
-            <a href="{{ url_for('agregar') }}">Registrar una película</a>
-        </div>
+            <div class="alert alert-secondary mt-3">
+                Todavía no hay películas registradas.
+                <a href="{{ url_for('agregar') }}">Registrar una película</a>
+            </div>
         {% endif %}
+
     </section>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
+
 <script>
-(function () {
-    const buscador = document.getElementById('buscarPelicula');
-    const filtroEstado = document.getElementById('filtroEstado');
-    const filtroGenero = document.getElementById('filtroGenero');
-    const grid = document.getElementById('gridPeliculas');
-    const mensaje = document.getElementById('sinResultados');
-    const contador = document.getElementById('contadorPeliculas');
+    /* =========================================
+       FILTROS DE CARTELERA
+       ========================================= */
 
-    if (!buscador || !filtroEstado || !filtroGenero || !grid || !mensaje) {
-        return;
-    }
+    (function () {
+        const buscador = document.getElementById('buscarPelicula');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const filtroGenero = document.getElementById('filtroGenero');
+        const grid = document.getElementById('gridPeliculas');
+        const mensaje = document.getElementById('sinResultados');
+        const contador = document.getElementById('contadorPeliculas');
 
-    const tarjetas = Array.from(grid.querySelectorAll('.cine-movie-card'));
+        if (!buscador || !filtroEstado || !filtroGenero || !grid || !mensaje) {
+            return;
+        }
 
-    function normalizar(texto) {
-        return (texto || '')
-            .toLocaleLowerCase('es')
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .trim();
-    }
+        const tarjetas = Array.from(grid.querySelectorAll('.cine-movie-card'));
 
-    function filtrarPeliculas() {
-        const texto = normalizar(buscador.value);
-        const estadoElegido = filtroEstado.value;
-        const generoElegido = normalizar(filtroGenero.value);
-        let visibles = 0;
+        function normalizar(texto) {
+            return (texto || '')
+                .toLocaleLowerCase('es')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        }
 
-        tarjetas.forEach(function (tarjeta) {
-            const nombre = normalizar(tarjeta.dataset.nombre);
-            const generoTarjeta = normalizar(tarjeta.dataset.genero);
-            const estado = normalizar(tarjeta.dataset.estado);
+        function filtrarPeliculas() {
+            const texto = normalizar(buscador.value);
+            const estadoElegido = filtroEstado.value;
+            const generoElegido = normalizar(filtroGenero.value);
+            let visibles = 0;
 
-            const coincideTexto =
-                nombre.includes(texto) || generoTarjeta.includes(texto);
+            tarjetas.forEach(function (tarjeta) {
+                const nombre = normalizar(tarjeta.dataset.nombre);
+                const generoTarjeta = normalizar(tarjeta.dataset.genero);
+                const estado = normalizar(tarjeta.dataset.estado);
 
-            const estaAgotada =
-                estado === 'agotado' || estado === 'no disponible';
+                const coincideTexto =
+                    nombre.includes(texto) || generoTarjeta.includes(texto);
 
-            const coincideEstado =
-                estadoElegido === 'todas' ||
-                (estadoElegido === 'disponible' && !estaAgotada) ||
-                (estadoElegido === 'agotado' && estaAgotada);
+                const estaAgotada =
+                    estado === 'agotado' || estado === 'no disponible';
 
-            const coincideGenero =
-                generoElegido === 'todos' ||
-                generoTarjeta === generoElegido;
+                const coincideEstado =
+                    estadoElegido === 'todas' ||
+                    (estadoElegido === 'disponible' && !estaAgotada) ||
+                    (estadoElegido === 'agotado' && estaAgotada);
 
-            tarjeta.hidden = !(
-                coincideTexto && coincideEstado && coincideGenero
+                const coincideGenero =
+                    generoElegido === 'todos' ||
+                    generoTarjeta === generoElegido;
+
+                tarjeta.hidden = !(
+                    coincideTexto && coincideEstado && coincideGenero
+                );
+
+                if (!tarjeta.hidden) {
+                    visibles++;
+                }
+            });
+
+            mensaje.hidden = visibles !== 0;
+
+            if (contador) {
+                contador.textContent =
+                    'Películas encontradas: ' + visibles +
+                    ' de ' + tarjetas.length;
+            }
+        }
+
+        buscador.addEventListener('input', filtrarPeliculas);
+        filtroEstado.addEventListener('change', filtrarPeliculas);
+        filtroGenero.addEventListener('change', filtrarPeliculas);
+
+        filtrarPeliculas();
+    })();
+</script>
+
+<script>
+    /* =========================================
+       CARRUSEL AUTOMÁTICO
+       ========================================= */
+
+    (function () {
+        const seccion = document.querySelector('.cine-hero-portada');
+        const slides = Array.from(document.querySelectorAll('.cine-hero-portada [data-slide]'));
+        const contBarras = document.getElementById('heroBarras');
+        const prev = document.getElementById('heroPrev');
+        const next = document.getElementById('heroNext');
+
+        if (!seccion || !slides.length || !contBarras) {
+            return;
+        }
+
+        if (slides.length < 2) {
+            [prev, next, contBarras].forEach(function (elemento) {
+                if (elemento) {
+                    elemento.hidden = true;
+                }
+            });
+            return;
+        }
+
+        let actual = 0;
+        let temporizador = null;
+
+        const barras = slides.map(function (_, indice) {
+            const boton = document.createElement('button');
+
+            boton.type = 'button';
+            boton.setAttribute(
+                'aria-label',
+                'Ir a la diapositiva ' + (indice + 1)
             );
 
-            if (!tarjeta.hidden) visibles++;
+            boton.addEventListener('click', function () {
+                mostrar(indice);
+                reiniciar();
+            });
+
+            contBarras.appendChild(boton);
+            return boton;
         });
 
-        mensaje.hidden = visibles !== 0;
+        function mostrar(indice) {
+            actual = (indice + slides.length) % slides.length;
 
-        if (contador) {
-            contador.textContent =
-                'Películas encontradas: ' + visibles +
-                ' de ' + tarjetas.length;
+            slides.forEach(function (slide, posicion) {
+                slide.hidden = posicion !== actual;
+            });
+
+            barras.forEach(function (barra, posicion) {
+                barra.classList.toggle('on', posicion === actual);
+            });
         }
-    }
 
-    buscador.addEventListener('input', filtrarPeliculas);
-    filtroEstado.addEventListener('change', filtrarPeliculas);
-    filtroGenero.addEventListener('change', filtrarPeliculas);
+        function reiniciar() {
+            clearInterval(temporizador);
 
-    filtrarPeliculas();
-})();
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                return;
+            }
+
+            temporizador = setInterval(function () {
+                mostrar(actual + 1);
+            }, 6000);
+        }
+
+        if (prev) {
+            prev.addEventListener('click', function () {
+                mostrar(actual - 1);
+                reiniciar();
+            });
+        }
+
+        if (next) {
+            next.addEventListener('click', function () {
+                mostrar(actual + 1);
+                reiniciar();
+            });
+        }
+
+        mostrar(0);
+        reiniciar();
+    })();
 </script>
+
 {% endblock %}

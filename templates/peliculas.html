@@ -1,5 +1,141 @@
 {% extends 'base.html' %}
 {% block titulo %}Cinépolis | Películas registradas{% endblock %}
+{% block bodyclase %}pag-registradas{% endblock %}
+
+{% block estilos %}
+<style>
+  /* =========================================
+     PÁGINA: PELÍCULAS REGISTRADAS
+     - Franja morada arriba (como la cartelera)
+     - Encabezado "Catálogo" y contador alineados
+     - Botones en una sola fila, sin chocar
+     ========================================= */
+
+  body.pag-registradas {
+    overflow-x: hidden;
+  }
+
+  /* La franja empieza pegada a la barra de navegación */
+  body.pag-registradas .cine-main {
+    padding-top: 0 !important;
+  }
+
+  /* ---------- Franja morada de arriba ---------- */
+  .cine-admin-page .cine-page-heading {
+    position: relative;
+    z-index: 0;
+    margin: 0 0 8px;
+    padding: 44px 0 48px;
+    text-align: left;
+  }
+
+  .cine-admin-page .cine-page-heading::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    background: linear-gradient(100deg, #7b2cc9 0%, #3b1c78 42%, #07122f 78%);
+  }
+
+  .cine-admin-page .cine-page-heading .cine-etiqueta {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, .85) !important;
+    letter-spacing: .5px;
+  }
+
+  .cine-admin-page .cine-page-heading h1 {
+    margin: 0 0 10px;
+    color: #fff !important;
+  }
+
+  .cine-admin-page .cine-page-heading p {
+    margin: 0;
+    color: rgba(255, 255, 255, .85) !important;
+  }
+
+  /* ---------- Encabezado "Catálogo" + contador ---------- */
+  .cine-admin-page .cine-section-heading {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px 20px;
+    margin: 32px 0 18px !important;
+    text-align: left !important;
+  }
+
+  .cine-admin-page .cine-section-heading > div {
+    text-align: left !important;
+  }
+
+  .cine-admin-page .cine-section-heading h2 {
+    margin: 0 0 4px;
+  }
+
+  .cine-admin-page .cine-section-heading p {
+    margin: 0;
+  }
+
+  .cine-admin-page .cine-contador {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
+
+  /* ---------- Botones de arriba de la tabla ---------- */
+  .cine-admin-page .cine-admin-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cine-admin-page .cine-admin-actions .btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 46px;
+    margin: 0 !important;
+    padding: 10px 24px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Acciones dentro de la tabla ---------- */
+  .cine-admin-page .cine-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cine-admin-page .cine-acciones form {
+    margin: 0;
+  }
+
+  /* ---------- Celulares ---------- */
+  @media (max-width: 576px) {
+    .cine-admin-page .cine-page-heading {
+      padding: 32px 0 36px;
+    }
+
+    .cine-admin-page .cine-admin-actions .btn {
+      width: 100% !important;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block contenido %}
 
 <section class="cine-admin-page">

@@ -15,6 +15,16 @@ import base64
 from io import BytesIO
 
 app = Flask(__name__)
+
+print("APP.PY EJECUTADO DESDE:", os.path.abspath(__file__))
+print("CARPETA DE PLANTILLAS:", app.template_folder)
+print("RUTA REAL DE PLANTILLAS:", app.jinja_loader.searchpath)
+
+
+# =========================
+# GENERAR QR DE RESERVAS
+# =========================
+
 def generar_qr_reserva(reserva_id):
     base_url = os.environ.get(
         "PUBLIC_BASE_URL",
@@ -34,12 +44,45 @@ def generar_qr_reserva(reserva_id):
 
     return qr_base64
 
+
+# =========================
+# GENERAR QR DE ALIMENTOS
+# =========================
+
+def generar_qr_alimentos(compra_id):
+    base_url = os.environ.get(
+        "PUBLIC_BASE_URL",
+        "https://cinepolis-imuz.onrender.com"
+    ).rstrip("/")
+
+    enlace = f"{base_url}/comprobante-alimentos/{compra_id}"
+
+    imagen = qrcode.make(enlace)
+
+    buffer = BytesIO()
+    imagen.save(buffer, format="PNG")
+
+    qr_base64 = base64.b64encode(
+        buffer.getvalue()
+    ).decode("utf-8")
+
+    return qr_base64
+
+
+# =========================
+# CONFIGURACIÓN DE FLASK
+# =========================
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 if not app.secret_key:
     if os.environ.get("RENDER"):
-        raise RuntimeError("Falta configurar FLASK_SECRET_KEY en Render.")
+        raise RuntimeError(
+            "Falta configurar FLASK_SECRET_KEY en Render."
+        )
+
     app.secret_key = "clave-local-cinepolis-desarrollo"
+
 
 # =========================
 # CONEXIÓN A MONGODB ATLAS
@@ -49,7 +92,10 @@ mongo_uri = os.environ.get("MONGO_URI")
 
 if not mongo_uri:
     if os.environ.get("RENDER"):
-        raise RuntimeError("Falta configurar MONGO_URI en Render.")
+        raise RuntimeError(
+            "Falta configurar MONGO_URI en Render."
+        )
+
     mongo_uri = "mongodb://127.0.0.1:27017/"
 
 cliente = MongoClient(
@@ -58,17 +104,20 @@ cliente = MongoClient(
 )
 
 base_datos = cliente["cinepolis"]
+
 alumnos = base_datos["peliculas"]
 compras = base_datos["compras"]
 asientos = base_datos["asientos"]
 compras_alimentos = base_datos["compras_alimentos"]
 reservas = base_datos["reservas"]
 
+
 # =========================
 # CONFIGURACIÓN
 # =========================
 
 ZONA_HORARIA = ZoneInfo("America/Cancun")
+
 PRECIO_BOLETO = 80
 DURACION_RESERVA_MINUTOS = 5
 MAXIMO_PELICULAS = 15
@@ -76,11 +125,21 @@ MAXIMO_PELICULAS = 15
 DURACION_MINIMA = 1
 DURACION_MAXIMA = 600
 
-HORARIOS_VALIDOS = ["12:00", "15:00", "18:00", "21:00"]
+HORARIOS_VALIDOS = [
+    "12:00",
+    "15:00",
+    "18:00",
+    "21:00"
+]
+
 ASIENTOS_VALIDOS = list(range(1, 49))
 MAXIMO_ASIENTOS = len(ASIENTOS_VALIDOS)
 
-# Evita vender el mismo asiento dos veces.
+
+# =========================
+# ÍNDICE DE ASIENTOS
+# =========================
+
 asientos.create_index(
     [
         ("pelicula_id", 1),
@@ -91,6 +150,7 @@ asientos.create_index(
     unique=True,
     name="asiento_unico_por_funcion"
 )
+
 
 # =========================
 # FUNCIONES AUXILIARES
@@ -137,7 +197,9 @@ def reservar_asientos_temporalmente(
 
     reserva_id = str(uuid.uuid4())
     visitante_id = obtener_reserva_id()
+
     ahora = ahora_utc()
+
     vence_en = ahora + timedelta(
         minutes=DURACION_RESERVA_MINUTOS
     )
@@ -161,7 +223,9 @@ def reservar_asientos_temporalmente(
                 "vence_en": vence_en
             })
 
-            documentos_insertados.append(resultado.inserted_id)
+            documentos_insertados.append(
+                resultado.inserted_id
+            )
 
         reservas.insert_one({
             "reserva_id": reserva_id,
@@ -203,7 +267,9 @@ def siguiente_funcion():
     ahora = ahora_local()
 
     for horario in HORARIOS_VALIDOS:
-        hora = datetime.strptime(horario, "%H:%M").time()
+        hora = datetime.strptime(
+            horario, "%H:%M"
+        ).time()
 
         funcion = datetime.combine(
             ahora.date(), hora
@@ -213,7 +279,11 @@ def siguiente_funcion():
             return ahora.strftime("%Y-%m-%d"), horario
 
     manana = ahora.date() + timedelta(days=1)
-    return manana.strftime("%Y-%m-%d"), HORARIOS_VALIDOS[0]
+
+    return (
+        manana.strftime("%Y-%m-%d"),
+        HORARIOS_VALIDOS[0]
+    )
 
 
 def validar_fecha_horario(fecha, horario):
@@ -224,6 +294,7 @@ def validar_fecha_horario(fecha, horario):
         fecha_objeto = datetime.strptime(
             fecha, "%Y-%m-%d"
         ).date()
+
     except (ValueError, TypeError):
         return "Selecciona una fecha válida."
 
@@ -232,21 +303,29 @@ def validar_fecha_horario(fecha, horario):
     if fecha_objeto < ahora.date():
         return "La fecha seleccionada ya pasó."
 
-    hora = datetime.strptime(horario, "%H:%M").time()
+    hora = datetime.strptime(
+        horario, "%H:%M"
+    ).time()
 
     funcion = datetime.combine(
         fecha_objeto, hora
     ).replace(tzinfo=ZONA_HORARIA)
 
     if funcion <= ahora:
-        return "Ese horario ya pasó. Selecciona uno posterior."
+        return (
+            "Ese horario ya pasó. "
+            "Selecciona uno posterior."
+        )
 
     return None
 
 
 def buscar_alumno(id):
     try:
-        return alumnos.find_one({"_id": ObjectId(id)})
+        return alumnos.find_one({
+            "_id": ObjectId(id)
+        })
+
     except Exception:
         return None
 
@@ -275,7 +354,7 @@ def aplicar_poster(pelicula):
         "jurassic world": "Jurassic World.jpg",
         "spider-man": "spiderman-brand-new-day.jpg",
         "spiderman": "spiderman-brand-new-day.jpg",
-        "super mario bros": "Super Mario Bros.jpg",
+        "super mario bros": "Super Mario Bros.jpg"
     }
 
     for nombre, archivo in posters.items():
@@ -284,6 +363,7 @@ def aplicar_poster(pelicula):
                 "static",
                 filename=f"posters/{archivo}"
             )
+
             break
 
     return pelicula
@@ -291,11 +371,13 @@ def aplicar_poster(pelicula):
 
 def leer_formulario():
     nombre = request.form.get(
-        "nombre", request.form.get("titulo", "")
+        "nombre",
+        request.form.get("titulo", "")
     ).strip()
 
     categoria = request.form.get(
-        "categoria", request.form.get("genero", "")
+        "categoria",
+        request.form.get("genero", "")
     ).strip()
 
     duracion_texto = request.form.get(
@@ -304,6 +386,7 @@ def leer_formulario():
 
     try:
         duracion = int(duracion_texto)
+
     except (ValueError, TypeError):
         duracion = None
 
@@ -327,14 +410,18 @@ def leer_formulario():
     }
 
 
-def consultar_asientos_ocupados(pelicula_id, fecha, horario):
+def consultar_asientos_ocupados(
+    pelicula_id, fecha, horario
+):
     liberar_reservas_vencidas()
 
     documentos = asientos.find({
         "pelicula_id": str(pelicula_id),
         "fecha": fecha,
         "horario": horario,
-        "estado": {"$in": ["Ocupado", "Reservado"]}
+        "estado": {
+            "$in": ["Ocupado", "Reservado"]
+        }
     })
 
     ocupados = set()
@@ -345,23 +432,30 @@ def consultar_asientos_ocupados(pelicula_id, fecha, horario):
         if isinstance(valor, str):
             valor = valor.strip().upper()
 
-            if len(valor) >= 2 and valor[0] in "ABCDEF":
+            if (
+                len(valor) >= 2
+                and valor[0] in "ABCDEF"
+            ):
                 try:
                     columna = int(valor[1:])
                     fila = "ABCDEF".index(valor[0])
 
                     if 1 <= columna <= 8:
                         valor = fila * 8 + columna
+
                 except ValueError:
                     continue
+
             else:
                 try:
                     valor = int(valor)
+
                 except ValueError:
                     continue
 
         try:
             numero = int(valor)
+
         except (ValueError, TypeError):
             continue
 
@@ -371,11 +465,15 @@ def consultar_asientos_ocupados(pelicula_id, fecha, horario):
     return sorted(ocupados)
 
 
-def leer_asientos_seleccionados(cantidad_esperada=None):
+def leer_asientos_seleccionados(
+    cantidad_esperada=None
+):
     valores = request.form.getlist("asientos")
 
     if not valores:
-        return None, "Selecciona los asientos de tus boletos."
+        return None, (
+            "Selecciona los asientos de tus boletos."
+        )
 
     if len(valores) > MAXIMO_ASIENTOS:
         return None, (
@@ -384,15 +482,27 @@ def leer_asientos_seleccionados(cantidad_esperada=None):
         )
 
     try:
-        seleccionados = [int(valor) for valor in valores]
+        seleccionados = [
+            int(valor) for valor in valores
+        ]
+
     except (ValueError, TypeError):
-        return None, "La selección contiene asientos no válidos."
+        return None, (
+            "La selección contiene asientos no válidos."
+        )
 
     if len(seleccionados) != len(set(seleccionados)):
-        return None, "No puedes seleccionar asientos repetidos."
+        return None, (
+            "No puedes seleccionar asientos repetidos."
+        )
 
-    if any(numero not in ASIENTOS_VALIDOS for numero in seleccionados):
-        return None, "La selección contiene asientos no válidos."
+    if any(
+        numero not in ASIENTOS_VALIDOS
+        for numero in seleccionados
+    ):
+        return None, (
+            "La selección contiene asientos no válidos."
+        )
 
     if (
         cantidad_esperada is not None
@@ -409,7 +519,10 @@ def leer_asientos_seleccionados(cantidad_esperada=None):
 
 def leer_cantidad():
     try:
-        cantidad = int(request.values.get("cantidad", "1"))
+        cantidad = int(
+            request.values.get("cantidad", "1")
+        )
+
     except (ValueError, TypeError):
         return None
 
@@ -427,7 +540,9 @@ def mostrar_mapa(
     cantidad=1
 ):
     todos_ocupados = consultar_asientos_ocupados(
-        pelicula["_id"], fecha, horario
+        pelicula["_id"],
+        fecha,
+        horario
     )
 
     documentos_reservados = asientos.find({
@@ -445,30 +560,39 @@ def mostrar_mapa(
         if isinstance(valor, str):
             valor = valor.strip().upper()
 
-            if len(valor) >= 2 and valor[0] in "ABCDEF":
+            if (
+                len(valor) >= 2
+                and valor[0] in "ABCDEF"
+            ):
                 try:
                     columna = int(valor[1:])
                     fila = "ABCDEF".index(valor[0])
 
                     if 1 <= columna <= 8:
                         valor = fila * 8 + columna
+
                 except ValueError:
                     continue
+
             else:
                 try:
                     valor = int(valor)
+
                 except ValueError:
                     continue
 
         try:
             numero = int(valor)
+
         except (ValueError, TypeError):
             continue
 
         if numero in ASIENTOS_VALIDOS:
             reservados.add(numero)
 
-    ocupados = sorted(set(todos_ocupados) - reservados)
+    ocupados = sorted(
+        set(todos_ocupados) - reservados
+    )
 
     return render_template(
         "comprar.html",
@@ -500,7 +624,9 @@ def mostrar_mapa(
 @app.route("/")
 def inicio():
     peliculas = list(
-        alumnos.find().sort("_id", 1).limit(MAXIMO_PELICULAS)
+        alumnos.find().sort("_id", 1).limit(
+            MAXIMO_PELICULAS
+        )
     )
 
     for pelicula in peliculas:
@@ -520,13 +646,11 @@ def inicio():
 # =========================
 
 PRECIOS_ALIMENTOS = {
-    # NUEVOS LANZAMIENTOS
     "Hot Dog Doritos": 145,
     "Hot Dog Chips Jalapeño": 145,
     "M&M Mega Peanut Butter": 86,
     "Solero Paradise®": 65,
 
-    # COMBOS
     "Combo Clásico": 278,
     "Combo Nachos en Pareja": 367,
     "Combo Junior": 264,
@@ -542,7 +666,6 @@ PRECIOS_ALIMENTOS = {
     "Combo Skittles®": 372,
     "Combo Micha": 382,
 
-    # PARA COMPARTIR
     "Maxicombo Personalizado Jumbo": 550,
     "Maxicombo Personalizado P/Llevar": 480,
     "Maxicombo Familiar Jumbo": 534,
@@ -555,7 +678,6 @@ PRECIOS_ALIMENTOS = {
     "Maxicombo Nachos": 442,
     "Maxicombo Hot Dog": 432,
 
-    # CLÁSICOS
     "Refresco": 109,
     "Nachos": 105,
     "Palomitas": 107,
@@ -563,19 +685,16 @@ PRECIOS_ALIMENTOS = {
     "Agua Embotellada": 42,
     "ICEE®": 115,
 
-    # SNACKS
     "Hot Dog Takis": 145,
     "Papas Fritas": 75,
     "Extra Queso": 27,
     "Extra Guacamole": 30,
 
-    # HELADOS
     "Cornetto®.": 53,
     "Magnum®.": 65,
     "Mordisko® Oreo®": 55,
     "Helado Micha": 60,
 
-    # DULCES Y CHOCOLATES
     "Milky Way®": 45,
     "Hershey's® Cookies And Cream": 51,
     "Skittles® Pouch": 79,
@@ -597,7 +716,6 @@ PRECIOS_ALIMENTOS = {
     "Skittles gomitas": 79,
     "Hershey's": 51,
 
-    # PRODUCTOS ANTERIORES QUE CONSERVAMOS
     "Hot dogs": 127,
     "Papas fritas": 75
 }
@@ -614,7 +732,10 @@ def alimentos():
     )
 
 
-@app.route("/comprar-alimentos", methods=["GET", "POST"])
+@app.route(
+    "/comprar-alimentos",
+    methods=["GET", "POST"]
+)
 def comprar_alimentos():
     if request.method == "GET":
         return redirect(url_for("alimentos"))
@@ -624,7 +745,10 @@ def comprar_alimentos():
 
     for producto, precio in PRECIOS_ALIMENTOS.items():
         try:
-            cantidad = int(request.form.get(producto, "0"))
+            cantidad = int(
+                request.form.get(producto, "0")
+            )
+
         except (ValueError, TypeError):
             cantidad = 0
 
@@ -635,7 +759,9 @@ def comprar_alimentos():
                 compra_confirmada=False,
                 total=0,
                 productos_seleccionados=[],
-                mensaje_error="Selecciona cantidades entre 0 y 50."
+                mensaje_error=(
+                    "Selecciona cantidades entre 0 y 50."
+                )
             )
 
         if cantidad == 0:
@@ -650,19 +776,25 @@ def comprar_alimentos():
 
         if producto == "ICEE®":
             detalle["sabor"] = request.form.get(
-                "sabor_ICE", "Mora roja"
+                "sabor_ICE",
+                "Mora roja"
             )
 
-            if detalle["sabor"] not in ["Mora roja", "Mora azul"]:
+            if detalle["sabor"] not in [
+                "Mora roja",
+                "Mora azul"
+            ]:
                 detalle["sabor"] = "Mora roja"
 
         if producto == "Papas Fritas":
             detalle["preparacion"] = request.form.get(
-                "tipo_papas", "Naturales"
+                "tipo_papas",
+                "Naturales"
             )
 
             if detalle["preparacion"] not in [
-                "Naturales", "Con chile"
+                "Naturales",
+                "Con chile"
             ]:
                 detalle["preparacion"] = "Naturales"
 
@@ -676,18 +808,25 @@ def comprar_alimentos():
             compra_confirmada=False,
             total=0,
             productos_seleccionados=[],
-            mensaje_error="Selecciona al menos un alimento."
+            mensaje_error=(
+                "Selecciona al menos un alimento."
+            )
         )
 
     compra = {
         "productos": productos_seleccionados,
         "total": total,
         "fecha_compra": ahora_local(),
-        "tipo": "alimentos"
+        "tipo": "alimentos",
+        "estado": "Confirmada"
     }
 
     try:
         resultado = compras_alimentos.insert_one(compra)
+
+        folio = str(resultado.inserted_id)
+
+        qr_alimentos = generar_qr_alimentos(folio)
 
         return render_template(
             "alimentos.html",
@@ -695,7 +834,8 @@ def comprar_alimentos():
             compra_confirmada=True,
             total=total,
             productos_seleccionados=productos_seleccionados,
-            folio=str(resultado.inserted_id)
+            folio=folio,
+            qr_alimentos=qr_alimentos
         )
 
     except PyMongoError:
@@ -709,7 +849,9 @@ def comprar_alimentos():
 @app.route("/peliculas")
 def peliculas_registradas():
     peliculas = list(
-        alumnos.find().sort("_id", 1).limit(MAXIMO_PELICULAS)
+        alumnos.find().sort("_id", 1).limit(
+            MAXIMO_PELICULAS
+        )
     )
 
     for pelicula in peliculas:
@@ -737,13 +879,25 @@ def agregar():
             error=request.args.get("error")
         )
 
-    nombre = request.form.get("nombre", "").strip()
-    categoria = request.form.get("categoria", "").strip()
-    estado = request.form.get("estado", "").strip()
-    duracion_texto = request.form.get("duracion", "").strip()
+    nombre = request.form.get(
+        "nombre", ""
+    ).strip()
+
+    categoria = request.form.get(
+        "categoria", ""
+    ).strip()
+
+    estado = request.form.get(
+        "estado", ""
+    ).strip()
+
+    duracion_texto = request.form.get(
+        "duracion", ""
+    ).strip()
 
     try:
         duracion = int(duracion_texto)
+
     except (ValueError, TypeError):
         duracion = None
 
@@ -754,11 +908,15 @@ def agregar():
         or not DURACION_MINIMA <= duracion <= DURACION_MAXIMA
         or estado not in ["Disponible", "Agotado"]
     ):
-        return redirect(url_for("agregar") + "?error=datos")
+        return redirect(
+            url_for("agregar") + "?error=datos"
+        )
 
     try:
         if alumnos.count_documents({}) >= MAXIMO_PELICULAS:
-            return redirect(url_for("agregar") + "?error=limite")
+            return redirect(
+                url_for("agregar") + "?error=limite"
+            )
 
         alumnos.insert_one({
             "nombre": nombre,
@@ -769,7 +927,8 @@ def agregar():
         })
 
         return redirect(
-            url_for("peliculas_registradas") + "?agregada=1"
+            url_for("peliculas_registradas")
+            + "?agregada=1"
         )
 
     except PyMongoError:
@@ -794,14 +953,18 @@ def editar(id):
             return render_template(
                 "editar.html",
                 pelicula=pelicula,
-                mensaje_error="Escribe el nombre de la película."
+                mensaje_error=(
+                    "Escribe el nombre de la película."
+                )
             )
 
         if not datos["categoria"]:
             return render_template(
                 "editar.html",
                 pelicula=pelicula,
-                mensaje_error="Escribe la categoría de la película."
+                mensaje_error=(
+                    "Escribe la categoría de la película."
+                )
             )
 
         if (
@@ -817,11 +980,16 @@ def editar(id):
                 )
             )
 
-        if datos["estado"] not in ["Disponible", "Agotado"]:
+        if datos["estado"] not in [
+            "Disponible",
+            "Agotado"
+        ]:
             return render_template(
                 "editar.html",
                 pelicula=pelicula,
-                mensaje_error="Selecciona un estado válido."
+                mensaje_error=(
+                    "Selecciona un estado válido."
+                )
             )
 
         try:
@@ -830,7 +998,9 @@ def editar(id):
                 {"$set": datos}
             )
 
-            return redirect(url_for("peliculas_registradas"))
+            return redirect(
+                url_for("peliculas_registradas")
+            )
 
         except PyMongoError:
             abort(503)
@@ -856,16 +1026,29 @@ def eliminar(id):
 
     if request.method == "POST":
         try:
-            alumnos.delete_one({"_id": pelicula["_id"]})
+            alumnos.delete_one({
+                "_id": pelicula["_id"]
+            })
+
             return redirect(
-                url_for("peliculas_registradas") + "?eliminada=1"
+                url_for("peliculas_registradas")
+                + "?eliminada=1"
             )
+
         except PyMongoError:
             abort(503)
 
     aplicar_poster(pelicula)
-    return render_template("eliminar.html", pelicula=pelicula)
 
+    return render_template(
+        "eliminar.html",
+        pelicula=pelicula
+    )
+
+
+# =========================
+# COMPROBANTE DE BOLETOS
+# =========================
 
 @app.route("/comprobante/<reserva_id>")
 def comprobante_reserva(reserva_id):
@@ -886,14 +1069,56 @@ def comprobante_reserva(reserva_id):
         if pelicula:
             aplicar_poster(pelicula)
 
+        folio = reserva.get(
+            "reserva_id",
+            reserva_id
+        )
+
         return render_template(
             "comprobante.html",
             reserva=reserva,
-            pelicula=pelicula
+            pelicula=pelicula,
+            folio=folio
         )
 
     except PyMongoError:
         abort(503)
+
+
+# =========================
+# COMPROBANTE DE ALIMENTOS
+# =========================
+
+@app.route("/comprobante-alimentos/<compra_id>")
+def comprobante_alimentos(compra_id):
+    try:
+        try:
+            object_id = ObjectId(compra_id)
+
+        except Exception:
+            abort(404)
+
+        compra = compras_alimentos.find_one({
+            "_id": object_id
+        })
+
+        if not compra:
+            abort(404)
+
+        compra.setdefault(
+            "estado",
+            "Registrada"
+        )
+
+        return render_template(
+            "comprobante_alimentos.html",
+            compra=compra,
+            folio=str(compra["_id"])
+        )
+
+    except PyMongoError:
+        abort(503)
+
 
 # =========================
 # AYUDA
@@ -917,23 +1142,34 @@ def comprar(id):
 
     aplicar_poster(pelicula)
 
-    fecha = request.values.get("fecha", "").strip()
-    horario = request.values.get("horario", "").strip()
+    fecha = request.values.get(
+        "fecha", ""
+    ).strip()
+
+    horario = request.values.get(
+        "horario", ""
+    ).strip()
 
     cantidad = leer_cantidad()
     mensaje_cantidad = None
 
     if cantidad is None:
         cantidad = 1
+
         mensaje_cantidad = (
-            f"Selecciona entre 1 y {MAXIMO_ASIENTOS} boletos."
+            f"Selecciona entre 1 y "
+            f"{MAXIMO_ASIENTOS} boletos."
         )
 
     if request.method == "GET":
         if not fecha or not horario:
             fecha, horario = siguiente_funcion()
+
         else:
-            error = validar_fecha_horario(fecha, horario)
+            error = validar_fecha_horario(
+                fecha, horario
+            )
+
             if error:
                 fecha, horario = siguiente_funcion()
 
@@ -945,13 +1181,22 @@ def comprar(id):
             cantidad=cantidad
         )
 
-    accion = request.form.get("accion", "continuar").strip()
+    accion = request.form.get(
+        "accion", "continuar"
+    ).strip()
 
-    if accion not in ["consultar", "continuar", "confirmar", "cancelar"]:
+    if accion not in [
+        "consultar",
+        "continuar",
+        "confirmar",
+        "cancelar"
+    ]:
         abort(400)
 
     if accion == "cancelar":
-        reserva_id = session.get("reserva_activa_id")
+        reserva_id = session.get(
+            "reserva_activa_id"
+        )
 
         if reserva_id:
             try:
@@ -962,7 +1207,9 @@ def comprar(id):
                         "estado": "Activa"
                     },
                     {
-                        "$set": {"estado": "Cancelada"}
+                        "$set": {
+                            "estado": "Cancelada"
+                        }
                     }
                 )
 
@@ -971,7 +1218,10 @@ def comprar(id):
                     "estado": "Reservado"
                 })
 
-                session.pop("reserva_activa_id", None)
+                session.pop(
+                    "reserva_activa_id",
+                    None
+                )
 
             except PyMongoError:
                 abort(503)
@@ -980,15 +1230,23 @@ def comprar(id):
             pelicula,
             fecha,
             horario,
-            mensaje_error="La reserva fue cancelada. Puedes seleccionar otros asientos.",
+            mensaje_error=(
+                "La reserva fue cancelada. "
+                "Puedes seleccionar otros asientos."
+            ),
             cantidad=cantidad
         )
 
     if accion == "consultar":
-        error = validar_fecha_horario(fecha, horario)
+        error = validar_fecha_horario(
+            fecha, horario
+        )
 
         if error:
-            fecha_nueva, horario_nuevo = siguiente_funcion()
+            fecha_nueva, horario_nuevo = (
+                siguiente_funcion()
+            )
+
             return mostrar_mapa(
                 pelicula,
                 fecha_nueva,
@@ -1005,10 +1263,15 @@ def comprar(id):
             cantidad=cantidad
         )
 
-    error = validar_fecha_horario(fecha, horario)
+    error = validar_fecha_horario(
+        fecha, horario
+    )
 
     if error:
-        fecha_nueva, horario_nuevo = siguiente_funcion()
+        fecha_nueva, horario_nuevo = (
+            siguiente_funcion()
+        )
+
         return mostrar_mapa(
             pelicula,
             fecha_nueva,
@@ -1026,8 +1289,10 @@ def comprar(id):
             cantidad=1
         )
 
-    seleccionados, error = leer_asientos_seleccionados(
-        cantidad_esperada=cantidad
+    seleccionados, error = (
+        leer_asientos_seleccionados(
+            cantidad_esperada=cantidad
+        )
     )
 
     if error:
@@ -1040,10 +1305,15 @@ def comprar(id):
         )
 
     ocupados = consultar_asientos_ocupados(
-        pelicula["_id"], fecha, horario
+        pelicula["_id"],
+        fecha,
+        horario
     )
 
-    reserva_id = session.get("reserva_activa_id")
+    reserva_id = session.get(
+        "reserva_activa_id"
+    )
+
     asientos_propios = set()
 
     if accion == "confirmar":
@@ -1059,7 +1329,11 @@ def comprar(id):
 
         if not reserva:
             liberar_reservas_vencidas()
-            session.pop("reserva_activa_id", None)
+
+            session.pop(
+                "reserva_activa_id",
+                None
+            )
 
             return mostrar_mapa(
                 pelicula,
@@ -1072,7 +1346,9 @@ def comprar(id):
                 cantidad=cantidad
             )
 
-        asientos_propios = set(reserva.get("asientos", []))
+        asientos_propios = set(
+            reserva.get("asientos", [])
+        )
 
         if asientos_propios != set(seleccionados):
             return mostrar_mapa(
@@ -1091,7 +1367,10 @@ def comprar(id):
         if numero not in asientos_propios
     ]
 
-    disponibles = len(ASIENTOS_VALIDOS) - len(ocupados_otros)
+    disponibles = (
+        len(ASIENTOS_VALIDOS)
+        - len(ocupados_otros)
+    )
 
     if cantidad > disponibles:
         return mostrar_mapa(
@@ -1099,10 +1378,13 @@ def comprar(id):
             fecha,
             horario,
             mensaje_error=(
-                f"Solo quedan {disponibles} asientos disponibles "
-                "para esta función."
+                f"Solo quedan {disponibles} asientos "
+                "disponibles para esta función."
             ),
-            cantidad=max(1, min(cantidad, disponibles))
+            cantidad=max(
+                1,
+                min(cantidad, disponibles)
+            )
         )
 
     repetidos = [
@@ -1116,7 +1398,8 @@ def comprar(id):
             fecha,
             horario,
             mensaje_error=(
-                "Estos asientos ya están ocupados o reservados: "
+                "Estos asientos ya están ocupados "
+                "o reservados: "
                 + ", ".join(map(str, repetidos))
                 + ". Consulta de nuevo la disponibilidad."
             ),
@@ -1127,9 +1410,15 @@ def comprar(id):
 
     if accion == "continuar":
         try:
-            reservada, vence_en = reservar_asientos_temporalmente(
-                pelicula, fecha, horario, seleccionados
+            reservada, vence_en = (
+                reservar_asientos_temporalmente(
+                    pelicula,
+                    fecha,
+                    horario,
+                    seleccionados
+                )
             )
+
         except PyMongoError:
             abort(503)
 
@@ -1163,14 +1452,19 @@ def comprar(id):
             mensaje_error=None
         )
 
-    reserva_id = session.get("reserva_activa_id")
+    reserva_id = session.get(
+        "reserva_activa_id"
+    )
 
     if not reserva_id:
         return mostrar_mapa(
             pelicula,
             fecha,
             horario,
-            mensaje_error="Tu reserva no está activa. Selecciona los asientos nuevamente.",
+            mensaje_error=(
+                "Tu reserva no está activa. "
+                "Selecciona los asientos nuevamente."
+            ),
             cantidad=cantidad
         )
 
@@ -1185,14 +1479,26 @@ def comprar(id):
             "horario": horario
         })
 
-        if not reserva or set(reserva.get("asientos", [])) != set(seleccionados):
-            session.pop("reserva_activa_id", None)
+        if (
+            not reserva
+            or set(reserva.get("asientos", []))
+            != set(seleccionados)
+        ):
+            session.pop(
+                "reserva_activa_id",
+                None
+            )
+
             liberar_reservas_vencidas()
+
             return mostrar_mapa(
                 pelicula,
                 fecha,
                 horario,
-                mensaje_error="Tu reserva venció o ya no está disponible. Selecciona los asientos nuevamente.",
+                mensaje_error=(
+                    "Tu reserva venció o ya no está disponible. "
+                    "Selecciona los asientos nuevamente."
+                ),
                 cantidad=cantidad
             )
 
@@ -1204,11 +1510,16 @@ def comprar(id):
                 "asiento": {"$in": seleccionados}
             },
             {
-                "$set": {"estado": "Ocupado"}
+                "$set": {
+                    "estado": "Ocupado"
+                }
             }
         )
 
-        if resultado_actualizacion.modified_count != len(seleccionados):
+        if (
+            resultado_actualizacion.modified_count
+            != len(seleccionados)
+        ):
             asientos.update_many(
                 {
                     "reserva_id": reserva_id,
@@ -1216,7 +1527,9 @@ def comprar(id):
                     "asiento": {"$in": seleccionados}
                 },
                 {
-                    "$set": {"estado": "Reservado"}
+                    "$set": {
+                        "estado": "Reservado"
+                    }
                 }
             )
 
@@ -1234,7 +1547,8 @@ def comprar(id):
         compra = {
             "pelicula_id": str(pelicula["_id"]),
             "titulo_pelicula": pelicula.get(
-                "titulo", pelicula.get("nombre", "")
+                "titulo",
+                pelicula.get("nombre", "")
             ),
             "fecha": fecha,
             "horario": horario,
@@ -1245,14 +1559,29 @@ def comprar(id):
             "fecha_compra": ahora_local()
         }
 
-        resultado_compra = compras.insert_one(compra)
-
-        reservas.update_one(
-            {"reserva_id": reserva_id},
-            {"$set": {"estado": "Confirmada"}}
+        resultado_compra = compras.insert_one(
+            compra
         )
 
-        session.pop("reserva_activa_id", None)
+        reservas.update_one(
+            {
+                "reserva_id": reserva_id
+            },
+            {
+                "$set": {
+                    "estado": "Confirmada"
+                }
+            }
+        )
+
+        session.pop(
+            "reserva_activa_id",
+            None
+        )
+
+        # CORRECCIÓN:
+        # Se envía reserva_id a comprar.html para
+        # que el botón pueda abrir el comprobante.
 
         return render_template(
             "comprar.html",
@@ -1260,6 +1589,7 @@ def comprar(id):
             compra_confirmada=True,
             confirmar=False,
             folio=str(resultado_compra.inserted_id),
+            reserva_id=reserva_id,
             qr_reserva=generar_qr_reserva(reserva_id),
             fecha=fecha,
             horario=horario,
@@ -1284,9 +1614,12 @@ def comprar(id):
                         "asiento": {"$in": seleccionados}
                     },
                     {
-                        "$set": {"estado": "Reservado"}
+                        "$set": {
+                            "estado": "Reservado"
+                        }
                     }
                 )
+
             except PyMongoError:
                 pass
 
@@ -1299,17 +1632,24 @@ def comprar(id):
 
 def leer_json():
     datos = request.get_json(silent=True)
+
     return datos if isinstance(datos, dict) else None
 
 
-@app.route("/api/productos", methods=["GET", "POST"])
+@app.route(
+    "/api/productos",
+    methods=["GET", "POST"]
+)
 def api_productos():
     if request.method == "GET":
         try:
             peliculas = []
 
             for pelicula in alumnos.find():
-                pelicula["_id"] = str(pelicula["_id"])
+                pelicula["_id"] = str(
+                    pelicula["_id"]
+                )
+
                 peliculas.append(pelicula)
 
             return jsonify(peliculas), 200
@@ -1328,7 +1668,10 @@ def api_productos():
 
     datos.pop("_id", None)
 
-    if not datos.get("titulo") and not datos.get("nombre"):
+    if (
+        not datos.get("titulo")
+        and not datos.get("nombre")
+    ):
         return jsonify({
             "error": "El título es obligatorio"
         }), 400
@@ -1336,25 +1679,35 @@ def api_productos():
     if "duracion" in datos:
         try:
             duracion = int(datos["duracion"])
+
         except (ValueError, TypeError):
             return jsonify({
-                "error": "La duración debe ser un número entero"
+                "error": (
+                    "La duración debe ser un número entero"
+                )
             }), 400
 
         if not DURACION_MINIMA <= duracion <= DURACION_MAXIMA:
             return jsonify({
-                "error": "La duración debe estar entre 1 y 600 minutos"
+                "error": (
+                    "La duración debe estar entre 1 y 600 minutos"
+                )
             }), 400
 
         datos["duracion"] = duracion
 
-    if "categoria" not in datos and "genero" in datos:
+    if (
+        "categoria" not in datos
+        and "genero" in datos
+    ):
         datos["categoria"] = datos["genero"]
 
     try:
         if alumnos.count_documents({}) >= MAXIMO_PELICULAS:
             return jsonify({
-                "error": "El catálogo admite máximo 15 películas"
+                "error": (
+                    "El catálogo admite máximo 15 películas"
+                )
             }), 400
 
         resultado = alumnos.insert_one(datos)
@@ -1370,27 +1723,40 @@ def api_productos():
         }), 503
 
 
-@app.route("/api/productos/<id>", methods=["GET", "PUT", "DELETE"])
+@app.route(
+    "/api/productos/<id>",
+    methods=["GET", "PUT", "DELETE"]
+)
 def api_producto(id):
     try:
         object_id = ObjectId(id)
+
     except Exception:
-        return jsonify({"error": "ID inválido"}), 400
+        return jsonify({
+            "error": "ID inválido"
+        }), 400
 
     if request.method == "GET":
         try:
-            pelicula = alumnos.find_one({"_id": object_id})
+            pelicula = alumnos.find_one({
+                "_id": object_id
+            })
 
             if not pelicula:
                 return jsonify({
                     "error": "Película no encontrada"
                 }), 404
 
-            pelicula["_id"] = str(pelicula["_id"])
+            pelicula["_id"] = str(
+                pelicula["_id"]
+            )
+
             return jsonify(pelicula), 200
 
         except PyMongoError:
-            return jsonify({"error": "Error al consultar"}), 503
+            return jsonify({
+                "error": "Error al consultar"
+            }), 503
 
     if request.method == "PUT":
         datos = leer_json()
@@ -1405,25 +1771,37 @@ def api_producto(id):
         if "duracion" in datos:
             try:
                 duracion = int(datos["duracion"])
+
             except (ValueError, TypeError):
                 return jsonify({
-                    "error": "La duración debe ser un número entero"
+                    "error": (
+                        "La duración debe ser un número entero"
+                    )
                 }), 400
 
             if not DURACION_MINIMA <= duracion <= DURACION_MAXIMA:
                 return jsonify({
-                    "error": "La duración debe estar entre 1 y 600 minutos"
+                    "error": (
+                        "La duración debe estar entre 1 y 600 minutos"
+                    )
                 }), 400
 
             datos["duracion"] = duracion
 
-        if "categoria" not in datos and "genero" in datos:
+        if (
+            "categoria" not in datos
+            and "genero" in datos
+        ):
             datos["categoria"] = datos["genero"]
 
         try:
             resultado = alumnos.update_one(
-                {"_id": object_id},
-                {"$set": datos}
+                {
+                    "_id": object_id
+                },
+                {
+                    "$set": datos
+                }
             )
 
             if resultado.matched_count == 0:
@@ -1441,7 +1819,9 @@ def api_producto(id):
             }), 503
 
     try:
-        resultado = alumnos.delete_one({"_id": object_id})
+        resultado = alumnos.delete_one({
+            "_id": object_id
+        })
 
         if resultado.deleted_count == 0:
             return jsonify({
@@ -1464,7 +1844,10 @@ def api_producto(id):
 
 @app.errorhandler(404)
 def no_encontrado(error):
-    return "Página o película no encontrada.", 404
+    return (
+        "Página o película no encontrada.",
+        404
+    )
 
 
 @app.errorhandler(503)

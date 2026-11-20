@@ -5,6 +5,7 @@
 {% block titulo %}Alimentos | Cinépolis{% endblock %}
 
 {% block content %}
+
 <section class="alimentos-portada">
     <span class="alimentos-etiqueta">CINÉPOLIS · DULCE Y SALADO</span>
     <h1>Alimentos</h1>
@@ -12,30 +13,93 @@
 </section>
 
 {% if mensaje_error %}
-<div class="alert alert-danger">{{ mensaje_error }}</div>
+<div class="alert alert-danger">
+    {{ mensaje_error }}
+</div>
 {% endif %}
 
 {% if compra_confirmada %}
+
 <div class="alert alert-success">
     <h2>¡Compra de alimentos confirmada!</h2>
-    <p>Folio: <strong>{{ folio }}</strong></p>
-    <p>Total pagado: <strong>${{ "%.2f"|format(total) }} MXN</strong></p>
+
+    <p>
+        Folio:
+        <strong>{{ folio }}</strong>
+    </p>
+
+    <p>
+        Total pagado:
+        <strong>${{ "%.2f"|format(total) }} MXN</strong>
+    </p>
+
+    <hr>
 
     <h3>Resumen de tu compra</h3>
+
     {% for producto in productos_seleccionados %}
-    <p>
-        {{ producto.producto }}
-        {% if producto.sabor %} — Sabor: {{ producto.sabor }}{% endif %}
-        {% if producto.preparacion %} — Preparación: {{ producto.preparacion }}{% endif %}
-        × {{ producto.cantidad }}
-        — ${{ "%.2f"|format(producto.subtotal) }} MXN
-    </p>
+    <div class="mb-3">
+        <strong>{{ producto.producto }}</strong>
+
+        {% if producto.sabor %}
+            <p class="mb-0">Sabor: {{ producto.sabor }}</p>
+        {% endif %}
+
+        {% if producto.preparacion %}
+            <p class="mb-0">Preparación: {{ producto.preparacion }}</p>
+        {% endif %}
+
+        <p class="mb-0">
+            Cantidad: {{ producto.cantidad }}
+        </p>
+
+        <p class="mb-0">
+            Subtotal:
+            ${{ "%.2f"|format(producto.subtotal) }} MXN
+        </p>
+    </div>
     {% endfor %}
 
-    <a href="{{ url_for('alimentos') }}" class="btn btn-primary">
-        Hacer otra compra de alimentos
-    </a>
+    <hr>
+
+    {% if qr_alimentos %}
+    <div class="text-center mt-4">
+
+        <h3>Tu código QR</h3>
+
+        <p>
+            Escanea este código para consultar tu comprobante de compra.
+        </p>
+
+        <img
+            src="data:image/png;base64,{{ qr_alimentos }}"
+            alt="Código QR de compra de alimentos"
+            style="width: 200px; height: 200px; max-width: 100%;"
+        >
+
+        <div class="mt-3">
+            <a
+                href="{{ url_for('comprobante_alimentos', compra_id=folio) }}"
+                class="btn btn-dark"
+                target="_blank"
+            >
+                Ver comprobante
+            </a>
+        </div>
+
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a
+            href="{{ url_for('alimentos') }}"
+            class="btn btn-primary"
+        >
+            Hacer otra compra de alimentos
+        </a>
+    </div>
 </div>
+
 {% else %}
 
 <form action="{{ url_for('comprar_alimentos') }}" method="POST">
@@ -127,30 +191,45 @@
 ] %}
 
 {% for grupo, productos in grupos %}
+
 <section class="alimentos-seccion">
+
     <h2>{{ grupo }}</h2>
 
     <div class="alimentos-grid">
+
         {% for nombre, descripcion, imagen in productos %}
+
         <article class="alimento-card">
 
             <div class="alimento-imagen">
+
                 <img
                     src="{{ url_for('static', filename='alimentos/' ~ imagen) }}"
                     alt="{{ nombre }}"
                     loading="lazy"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
                 >
-                <span class="imagen-no-disponible" style="display:none;">
+
+                <span
+                    class="imagen-no-disponible"
+                    style="display:none;"
+                >
                     Imagen no disponible
                 </span>
+
             </div>
 
             <h3>{{ nombre }}</h3>
+
             <p>{{ descripcion }}</p>
 
             {% if nombre == "ICEE®" %}
-            <label for="sabor-ice-{{ loop.index }}">Sabor:</label>
+
+            <label for="sabor-ice-{{ loop.index }}">
+                Sabor:
+            </label>
+
             <select
                 name="sabor_ICE"
                 id="sabor-ice-{{ loop.index }}"
@@ -159,10 +238,15 @@
                 <option value="Mora roja">Mora roja</option>
                 <option value="Mora azul">Mora azul</option>
             </select>
+
             {% endif %}
 
             {% if nombre == "Papas Fritas" %}
-            <label for="tipo-papas-{{ loop.index }}">Preparación:</label>
+
+            <label for="tipo-papas-{{ loop.index }}">
+                Preparación:
+            </label>
+
             <select
                 name="tipo_papas"
                 id="tipo-papas-{{ loop.index }}"
@@ -171,6 +255,7 @@
                 <option value="Naturales">Naturales</option>
                 <option value="Con chile">Con chile</option>
             </select>
+
             {% endif %}
 
             <strong>${{ precios[nombre] }} MXN</strong>
@@ -195,13 +280,19 @@
             </p>
 
         </article>
+
         {% endfor %}
+
     </div>
+
 </section>
+
 {% endfor %}
 
 <section class="alimentos-resumen">
+
     <h2>Resumen de alimentos</h2>
+
     <p>El total se actualizará cuando cambies las cantidades.</p>
 
     <p class="alimentos-total">
@@ -211,19 +302,24 @@
     <button type="submit" class="btn btn-primary btn-lg">
         Confirmar compra de alimentos
     </button>
+
 </section>
 
 </form>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
     const cantidades = document.querySelectorAll(".cantidad-alimento");
+
     const totalElemento = document.getElementById("total-alimentos");
 
     function actualizarTotal() {
+
         let total = 0;
 
         cantidades.forEach(function (campo) {
+
             const cantidad = Math.max(
                 0,
                 Math.min(50, parseInt(campo.value, 10) || 0)
@@ -232,6 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
             campo.value = cantidad;
 
             const tarjeta = campo.closest(".alimento-card");
+
             const precioTexto = tarjeta.querySelector("strong").textContent;
 
             const precio = parseFloat(
@@ -244,19 +341,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 subtotal.toFixed(2);
 
             total += subtotal;
+
         });
 
         totalElemento.textContent = total.toFixed(2);
+
     }
 
     cantidades.forEach(function (campo) {
+
         campo.addEventListener("input", actualizarTotal);
+
         campo.addEventListener("change", actualizarTotal);
+
     });
 
     actualizarTotal();
+
 });
 </script>
 
 {% endif %}
+
 {% endblock %}

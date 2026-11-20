@@ -1,102 +1,219 @@
 
 {% extends 'base.html' %}
 
+{% block title %}Comprobante de boletos | Cinépolis{% endblock %}
+{% block titulo %}Comprobante de boletos{% endblock %}
+
 {% block contenido %}
 
-<section class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+<style>
+    .comprobante-boletos {
+        max-width: 750px;
+        margin: 35px auto;
+    }
 
-            <div class="card shadow-sm border-0 p-4">
+    .comprobante-boletos .card {
+        border-radius: 18px;
+        overflow: hidden;
+    }
 
-                <div class="text-center mb-4">
-                    <h2>Comprobante de reserva</h2>
-                    <p class="text-muted">
-                        Cinepolis - Consulta de reservación
-                    </p>
+    .comprobante-encabezado {
+        background: #171717;
+        color: white;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .comprobante-encabezado h2 {
+        margin: 0;
+        font-weight: 800;
+    }
+
+    .comprobante-datos {
+        padding: 25px;
+    }
+
+    .comprobante-fila {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .comprobante-fila strong {
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .comprobante-botones {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .comprobante-botones .btn {
+        padding: 12px;
+        font-weight: bold;
+    }
+
+    @media (max-width: 550px) {
+        .comprobante-botones {
+            grid-template-columns: 1fr;
+        }
+
+        .comprobante-fila {
+            font-size: 14px;
+        }
+    }
+
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+
+        #comprobante-boletos,
+        #comprobante-boletos * {
+            visibility: visible !important;
+        }
+
+        #comprobante-boletos {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .comprobante-botones {
+            display: none !important;
+        }
+
+        .comprobante-boletos .card {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+    }
+</style>
+
+<section class="container comprobante-boletos">
+
+    <div id="comprobante-boletos" class="card shadow">
+
+        <div class="comprobante-encabezado">
+            <h2>CINÉPOLIS</h2>
+            <p class="mb-0 mt-2">Comprobante de reserva</p>
+        </div>
+
+        <div class="comprobante-datos">
+
+            <h4 class="text-center mb-4">
+                Detalles de tu compra
+            </h4>
+
+            {% if reserva.estado == 'Activa' %}
+                <div class="alert alert-warning text-center">
+                    Tu reservación está activa.
                 </div>
 
-                {% if reserva.estado == 'Activa' %}
-                    <div class="alert alert-warning text-center">
-                        <h4>Reserva activa</h4>
-                        Tu reservación todavía está pendiente de confirmación.
-                    </div>
+            {% elif reserva.estado == 'Confirmada' %}
+                <div class="alert alert-success text-center">
+                    Tu compra ha sido confirmada.
+                </div>
 
-                {% elif reserva.estado == 'Confirmada' %}
-                    <div class="alert alert-success text-center">
-                        <h4>Compra confirmada</h4>
-                        Tu reservación fue confirmada correctamente.
-                    </div>
+            {% elif reserva.estado == 'Cancelada' %}
+                <div class="alert alert-danger text-center">
+                    Esta reservación fue cancelada.
+                </div>
 
-                {% elif reserva.estado == 'Cancelada' %}
-                    <div class="alert alert-secondary text-center">
-                        <h4>Reserva cancelada</h4>
-                        Esta reservación fue cancelada.
-                    </div>
+            {% elif reserva.estado == 'Vencida' %}
+                <div class="alert alert-secondary text-center">
+                    Esta reservación ha vencido.
+                </div>
+            {% endif %}
 
-                {% elif reserva.estado == 'Vencida' %}
-                    <div class="alert alert-danger text-center">
-                        <h4>Reserva vencida</h4>
-                        El tiempo para confirmar esta reservación terminó.
-                    </div>
-                {% endif %}
+            <div class="comprobante-fila">
+                <span><strong>Folio:</strong></span>
+                <strong>
+                    {{ folio if folio is defined else reserva.get('reserva_id', 'No disponible') }}
+                </strong>
+            </div>
 
-                <hr>
-
-                <h4 class="mb-3">Datos de la función</h4>
-
-                <p>
-                    <strong>Película:</strong>
+            <div class="comprobante-fila">
+                <span><strong>Película:</strong></span>
+                <strong>
                     {% if pelicula %}
                         {{ pelicula.get('nombre', pelicula.get('titulo', 'Película no disponible')) }}
                     {% else %}
                         Película no disponible
                     {% endif %}
-                </p>
-
-                <p>
-                    <strong>Fecha:</strong>
-                    {{ reserva.fecha }}
-                </p>
-
-                <p>
-                    <strong>Horario:</strong>
-                    {{ reserva.horario }}
-                </p>
-
-                <p>
-                    <strong>Asientos:</strong>
-                    {{ reserva.asientos | join(', ') }}
-                </p>
-
-                <p>
-                    <strong>Cantidad de boletos:</strong>
-                    {{ reserva.asientos | length }}
-                </p>
-
-                <p>
-                    <strong>Estado:</strong>
-                    {{ reserva.estado }}
-                </p>
-
-                <hr>
-
-                <div class="text-center">
-                    <a href="{{ url_for('inicio') }}"
-                       class="btn btn-primary w-100">
-                        Volver a cartelera
-                    </a>
-                </div>
-
-                <p class="text-muted text-center mt-3 mb-0">
-                    Este comprobante muestra el estado actual
-                    de la reservación.
-                </p>
-
+                </strong>
             </div>
+
+            <div class="comprobante-fila">
+                <span><strong>Fecha:</strong></span>
+                <strong>{{ reserva.get('fecha', 'No disponible') }}</strong>
+            </div>
+
+            <div class="comprobante-fila">
+                <span><strong>Horario:</strong></span>
+                <strong>{{ reserva.get('horario', 'No disponible') }}</strong>
+            </div>
+
+            <div class="comprobante-fila">
+                <span><strong>Asientos:</strong></span>
+                <strong>
+                    {{ reserva.get('asientos', []) | join(', ') }}
+                </strong>
+            </div>
+
+            <div class="comprobante-fila">
+                <span><strong>Cantidad de boletos:</strong></span>
+                <strong>
+                    {{ reserva.get('asientos', []) | length }}
+                </strong>
+            </div>
+
+            {% if reserva.get('total') is not none %}
+            <div class="comprobante-fila">
+                <span><strong>Total:</strong></span>
+                <strong>${{ reserva.get('total') }} MXN</strong>
+            </div>
+            {% endif %}
+
+            <div class="comprobante-fila">
+                <span><strong>Estado:</strong></span>
+                <strong>{{ reserva.get('estado', 'No disponible') }}</strong>
+            </div>
+
+            <p class="text-center text-muted mt-4 mb-0">
+                Gracias por tu preferencia.
+                ¡Disfruta tu película!
+            </p>
 
         </div>
     </div>
+
+    <div class="comprobante-botones">
+
+        <button
+            type="button"
+            onclick="window.print()"
+            class="btn btn-dark">
+            <i class="bi bi-printer"></i>
+            Imprimir comprobante
+        </button>
+
+        <a
+            href="{{ url_for('inicio') }}"
+            class="btn btn-primary">
+            Volver a cartelera
+        </a>
+
+    </div>
+
 </section>
 
 {% endblock %}

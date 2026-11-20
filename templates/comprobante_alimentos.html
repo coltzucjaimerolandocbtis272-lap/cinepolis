@@ -1,0 +1,80 @@
+
+{% extends "base.html" %}
+
+{% block title %}Comprobante de alimentos - Cinépolis{% endblock %}
+
+{% block titulo %}Comprobante de alimentos{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow mx-auto" style="max-width: 650px;">
+        <div class="card-body p-4">
+
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">CINÉPOLIS</h2>
+                <h4>Comprobante de compra</h4>
+                <p class="text-success fw-bold">Compra confirmada</p>
+            </div>
+
+            <hr>
+
+            <p><strong>Folio:</strong> {{ folio }}</p>
+            <p><strong>Estado:</strong> {{ compra.estado }}</p>
+
+            {% if compra.fecha_compra %}
+                <p>
+                    <strong>Fecha:</strong>
+                    {{ compra.fecha_compra.strftime('%d/%m/%Y %H:%M') }}
+                </p>
+            {% endif %}
+
+            <hr>
+
+            <h5 class="fw-bold">Productos comprados</h5>
+
+            {% for producto in compra.productos %}
+                <div class="d-flex justify-content-between border-bottom py-2">
+                    <div>
+                        <strong>{{ producto.producto }}</strong>
+                        <br>
+                        <small>Cantidad: {{ producto.cantidad }}</small>
+
+                        {% if producto.sabor %}
+                            <br>
+                            <small>Sabor: {{ producto.sabor }}</small>
+                        {% endif %}
+
+                        {% if producto.preparacion %}
+                            <br>
+                            <small>Preparación: {{ producto.preparacion }}</small>
+                        {% endif %}
+                    </div>
+
+                    <strong>${{ producto.subtotal }} MXN</strong>
+                </div>
+            {% endfor %}
+
+            <hr>
+
+            <div class="text-end">
+                <h4 class="fw-bold">
+                    Total: ${{ compra.total }} MXN
+                </h4>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('alimentos') }}"
+                   class="btn btn-danger">
+                    Volver a alimentos
+                </a>
+
+                <button onclick="window.print()"
+                        class="btn btn-dark">
+                    Imprimir comprobante
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,12 @@
 
 {% extends 'base.html' %}
 
+{% block title %}Comprar boletos | Cinépolis{% endblock %}
+{% block titulo %}Comprar boletos{% endblock %}
+
 {% block contenido %}
 <section class="cine-section container py-4">
+
     <a href="{{ url_for('inicio') }}" class="btn btn-outline-secondary mb-4">
         ← Volver a cartelera
     </a>
@@ -10,6 +14,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-9">
             <div class="card shadow-sm border-0 p-4">
+
                 <h2 class="mb-4">Comprar boletos</h2>
 
                 {% if mensaje_error %}
@@ -30,12 +35,13 @@
 
                 {% if compra_confirmada %}
 
-                    <div class="alert alert-success">
+                    <div class="alert alert-success text-center">
                         <h3 class="h5">¡Compra confirmada!</h3>
-                        <p class="mb-0">Tu compra de demostración se guardó correctamente.</p>
+                        <p class="mb-0">Tu compra se guardó correctamente.</p>
                     </div>
 
                     <h3 class="h5">Resumen de tu compra</h3>
+
                     <p><strong>Folio:</strong> {{ folio }}</p>
                     <p><strong>Película:</strong> {{ pelicula.get('nombre', pelicula.get('titulo', 'Película')) }}</p>
                     <p><strong>Fecha:</strong> {{ fecha }}</p>
@@ -49,67 +55,96 @@
                         <h2>${{ total }} MXN</h2>
                     </div>
 
-                    <p class="text-muted">Compra simulada. No se realizó ningún cobro real.</p>
+                    <p class="text-muted">
+                        Compra simulada. No se realizó ningún cobro real.
+                    </p>
 
                     {% if qr_reserva %}
-    <div class="text-center my-4">
-        <h3 class="h5">Tu código QR</h3>
+                    <div class="text-center my-4">
+                        <h3 class="h5">Tu código QR</h3>
 
-        <p>Escanea este código para consultar tu comprobante.</p>
+                        <p>Escanea este código para consultar tu comprobante.</p>
 
-        <img
-            src="data:image/png;base64,{{ qr_reserva }}"
-            alt="Código QR de tu reserva"
-            class="img-fluid border rounded p-2"
-            style="width: 220px;"
-        >
+                        <img
+                            src="data:image/png;base64,{{ qr_reserva }}"
+                            alt="Código QR de tu reserva"
+                            class="img-fluid border rounded p-2"
+                            style="width: 220px;"
+                        >
 
-        <p class="text-muted mt-2">
-            Conserva este código para consultar tu reserva.
-        </p>
-    </div>
-{% endif %}
+                        <p class="text-muted mt-2">
+                            Conserva este código para consultar tu reserva.
+                        </p>
+                    </div>
+                    {% endif %}
 
-                    <a href="{{ url_for('inicio') }}" class="btn btn-primary w-100">
+                    {% if reserva_id %}
+                    <div class="d-grid gap-2 mt-3">
+
+                        <a
+                            href="{{ url_for('comprobante_reserva', reserva_id=reserva_id) }}"
+                            class="btn btn-danger btn-lg"
+                        >
+                            Ver comprobante de boletos
+                        </a>
+
+                        <a
+                            href="{{ url_for('comprobante_reserva', reserva_id=reserva_id) }}"
+                            target="_blank"
+                            class="btn btn-dark"
+                        >
+                            Abrir comprobante para imprimir
+                        </a>
+
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        No se recibió el identificador de la reserva.
+                        No cierres esta página.
+                    </div>
+                    {% endif %}
+
+                    <a href="{{ url_for('inicio') }}" class="btn btn-primary w-100 mt-3">
                         Volver a la cartelera
                     </a>
 
                 {% elif confirmar %}
 
                     <h3 class="h4 mb-3">Resumen de tu compra</h3>
+
                     <div class="alert alert-warning text-center">
-    <strong>Tiempo restante para confirmar:</strong>
-    <h2 id="contador-reserva" class="mb-0">05:00</h2>
-</div>
+                        <strong>Tiempo restante para confirmar:</strong>
+                        <h2 id="contador-reserva" class="mb-0">05:00</h2>
+                    </div>
 
-<script>
-    const venceEn = new Date("{{ vence_en.isoformat() }}").getTime();
-    const contador = document.getElementById("contador-reserva");
+                    <script>
+                        const venceEn = new Date("{{ vence_en.isoformat() }}").getTime();
+                        const contador = document.getElementById("contador-reserva");
 
-    function actualizarContador() {
-        const ahora = Date.now();
-        const restante = venceEn - ahora;
+                        function actualizarContador() {
+                            const ahora = Date.now();
+                            const restante = venceEn - ahora;
 
-        if (restante <= 0) {
-            contador.textContent = "00:00";
-            contador.parentElement.innerHTML =
-                "<strong>Tu tiempo de reserva terminó.</strong>";
+                            if (restante <= 0) {
+                                contador.textContent = "00:00";
+                                contador.parentElement.innerHTML =
+                                    "<strong>Tu tiempo de reserva terminó.</strong>";
+                                return;
+                            }
 
-            return;
-        }
+                            const minutos = Math.floor(restante / 60000);
+                            const segundos = Math.floor((restante % 60000) / 1000);
 
-        const minutos = Math.floor(restante / 60000);
-        const segundos = Math.floor((restante % 60000) / 1000);
+                            contador.textContent =
+                                String(minutos).padStart(2, "0") + ":" +
+                                String(segundos).padStart(2, "0");
 
-        contador.textContent =
-            String(minutos).padStart(2, "0") + ":" +
-            String(segundos).padStart(2, "0");
+                            setTimeout(actualizarContador, 1000);
+                        }
 
-        setTimeout(actualizarContador, 1000);
-    }
+                        actualizarContador();
+                    </script>
 
-    actualizarContador();
-</script>
                     <p><strong>Película:</strong> {{ pelicula.get('nombre', pelicula.get('titulo', 'Película')) }}</p>
                     <p><strong>Fecha:</strong> {{ fecha }}</p>
                     <p><strong>Horario:</strong> {{ horario }}</p>
@@ -137,16 +172,16 @@
                         </button>
                     </form>
 
-                   <form method="POST" action="{{ url_for('comprar', id=pelicula._id) }}">
-    <input type="hidden" name="accion" value="cancelar">
-    <input type="hidden" name="fecha" value="{{ fecha }}">
-    <input type="hidden" name="horario" value="{{ horario }}">
-    <input type="hidden" name="cantidad" value="{{ cantidad }}">
+                    <form method="POST" action="{{ url_for('comprar', id=pelicula._id) }}">
+                        <input type="hidden" name="accion" value="cancelar">
+                        <input type="hidden" name="fecha" value="{{ fecha }}">
+                        <input type="hidden" name="horario" value="{{ horario }}">
+                        <input type="hidden" name="cantidad" value="{{ cantidad }}">
 
-    <button type="submit" class="btn btn-outline-secondary w-100 mt-2">
-        Cambiar selección
-    </button>
-</form>
+                        <button type="submit" class="btn btn-outline-secondary w-100 mt-2">
+                            Cambiar selección
+                        </button>
+                    </form>
 
                 {% else %}
 
@@ -212,12 +247,12 @@
                             <div class="pantalla-cine rounded p-2">PANTALLA</div>
                         </div>
 
-                       <div class="leyenda-asientos d-flex justify-content-center flex-wrap gap-3 mb-4">
-    <span><span class="leyenda-disponible">■</span> Disponible</span>
-    <span><span class="leyenda-reservado">■</span> Reservado</span>
-    <span><span class="leyenda-ocupado">■</span> Ocupado o comprado</span>
-    <span><span class="leyenda-seleccionado">■</span> Seleccionado por el usuario</span>
-</div>
+                        <div class="leyenda-asientos d-flex justify-content-center flex-wrap gap-3 mb-4">
+                            <span><span class="leyenda-disponible">■</span> Disponible</span>
+                            <span><span class="leyenda-reservado">■</span> Reservado</span>
+                            <span><span class="leyenda-ocupado">■</span> Ocupado o comprado</span>
+                            <span><span class="leyenda-seleccionado">■</span> Seleccionado por el usuario</span>
+                        </div>
 
                         <div class="mapa-asientos mx-auto">
                             {% for fila in range(6) %}
@@ -238,14 +273,14 @@
                                                value="{{ numero }}"
                                                {% if ocupado or reservado %}disabled{% endif %}>
 
-                                      <span class="asiento-boton
-    {% if ocupado %}asiento-ocupado
-    {% elif reservado %}asiento-reservado
-    {% else %}asiento-disponible
-    {% endif %}"
-    title="Asiento {{ numero }}">
-    {{ numero }}
-</span>
+                                        <span class="asiento-boton
+                                            {% if ocupado %}asiento-ocupado
+                                            {% elif reservado %}asiento-reservado
+                                            {% else %}asiento-disponible
+                                            {% endif %}"
+                                            title="Asiento {{ numero }}">
+                                            {{ numero }}
+                                        </span>
                                     </label>
                                 {% endfor %}
                             </div>
@@ -275,7 +310,9 @@
                             Continuar con la compra
                         </button>
                     </form>
+
                 {% endif %}
+
             </div>
         </div>
     </div>
@@ -339,7 +376,6 @@
     color: #f0ad4e;
 }
 
-
 .asiento-checkbox:checked + .asiento-boton {
     background-color: #0d6efd;
     outline: 3px solid #9ec5fe;
@@ -383,20 +419,23 @@
     color: #111;
 }
 
+#contador-reserva {
+    color: #000 !important;
+    font-weight: 800;
+}
+
 @media (max-width: 380px) {
     .fila-asientos {
         gap: 4px;
     }
 }
 
-#contador-reserva {
-    color: #000000 !important;
-    font-weight: 800;
+@media print {
+    .btn {
+        display: none !important;
+    }
 }
-
 </style>
-
-
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -513,5 +552,5 @@ document.addEventListener("DOMContentLoaded", function () {
     actualizar();
 });
 </script>
+
 {% endblock %}
-```

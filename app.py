@@ -1579,10 +1579,6 @@ def comprar(id):
             None
         )
 
-        # CORRECCIÓN:
-        # Se envía reserva_id a comprar.html para
-        # que el botón pueda abrir el comprobante.
-
         return render_template(
             "comprar.html",
             pelicula=pelicula,
@@ -1844,10 +1840,7 @@ def api_producto(id):
 
 @app.errorhandler(404)
 def no_encontrado(error):
-    return (
-        "Página o película no encontrada.",
-        404
-    )
+    return render_template("404.html"), 404
 
 
 @app.errorhandler(503)

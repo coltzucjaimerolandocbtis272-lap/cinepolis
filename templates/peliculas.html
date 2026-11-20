@@ -196,15 +196,15 @@
         <tbody>
           {% for pelicula in alumnos %}
           <tr>
-            <td class="fw-bold">
+            <td class="fw-bold" data-label="Película">
               {{ pelicula.get('nombre', pelicula.get('titulo', 'Película')) }}
             </td>
 
-            <td>
+            <td data-label="Categoría">
               {{ pelicula.get('categoria', pelicula.get('genero', 'Sin categoría')) }}
             </td>
 
-            <td>
+            <td data-label="Duración">
               {% if pelicula.get('duracion') %}
                 {{ pelicula.get('duracion') }} min
               {% else %}
@@ -212,7 +212,7 @@
               {% endif %}
             </td>
 
-            <td>
+            <td data-label="Estado">
               {% if pelicula.get('estado') == 'Disponible' %}
               <span class="cine-estado disponible">Disponible</span>
               {% else %}
@@ -222,7 +222,7 @@
               {% endif %}
             </td>
 
-            <td>
+            <td data-label="Acciones">
               <div class="cine-acciones">
                 <a class="btn btn-sm btn-outline-primary"
                    href="{{ url_for('editar', id=pelicula._id) }}">

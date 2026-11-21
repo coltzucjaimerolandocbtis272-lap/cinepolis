@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Crear cuenta | Cinépolis{% endblock %}
+{% block titulo %}Crear cuenta | Cinépolis{% endblock %}
+
+{% block content %}
+<section class="cine-auth">
+    <h1>Crear cuenta</h1>
+    <p>Regístrate con tu correo electrónico para empezar a comprar.</p>
+
+    {% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" novalidate>
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" id="nombre" name="nombre" class="form-control"
+               value="{{ nombre or '' }}" autocomplete="name" required autofocus>
+
+        <label for="correo" class="form-label mt-3">Correo electrónico</label>
+        <input type="email" id="correo" name="correo" class="form-control"
+               value="{{ correo or '' }}" autocomplete="email" required>
+
+        <label for="clave" class="form-label mt-3">Contraseña</label>
+        <input type="password" id="clave" name="clave" class="form-control"
+               minlength="6" autocomplete="new-password" required>
+
+        <label for="clave2" class="form-label mt-3">Repite la contraseña</label>
+        <input type="password" id="clave2" name="clave2" class="form-control"
+               minlength="6" autocomplete="new-password" required>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">
+            Crear cuenta
+        </button>
+    </form>
+
+    <p class="cine-auth-pie">
+        ¿Ya tienes cuenta?
+        <a href="{{ url_for('login') }}">Iniciar sesión</a>
+    </p>
+</section>
+{% endblock %}

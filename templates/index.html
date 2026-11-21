@@ -664,7 +664,9 @@
         {% if not alumnos %}
             <div class="alert alert-secondary mt-3">
                 Todavía no hay películas registradas.
-                <a href="{{ url_for('agregar') }}">Registrar una película</a>
+                {% if session.get('admin') %}
+                    <a href="{{ url_for('agregar') }}">Registrar una película</a>
+                {% endif %}
             </div>
         {% endif %}
 

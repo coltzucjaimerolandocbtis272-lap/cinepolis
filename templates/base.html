@@ -15,6 +15,9 @@
         href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
   <link rel="stylesheet"
         href="{{ url_for('static', filename='estilos.css') }}">
+  <!-- Inicio de sesión, registro y ajustes -->
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='auth.css') }}">
   <!-- Estilos aparte solo para celular (hasta 768px) -->
   <link rel="stylesheet"
         href="{{ url_for('static', filename='movil.css') }}"
@@ -73,6 +76,8 @@
     <div class="container">
       <a class="navbar-brand cine-logo" href="{{ url_for('inicio') }}">cinépolis</a>
 
+      {# El menú solo aparece cuando ya se inició sesión #}
+      {% if session.get('usuario') %}
       <button class="navbar-toggler" type="button"
               data-bs-toggle="collapse"
               data-bs-target="#menuPrincipal"
@@ -90,21 +95,45 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('alimentos') }}">Alimentos</a>
           </li>
+
+          {# Estas dos opciones solo las ve el administrador #}
+          {% if session.get('admin') %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('agregar') }}">Agregar película</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('peliculas_registradas') }}">Películas registradas</a>
           </li>
+          {% endif %}
+
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('ayuda') }}">Ayuda</a>
           </li>
         </ul>
+
+        <ul class="navbar-nav align-items-lg-center gap-lg-2">
+          {% if session.get('admin') %}
+          <li class="nav-item">
+            <span class="cine-badge-admin">Administrador</span>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('ajustes') }}">Ajustes</a>
+          </li>
+        </ul>
       </div>
+      {% endif %}
     </div>
   </nav>
 
   <main class="container cine-main">
+    {# Mensajes: "Cerraste sesión", "Modo administrador activado", etc. #}
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensaje in mensajes %}
+      <div class="alert alert-{{ categoria }} mt-3" role="alert">{{ mensaje }}</div>
+      {% endfor %}
+    {% endwith %}
+
     {% block content %}{% block contenido %}{% endblock %}{% endblock %}
   </main>
 

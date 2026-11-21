@@ -1,4 +1,3 @@
-
 from flask import (
     Flask, render_template, request, redirect,
     url_for, abort, jsonify, session
@@ -13,6 +12,7 @@ import uuid
 import qrcode
 import base64
 from io import BytesIO
+from auth import registrar_auth
 
 app = Flask(__name__)
 
@@ -110,6 +110,15 @@ compras = base_datos["compras"]
 asientos = base_datos["asientos"]
 compras_alimentos = base_datos["compras_alimentos"]
 reservas = base_datos["reservas"]
+usuarios = base_datos["usuarios"]
+
+
+# =========================
+# CUENTAS DE CLIENTES Y MODO ADMINISTRADOR
+# (login, registro, ajustes y permisos están en auth.py)
+# =========================
+
+registrar_auth(app, usuarios)
 
 
 # =========================

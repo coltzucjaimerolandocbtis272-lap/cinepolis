@@ -58,6 +58,14 @@
           </select>
         </div>
 
+        <div style="grid-column: 1 / -1;">
+          <label for="trailer" class="form-label">Tráiler (link de YouTube)</label>
+          <input type="url" id="trailer" name="trailer"
+                 class="form-control" maxlength="200"
+                 value="{{ pelicula.get('trailer', '') }}"
+                 placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+
       </div>
 
       <div class="cine-form-actions">

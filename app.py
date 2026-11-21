@@ -8,6 +8,7 @@ from bson import ObjectId
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import os
+import re
 import uuid
 import qrcode
 import base64
@@ -378,6 +379,33 @@ def aplicar_poster(pelicula):
     return pelicula
 
 
+def youtube_embed(url):
+    """Convierte un link de YouTube (o solo el ID) en URL para incrustar."""
+    url = (url or "").strip()
+
+    if not url:
+        return ""
+
+    coincidencia = re.search(
+        r"(?:youtu\.be/|v=|embed/|shorts/)([A-Za-z0-9_-]{11})",
+        url
+    )
+
+    if coincidencia:
+        video_id = coincidencia.group(1)
+
+    elif re.fullmatch(r"[A-Za-z0-9_-]{11}", url):
+        video_id = url
+
+    else:
+        return ""
+
+    return (
+        f"https://www.youtube-nocookie.com/embed/{video_id}"
+        "?autoplay=1&rel=0"
+    )
+
+
 def leer_formulario():
     nombre = request.form.get(
         "nombre",
@@ -412,6 +440,9 @@ def leer_formulario():
         ).strip(),
         "poster": request.form.get(
             "poster", ""
+        ).strip(),
+        "trailer": request.form.get(
+            "trailer", ""
         ).strip(),
         "estado": request.form.get(
             "estado", "Disponible"
@@ -640,6 +671,10 @@ def inicio():
 
     for pelicula in peliculas:
         aplicar_poster(pelicula)
+
+        pelicula["trailer_embed"] = youtube_embed(
+            pelicula.get("trailer", "")
+        )
 
     return render_template(
         "index.html",
@@ -904,6 +939,10 @@ def agregar():
         "duracion", ""
     ).strip()
 
+    trailer = request.form.get(
+        "trailer", ""
+    ).strip()
+
     try:
         duracion = int(duracion_texto)
 
@@ -932,7 +971,8 @@ def agregar():
             "titulo": nombre,
             "categoria": categoria,
             "duracion": duracion,
-            "estado": estado
+            "estado": estado,
+            "trailer": trailer
         })
 
         return redirect(

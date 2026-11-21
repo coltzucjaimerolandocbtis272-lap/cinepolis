@@ -591,12 +591,27 @@
                 {% set poster_local = poster_de(nombre_normalizado)|trim %}
                 {% set estado_agotado = estado in ['agotado', 'no disponible'] %}
 
+                {% if poster_local %}
+                    {% set poster_url = url_for('static', filename='posters/' ~ poster_local) %}
+                {% else %}
+                    {% set poster_url = pelicula.get('poster') or pelicula.get('imagen') or portada_respaldo %}
+                {% endif %}
+
                 <article class="cine-movie-card"
                          data-nombre="{{ nombre|lower }}"
                          data-genero="{{ genero|lower }}"
-                         data-estado="{{ 'agotado' if estado_agotado else 'disponible' }}">
+                         data-estado="{{ 'agotado' if estado_agotado else 'disponible' }}"
+                         data-titulo="{{ nombre }}"
+                         data-categoria="{{ genero }}"
+                         data-duracion="{{ pelicula.get('duracion') or '' }}"
+                         data-poster="{{ poster_url }}"
+                         data-trailer="{{ pelicula.get('trailer_embed') or '' }}"
+                         data-comprar="{{ url_for('comprar', id=pelicula['_id']) }}">
 
-                    <div class="cine-movie-poster">
+                    <div class="cine-movie-poster cine-movie-open"
+                         role="button"
+                         tabindex="0"
+                         aria-label="Ver detalles de {{ nombre }}">
 
                         {% if poster_local %}
                             <img src="{{ url_for('static', filename='posters/' ~ poster_local) }}"
@@ -639,17 +654,6 @@
                                 {{ pelicula.get('clasificacion') }}
                             </span>
                         {% endif %}
-
-                        {% if not estado_agotado %}
-                            <a href="{{ url_for('comprar', id=pelicula['_id']) }}"
-                               class="btn btn-primary w-100 mt-2">
-                                Comprar boletos
-                            </a>
-                        {% else %}
-                            <button class="btn btn-secondary w-100 mt-2" disabled>
-                                No disponible
-                            </button>
-                        {% endif %}
                     </div>
 
                 </article>
@@ -673,9 +677,145 @@
     </section>
 </div>
 
+<!-- DETALLE DE PELÍCULA -->
+<div class="cine-detalle" id="detallePelicula"
+     role="dialog" aria-modal="true" aria-labelledby="detTitulo">
+    <div class="cine-detalle-fondo" id="detFondo"></div>
+
+    <button type="button" class="cine-detalle-volver" id="detCerrar">
+        ← Volver
+    </button>
+
+    <div class="cine-detalle-contenido">
+        <img id="detPoster" class="cine-detalle-poster" src="" alt="">
+
+        <div class="cine-detalle-info">
+            <span class="cine-detalle-estado" id="detEstado">Disponible</span>
+            <h2 id="detTitulo"></h2>
+            <p class="cine-detalle-meta" id="detMeta"></p>
+
+            <div class="cine-detalle-botones">
+                <a href="#" class="cine-det-btn cine-det-primario" id="detComprar">
+                    Comprar boletos
+                </a>
+                <span class="cine-det-btn cine-det-off" id="detAgotado" hidden>
+                    No disponible
+                </span>
+                <button type="button" class="cine-det-btn cine-det-ghost" id="detTrailer">
+                    Ver tráiler <span class="cine-play" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tráiler dentro de la misma página -->
+    <div class="cine-trailer" id="trailerModal"
+         role="dialog" aria-modal="true" aria-label="Tráiler">
+        <button type="button" class="cine-trailer-cerrar" id="trailerCerrar">Cerrar</button>
+        <div class="cine-trailer-marco" id="trailerMarco"></div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
+
+<script>
+    /* =========================================
+       DETALLE DE PELÍCULA + TRÁILER SIN SALIR
+       ========================================= */
+    (function () {
+        const grid = document.getElementById('gridPeliculas');
+        const det = document.getElementById('detallePelicula');
+        const trailerModal = document.getElementById('trailerModal');
+        const marco = document.getElementById('trailerMarco');
+        if (!grid || !det) return;
+
+        const el = function (id) { return document.getElementById(id); };
+        let trailerActual = '';
+        let ultimoFoco = null;
+
+        function abrir(tarjeta) {
+            const d = tarjeta.dataset;
+            const agotada = d.estado === 'agotado';
+
+            el('detTitulo').textContent = d.titulo;
+            el('detMeta').textContent =
+                (d.duracion ? d.duracion + ' min · ' : '') + d.categoria;
+            el('detPoster').src = d.poster;
+            el('detPoster').alt = 'Póster de ' + d.titulo;
+            el('detFondo').style.backgroundImage = "url('" + d.poster + "')";
+
+            const estado = el('detEstado');
+            estado.textContent = agotada ? 'Agotado' : 'Disponible';
+            estado.classList.toggle('agotado', agotada);
+
+            el('detComprar').hidden = agotada;
+            el('detAgotado').hidden = !agotada;
+            el('detComprar').href = d.comprar;
+
+            trailerActual = d.trailer || '';
+
+            ultimoFoco = tarjeta.querySelector('.cine-movie-open');
+            det.classList.add('abierto');
+            document.body.style.overflow = 'hidden';
+            el('detCerrar').focus();
+        }
+
+        function cerrar() {
+            cerrarTrailer();
+            det.classList.remove('abierto');
+            document.body.style.overflow = '';
+            if (ultimoFoco) ultimoFoco.focus();
+        }
+
+        function abrirTrailer() {
+            trailerModal.classList.add('abierto');
+
+            if (!trailerActual) {
+                marco.innerHTML =
+                    '<p class="cine-trailer-vacio">Esta película todavía no tiene tráiler.</p>';
+                return;
+            }
+
+            marco.innerHTML =
+                '<iframe src="' + trailerActual + '" title="Tráiler" ' +
+                'allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
+        }
+
+        function cerrarTrailer() {
+            marco.innerHTML = '';   /* detiene el video */
+            trailerModal.classList.remove('abierto');
+        }
+
+        grid.addEventListener('click', function (e) {
+            const poster = e.target.closest('.cine-movie-open');
+            if (poster) abrir(poster.closest('.cine-movie-card'));
+        });
+
+        grid.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const poster = e.target.closest('.cine-movie-open');
+            if (!poster) return;
+            e.preventDefault();
+            abrir(poster.closest('.cine-movie-card'));
+        });
+
+        el('detCerrar').addEventListener('click', cerrar);
+        el('detTrailer').addEventListener('click', abrirTrailer);
+        el('trailerCerrar').addEventListener('click', cerrarTrailer);
+
+        trailerModal.addEventListener('click', function (e) {
+            if (e.target === trailerModal) cerrarTrailer();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (trailerModal.classList.contains('abierto')) cerrarTrailer();
+            else if (det.classList.contains('abierto')) cerrar();
+        });
+    })();
+</script>
 
 <script>
     /* =========================================

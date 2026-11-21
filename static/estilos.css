@@ -1419,3 +1419,252 @@ select:focus-visible {
     margin: 0 auto;
   }
 }
+
+
+/* ==========================================================
+   FUNCIONES (HORARIOS) EN EL DETALLE
+   ========================================================== */
+
+.cine-funciones {
+  margin-top: 32px;
+}
+
+.cine-funciones[hidden] {
+  display: none !important;
+}
+
+.cine-funciones h3 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.cine-funciones-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cine-funcion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 46px;
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background .2s, border-color .2s;
+}
+
+a.cine-funcion:hover {
+  border-color: #4a7dff;
+  background: #4a7dff;
+  color: #fff;
+}
+
+.cine-funcion.pasada {
+  opacity: .35;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.cine-funciones-nota {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, .8);
+  font-size: .9rem;
+}
+
+
+/* ==========================================================
+   PESTAÑAS CARTELERA | HORARIOS
+   ========================================================== */
+
+.cine-tabs {
+  display: flex;
+  justify-content: center;
+  max-width: 960px;
+  margin: 28px auto 24px;
+  border-bottom: 1px solid var(--cine-borde);
+}
+
+.cine-tab {
+  flex: 1 1 0;
+  max-width: 320px;
+  margin-bottom: -1px;
+  padding: 14px 10px;
+  border: 0;
+  border-bottom: 4px solid transparent;
+  background: none;
+  color: #000;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  font-weight: 800;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+
+.cine-tab:hover {
+  color: #4a7dff;
+}
+
+.cine-tab.on {
+  color: #4a7dff;
+  border-bottom-color: #4a7dff;
+}
+
+/* ==========================================================
+   VISTA HORARIOS (lista de películas con funciones)
+   ========================================================== */
+
+.cine-hor-lista {
+  display: grid;
+  gap: 40px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding-top: 8px;
+}
+
+.cine-hor-lista[hidden],
+#vistaCartelera[hidden] {
+  display: none !important;
+}
+
+.cine-hor-fila {
+  display: grid;
+  grid-template-columns: minmax(110px, 200px) 1fr;
+  gap: clamp(18px, 4vw, 56px);
+  align-items: start;
+}
+
+.cine-hor-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #6f45c8, #2a1f6b);
+  box-shadow: 0 6px 18px rgba(20, 20, 60, .22);
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.cine-hor-poster:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(20, 20, 60, .3);
+}
+
+.cine-hor-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cine-hor-info h3 {
+  margin: 4px 0 12px;
+  color: #0b1b3a;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.cine-hor-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 22px;
+  color: #4b5268;
+  font-size: .95rem;
+}
+
+.cine-hor-punto {
+  color: #8b92a8;
+}
+
+.cine-hor-clasif {
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: #ffc107;
+  color: #111;
+  font-weight: 800;
+}
+
+.cine-hor-estado {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: #dff7ec;
+  color: #157a4b;
+  font-weight: 600;
+}
+
+.cine-hor-estado.agotado {
+  background: #fde3e7;
+  color: #b5122b;
+}
+
+.cine-hor-funciones h4 {
+  margin: 0 0 12px;
+  color: #0b1b3a;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.cine-hor-vacio {
+  margin: 0;
+  color: #5a6178;
+  font-size: .9rem;
+}
+
+/* Botones de hora en fondo claro */
+.cine-hor-fila .cine-funcion {
+  border-color: #4a7dff;
+  background: #fff;
+  color: #4a7dff;
+}
+
+.cine-hor-fila a.cine-funcion:hover {
+  background: #4a7dff;
+  color: #fff;
+}
+
+.cine-hor-fila .cine-funcion.pasada {
+  border-color: #c9d2e6;
+  color: #8b92a8;
+}
+
+.cine-hor-mas {
+  margin-top: 20px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #4a7dff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cine-hor-mas:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .cine-hor-fila {
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+  }
+
+  .cine-funcion {
+    min-width: 72px;
+    min-height: 42px;
+    padding: 6px 12px;
+  }
+}

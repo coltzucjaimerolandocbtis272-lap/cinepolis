@@ -531,13 +531,18 @@
 
     <section id="cartelera" class="mb-5">
 
-        <div class="cine-section-heading">
-            <div>
-                <span class="cine-hero-label">ENCUENTRA TU PRÓXIMA PELÍCULA</span>
-                <h2>Cartelera</h2>
-                <p>Busca por nombre, disponibilidad o género.</p>
-            </div>
+        <div class="cine-tabs" role="tablist" aria-label="Vista de películas">
+            <button type="button" class="cine-tab on" id="tabCartelera"
+                    role="tab" aria-selected="true" data-vista="cartelera">
+                Cartelera
+            </button>
+            <button type="button" class="cine-tab" id="tabHorarios"
+                    role="tab" aria-selected="false" data-vista="horarios">
+                Horarios
+            </button>
         </div>
+
+        <div id="vistaCartelera">
 
         <div class="cine-filtros">
 
@@ -606,6 +611,7 @@
                          data-duracion="{{ pelicula.get('duracion') or '' }}"
                          data-poster="{{ poster_url }}"
                          data-trailer="{{ pelicula.get('trailer_embed') or '' }}"
+                         data-horarios="{{ (pelicula.get('horarios_lista') or ['12:00', '15:00', '18:00', '21:00'])|join(',') }}"
                          data-comprar="{{ url_for('comprar', id=pelicula['_id']) }}">
 
                     <div class="cine-movie-poster cine-movie-open"
@@ -674,6 +680,10 @@
             </div>
         {% endif %}
 
+        </div><!-- /vistaCartelera -->
+
+        <div id="vistaHorarios" class="cine-hor-lista" hidden></div>
+
     </section>
 </div>
 
@@ -735,6 +745,44 @@
         let trailerActual = '';
         let ultimoFoco = null;
 
+        /* Hora y fecha de hoy en Cancún */
+        function ahoraCancun() {
+            const zona = { timeZone: 'America/Cancun' };
+            const fecha = new Intl.DateTimeFormat('en-CA', zona).format(new Date());
+            const hora = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'America/Cancun', hour: '2-digit',
+                minute: '2-digit', hourCycle: 'h23'
+            }).format(new Date());
+            return { fecha: fecha, hora: hora };
+        }
+
+        /* Crea los botones de hora dentro de "lista"; devuelve cuántos siguen activos */
+        function chips(d, lista) {
+            const horarios = (d.horarios || '').split(',').filter(Boolean);
+            const ahora = ahoraCancun();
+            let activos = 0;
+
+            horarios.forEach(function (h) {
+                const pasada = h <= ahora.hora;
+                const chip = document.createElement(pasada ? 'span' : 'a');
+                chip.className = 'cine-funcion' + (pasada ? ' pasada' : '');
+                chip.textContent = h;
+
+                if (pasada) {
+                    chip.setAttribute('aria-disabled', 'true');
+                    chip.title = 'Esta función ya pasó';
+                } else {
+                    chip.href = d.comprar + '?fecha=' + ahora.fecha +
+                                '&horario=' + encodeURIComponent(h);
+                    activos++;
+                }
+
+                lista.appendChild(chip);
+            });
+
+            return activos;
+        }
+
         function abrir(tarjeta) {
             const d = tarjeta.dataset;
             const agotada = d.estado === 'agotado';
@@ -787,6 +835,118 @@
             marco.innerHTML = '';   /* detiene el video */
             trailerModal.classList.remove('abierto');
         }
+
+        /* =========================================
+           VISTA "HORARIOS" (como Cinépolis)
+           ========================================= */
+        const vistaCartelera = el('vistaCartelera');
+        const vistaHorarios = el('vistaHorarios');
+
+        function nodo(tag, clase, texto) {
+            const n = document.createElement(tag);
+            if (clase) n.className = clase;
+            if (texto) n.textContent = texto;
+            return n;
+        }
+
+        function duracionTexto(min) {
+            const m = parseInt(min, 10);
+            if (!m) return '';
+            const h = Math.floor(m / 60);
+            const r = m % 60;
+            return (h ? h + 'h ' : '') + (r ? r + 'm' : '').trim();
+        }
+
+        function construirHorarios() {
+            vistaHorarios.innerHTML = '';
+
+            Array.from(grid.querySelectorAll('.cine-movie-card')).forEach(function (tarjeta) {
+                const d = tarjeta.dataset;
+                const agotada = d.estado === 'agotado';
+                const hayHorarios = (d.horarios || '').split(',').filter(Boolean).length > 0;
+
+                const fila = nodo('article', 'cine-hor-fila');
+
+                /* Póster: al tocarlo abre el detalle (comprar + tráiler) */
+                const botonPoster = nodo('button', 'cine-hor-poster');
+                botonPoster.type = 'button';
+                botonPoster.setAttribute('aria-label', 'Ver detalles de ' + d.titulo);
+                const img = document.createElement('img');
+                img.src = d.poster;
+                img.alt = 'Póster de ' + d.titulo;
+                img.loading = 'lazy';
+                botonPoster.appendChild(img);
+                botonPoster.addEventListener('click', function () { abrir(tarjeta); });
+
+                const info = nodo('div', 'cine-hor-info');
+                info.appendChild(nodo('h3', '', d.titulo));
+
+                /* Clasificación • duración • estado • género */
+                const meta = nodo('p', 'cine-hor-meta');
+                const clasif = tarjeta.querySelector('.cine-clasif');
+                const partes = [];
+
+                if (clasif) partes.push(nodo('span', 'cine-hor-clasif', clasif.textContent.trim()));
+                if (duracionTexto(d.duracion)) partes.push(nodo('span', '', duracionTexto(d.duracion)));
+                partes.push(nodo('span', 'cine-hor-estado' + (agotada ? ' agotado' : ''),
+                                 agotada ? 'Agotado' : 'Disponible'));
+                if (d.categoria) partes.push(nodo('span', '', d.categoria));
+
+                partes.forEach(function (parte, i) {
+                    if (i > 0) meta.appendChild(nodo('span', 'cine-hor-punto', '•'));
+                    meta.appendChild(parte);
+                });
+                info.appendChild(meta);
+
+                /* Funciones disponibles */
+                const funciones = nodo('div', 'cine-hor-funciones');
+                funciones.appendChild(nodo('h4', '', 'Funciones disponibles'));
+
+                if (agotada || !hayHorarios) {
+                    funciones.appendChild(nodo('p', 'cine-hor-vacio',
+                        agotada ? 'Sin funciones disponibles por ahora.'
+                                : 'Aún no hay horarios para esta película.'));
+                } else {
+                    const lista = nodo('div', 'cine-funciones-lista');
+                    const activos = chips(d, lista);
+                    funciones.appendChild(lista);
+
+                    if (!activos) {
+                        funciones.appendChild(nodo('p', 'cine-hor-vacio',
+                            'Ya no hay más funciones hoy.'));
+                    }
+                }
+                info.appendChild(funciones);
+
+                const mas = nodo('button', 'cine-hor-mas', 'Comprar boletos o ver tráiler →');
+                mas.type = 'button';
+                mas.addEventListener('click', function () { abrir(tarjeta); });
+                info.appendChild(mas);
+
+                fila.appendChild(botonPoster);
+                fila.appendChild(info);
+                vistaHorarios.appendChild(fila);
+            });
+        }
+
+        function cambiarVista(vista) {
+            const horarios = vista === 'horarios';
+
+            document.querySelectorAll('.cine-tab').forEach(function (tab) {
+                const activa = tab.dataset.vista === vista;
+                tab.classList.toggle('on', activa);
+                tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+            });
+
+            if (horarios) construirHorarios();   /* se recalcula con la hora actual */
+
+            vistaCartelera.hidden = horarios;
+            vistaHorarios.hidden = !horarios;
+        }
+
+        document.querySelectorAll('.cine-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () { cambiarVista(tab.dataset.vista); });
+        });
 
         grid.addEventListener('click', function (e) {
             const poster = e.target.closest('.cine-movie-open');
